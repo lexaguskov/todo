@@ -1,62 +1,91 @@
 import "./App.css";
-import { Tree, Card, Space, Button } from 'antd';
+import { Tree, Card, Space, Button, Input } from 'antd';
 import type { DataNode, TreeProps } from 'antd/es/tree';
 import { PlusOutlined } from '@ant-design/icons';
+import { ChangeEvent, MouseEvent, useState } from "react";
 
-const treeData: DataNode[] = [
-  {
-    title: 'parent 1',
-    key: '0-0',
-    children: [
-      {
-        title: 'parent 1-0',
-        key: '0-0-0',
-        disabled: true,
-        children: [
-          {
-            title: 'leaf',
-            key: '0-0-0-0',
-            disableCheckbox: true,
-          },
-          {
-            title: 'leaf',
-            key: '0-0-0-1',
-          },
-        ],
-      },
-      {
-        title: 'parent 1-1',
-        key: '0-0-1',
-        children: [{ title: <span style={{ color: '#1677ff' }}>sss</span>, key: '0-0-1-0' }],
-      },
-    ],
-  },
-];
+// TODO: publish app somewhere
+// TODO: tf for server
 
+// const treeData: DataNode[] = [
+//   {
+//     title: 'parent 1',
+//     key: '0-0',
+//     children: [
+//       {
+//         title: 'parent 1-0',
+//         key: '0-0-0',
+//         disabled: true,
+//         children: [
+//           {
+//             title: 'leaf',
+//             key: '0-0-0-0',
+//             disableCheckbox: true,
+//           },
+//           {
+//             title: 'leaf',
+//             key: '0-0-0-1',
+//           },
+//         ],
+//       },
+//       {
+//         title: 'parent 1-1',
+//         key: '0-0-1',
+//         children: [{ title: <span style={{ color: '#1677ff' }}>sss</span>, key: '0-0-1-0' }],
+//       },
+//     ],
+//   },
+// ];
+
+const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
 function App() {
-  const onSelect: TreeProps['onSelect'] = (selectedKeys, info) => {
-    console.log('selected', selectedKeys, info);
+  const [data, setData] = useState<DataNode[]>([]);
+  const [edit, setEdit] = useState<DataNode | null>(null);
+
+  const onSelect = (e: MouseEvent<HTMLElement>, info: DataNode) => {
+    e.stopPropagation();
+    // console.log('selected', selectedKeys, info);
+    const found = data.find(d => d.key === info.key);
+    if (found) setEdit(found);
   };
 
   const onCheck: TreeProps['onCheck'] = (checkedKeys, info) => {
     console.log('onCheck', checkedKeys, info);
   };
 
+  const onNewDataClick = (e: MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    const entry = { key: id(), title: '' };
+    setEdit(entry);
+    setData(data => [...data, entry]);
+  }
+
+  const onEditChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!edit) return;
+    edit.title = e.target.value;
+    setData(data => [...data]);
+  }
+
+  const onEditPressEnter = () => {
+    setEdit(null);
+  }
+
+  const renderItem = (node: DataNode) => node === edit ? <Input bordered={false} style={{ padding: 0 }} autoFocus value={node.title as string} onAbort={onEditPressEnter} onChange={onEditChange} onPressEnter={onEditPressEnter} /> : <>{node.title}</>
+
   return (
-    <Space style={{ width: '100vw', height: '100vh', alignItems: 'center', justifyContent: 'center' }} align="center" >
-      <Card title="Default size card" extra={"some text here"} style={{ width: 300 }}>
+    <Space style={{ width: '100vw', height: '100vh', alignItems: 'center', justifyContent: 'center' }} align="center" onClick={onEditPressEnter}>
+      <Card title="Default size card" extra={"some text here"} style={{ width: 300 }} onClick={onEditPressEnter}>
         <Tree
+          selectable={false}
           checkable
-          defaultExpandedKeys={['0-0-0', '0-0-1']}
-          defaultSelectedKeys={['0-0-0', '0-0-1']}
-          defaultCheckedKeys={['0-0-0', '0-0-1']}
-          onSelect={onSelect}
+          onClick={onSelect}
           onCheck={onCheck}
-          treeData={treeData}
+          treeData={data}
           draggable
+          titleRender={renderItem}
         />
-        <Button type="link" icon={<PlusOutlined />}>new entry</Button>
+        {(edit && edit.title === '') ? null : <Button onClick={onNewDataClick} type="link" icon={<PlusOutlined />}>new entry</Button>}
       </Card>
     </Space>
   );

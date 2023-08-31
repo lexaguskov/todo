@@ -1,25 +1,58 @@
-import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
+import { Tree } from 'antd';
+import type { DataNode, TreeProps } from 'antd/es/tree';
+
+
+const treeData: DataNode[] = [
+  {
+    title: 'parent 1',
+    key: '0-0',
+    children: [
+      {
+        title: 'parent 1-0',
+        key: '0-0-0',
+        disabled: true,
+        children: [
+          {
+            title: 'leaf',
+            key: '0-0-0-0',
+            disableCheckbox: true,
+          },
+          {
+            title: 'leaf',
+            key: '0-0-0-1',
+          },
+        ],
+      },
+      {
+        title: 'parent 1-1',
+        key: '0-0-1',
+        children: [{ title: <span style={{ color: '#1677ff' }}>sss</span>, key: '0-0-1-0' }],
+      },
+    ],
+  },
+];
 
 function App() {
+  const onSelect: TreeProps['onSelect'] = (selectedKeys, info) => {
+    console.log('selected', selectedKeys, info);
+  };
+
+  const onCheck: TreeProps['onCheck'] = (checkedKeys, info) => {
+    console.log('onCheck', checkedKeys, info);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Tree
+      checkable
+      defaultExpandedKeys={['0-0-0', '0-0-1']}
+      defaultSelectedKeys={['0-0-0', '0-0-1']}
+      defaultCheckedKeys={['0-0-0', '0-0-1']}
+      onSelect={onSelect}
+      onCheck={onCheck}
+      treeData={treeData}
+      draggable
+    />
   );
 }
 

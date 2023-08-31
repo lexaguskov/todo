@@ -1,46 +1,49 @@
-# Getting Started with Create React App
+## User Stories to Consider/Implement
+● ⚠️ (required): I as a user can create to-do items, such as a grocery list.
+● ⚠️ (required): I as another user can collaborate in real-time with user - so that we
+can (for example) edit our family shopping-list together.
+● I as a user can mark to-do items as “done” - so that I can avoid clutter and focus on
+things that are still pending.
+● I as a user can filter the to-do list and view items that were marked as done - so that I
+can retrospect on my prior progress.
+● I as a user can add sub-tasks to my to-do items - so that I could make logical groups
+of tasks and see their overall progress.
+● I as a user can specify cost/price for a task or a subtask - so that I can track my
+expenses / project cost.
+● I as a user can see the sum of the subtasks aggregated in the parent task - so that in
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+my shopping list I can see what contributes to the overall sum. For example I can
+have a task called “Salad”, where I'd add all ingredients as sub-tasks, and would see
+how much a salad costs on my shopping list.
+● I as a user can make infinite nested levels of subtasks.
+● I as a user can add sub-descriptions of tasks in Markdown and view them as rich
+text while I'm not editing the descriptions.
+● I as a user can see the cursor and/or selection of another-user as he selects/types
+when he is editing text - so that we can discuss focused words during our online call.
+● I as a user can create multiple to-do lists where each list has its unique URL that I
+can share with my friends - so that I could have separate to-do lists for my groceries
+and work related tasks.
+● In addition to regular to-do tasks, I as a user can add “special” typed to-do items, that
+will have custom style and some required fields:
+○ ”work-task”, which has a required field “deadline” - which is a date
+○ “food” that has fields:
+■ required: “carbohydrate”, “fat”, “protein” (each specified in g/100g)
+■ optional: “picture” an URL to an image used to render this item
 
-## Available Scripts
+● I as a user can keep editing the list even when I lose internet connection, and can
+expect it to sync up with BE as I regain connection
+● I as a user can use my VR goggles to edit/browse multiple to-do lists in parallel in 3D
+space so that I can feel ultra-productive
+● I as a user can change the order of tasks via drag & drop
+● I as a user can move/convert subtasks to tasks via drag & drop
+● I as a user can be sure that my todos will be persisted so that important information
+is not lost when server restarts
+● I as an owner/creator of a certain to-do list can freeze/unfreeze a to-do list I've
+created to avoid other users from mutating it
+Notes
+● Preferably send a link to a hosted/running application and to the repository where
 
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+the source code is available.
+● Please unpublish or mark the repository as private after it has been reviewed.
+● In the README.md of your submission please list the stories you've chosen to
+implement. Your own ideas for stories will be appreciated too.

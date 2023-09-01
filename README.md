@@ -1,10 +1,10 @@
 ## User Stories to Consider/Implement
-● ⚠️ (required): I as a user can create to-do items, such as a grocery list.
+DONE - ⚠️ (required): I as a user can create to-do items, such as a grocery list.
 
-● ⚠️ (required): I as another user can collaborate in real-time with user - so that we
+DONE - ⚠️ (required): I as another user can collaborate in real-time with user - so that we
 can (for example) edit our family shopping-list together.
 
-● I as a user can mark to-do items as “done” - so that I can avoid clutter and focus on
+DONE - I as a user can mark to-do items as “done” - so that I can avoid clutter and focus on
 things that are still pending.
 
 ● I as a user can filter the to-do list and view items that were marked as done - so that I
@@ -26,10 +26,10 @@ how much a salad costs on my shopping list.
 ● I as a user can add sub-descriptions of tasks in Markdown and view them as rich
 text while I'm not editing the descriptions.
 
-● I as a user can see the cursor and/or selection of another-user as he selects/types
+DONE - I as a user can see the cursor and/or selection of another-user as he selects/types
 when he is editing text - so that we can discuss focused words during our online call.
 
-● I as a user can create multiple to-do lists where each list has its unique URL that I
+DONE - I as a user can create multiple to-do lists where each list has its unique URL that I
 can share with my friends - so that I could have separate to-do lists for my groceries
 and work related tasks.
 

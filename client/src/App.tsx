@@ -70,10 +70,6 @@ function App() {
   };
 
   const onSetTitle = (listKey: string, title: string, emit: boolean = true) => {
-    // if (title === '' && list.entries.length === 0) {
-    //   setLists(lists => lists.filter(l => l !== list));
-    //   return;
-    // }
     console.log('editing title for list', listKey, title)
     emit && socket.emit("edit", { type: "list.title", title, listKey });
     setLists((lists) => lists.map((l) => (l.key === listKey ? { ...l, title } : l)));
@@ -209,7 +205,7 @@ function App() {
     >
       {lists.map((list) => (
         <TodoList
-          titleSelect={Object.values(selects).find(s => s.listKey === list.key)}
+          titleSelect={Object.values(selects).filter(s => s.listKey === list.key && s.name !== myName && s.start >= 0 && s.end >= 0)}
           key={list.key}
           onDeleteListClick={() => onDeleteListClick(list.key)}
           onChangeTitle={(val) => onSetTitle(list.key, val)}
@@ -228,6 +224,8 @@ function App() {
     </Space>
   );
 }
+
+const custorColors = ['lightblue', 'lightgreen', 'lightcoral', 'lightpink', 'lightsalmon', 'lightskyblue', 'lightsteelblue'];
 
 const TodoList = ({
   title,
@@ -250,7 +248,7 @@ const TodoList = ({
   onCheck: (checked: boolean, key: string) => void;
   onChangeItem: (val: string, key: string) => void;
   onSelectTitle: (start: number, end: number) => void;
-  titleSelect?: Select,
+  titleSelect: Select[],
 }) => {
   const onEditPressEnter = (e: KeyboardEvent<HTMLInputElement>, node: Node) => {
     const input = e.target as HTMLInputElement;
@@ -287,15 +285,17 @@ const TodoList = ({
       hoverable
       bodyStyle={{ paddingRight: 12 }}
     >
-      {/* <Typography.Title style={{ marginTop: 0 }} level={4} >{title}</Typography.Title> */}
       <Row>
         <>
-          {console.log('se', titleSelect)}
-          {titleSelect && titleSelect.start >= 0 && titleSelect.end >= 0 && <div style={{ position: 'absolute', fontSize: 20, fontWeight: 500 }}>
-            {title.substring(0, titleSelect.start)}
-            <Mark>{title.substring(titleSelect.start, titleSelect.end)}</Mark><Pin><Name>{titleSelect.name}</Name></Pin>
-            {title.substring(titleSelect.end)}
-          </div>}
+          {titleSelect.map((select, i) => (
+            <div key={select.name} style={{ position: 'absolute', fontSize: 20, fontWeight: 500 }}>
+              {title.substring(0, select.start)}
+              <Mark color={custorColors[i]}>{title.substring(select.start, select.end)}</Mark>
+              <Pin color={custorColors[i]}>
+                <Name color={custorColors[i]}>{select.name}</Name></Pin>
+              {title.substring(select.end)}
+            </div>
+          ))}
           <HeaderInput
             placeholder="Add title"
             value={title}
@@ -393,13 +393,13 @@ const Row = styled.div`
 
 const Mark = styled.mark`
 border-radius: 2px;
-background-color: lightblue;
+background-color: ${p => p.color};
 `;
 
 const Pin = styled.span`
 display: inline-block;
     width: 4px;
-    background: lightblue;
+    background: ${p => p.color};
     height: 1em;
     position: absolute;
     height: 100%;
@@ -411,9 +411,9 @@ const Name = styled.sup`
   margin-bottom: 1em;
   position: absolute;
   width: 200px;
-  /* margin-left: 5px; */
   bottom: 2em;
-  color: lightblue;
+  color: ${p => p.color};
+  background: white;
 `;
 
 export default App;

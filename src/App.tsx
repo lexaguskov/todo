@@ -66,11 +66,11 @@ function App() {
           titleRender={renderItem}
         /> */}
         {data.map(node => (
-          <div style={{ width: '100%', display: 'flex', gap: 8 }} >
+          <Row>
             <Checkbox checked={node.checked} onChange={(e) => onChecked(e.target.checked, node)} />
             <Input style={{ paddingLeft: 0, flex: 1 }} key={node.key} bordered={false} autoFocus value={node.title as string} onChange={(e) => onEditChange(e.target.value, node)} onPressEnter={(e) => onEditPressEnter(e, node)} onBlur={onEditBlur} />
             {node.title && <DeleteButton type="link" icon={<CloseOutlined />} onClick={() => onDeleteClick(node)} />}
-          </div>)
+          </Row>)
         )}
         {showAddButton && <Button onClick={onNewDataClick} style={{ padding: 0 }} type="link" icon={<PlusOutlined />}>new entry</Button>}
       </Card>
@@ -80,8 +80,17 @@ function App() {
 
 const DeleteButton = styled(Button)`
 opacity: 0;
-&:hover {
-  opacity: 1;
-}`;
+`;
+
+const Row = styled.div`
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  &:hover ${DeleteButton} {
+    opacity: 1;
+  }
+`;
+
+
 
 export default App;

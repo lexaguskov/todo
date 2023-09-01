@@ -5,7 +5,6 @@ import { KeyboardEvent, MouseEvent, FocusEvent } from "react";
 import { usePersistedState } from "./usePersistedState";
 import { styled } from "styled-components";
 import io from "socket.io-client";
-// TODO: rewrite as a plain input
 // TODO: publish app somewhere
 // TODO: tf for server
 
@@ -19,6 +18,20 @@ type Node = {
   key: string;
   checked: boolean;
 };
+
+const socket = io('http://localhost:3001');
+socket.on("connect", () => {
+  console.log("connected");
+});
+socket.on("disconnect", () => {
+  console.log("disconnected");
+});
+socket.on("message", (data) => {
+  console.log(data);
+});
+socket.on("error", (err) => {
+
+});
 
 const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
@@ -41,11 +54,64 @@ function App() {
     //   setLists(lists => lists.filter(l => l !== list));
     //   return;
     // }
+    socket.emit("edit", { type: 'list.title', title, key: list.key });
     setLists((lists) => lists.map((l) => (l === list ? { ...l, title } : l)));
   };
 
   const onDeleteListClick = (list: List) => {
+    socket.emit("edit", { type: 'list.delete', key: list.key });
     setLists((lists) => lists.filter((l) => l !== list));
+  };
+
+  const onDeleteItem = (list: List, key: string) => {
+    socket.emit("edit", { type: 'list.item.delete', key: list.key, itemKey: key });
+    setLists((lists) =>
+      lists.map((l) =>
+        l === list ? { ...l, entries: l.entries.filter((e) => e.key !== key) } : l,
+      ),
+    );
+  };
+
+  const onCheck = (list: List, checked: boolean, key: string) => {
+    socket.emit("edit", { type: 'list.item.check', key: list.key, itemKey: key, checked });
+    setLists((lists) =>
+
+      lists.map((l) =>
+        l === list
+          ? {
+            ...l,
+            entries: l.entries.map((e) =>
+              e.key === key ? { ...e, checked } : e,
+            ),
+          } : l,
+      ),
+    );
+  };
+
+  const onAddItem = (list: List) => {
+    socket.emit("edit", { type: 'list.item.add', key: list.key });
+    const newItem: Node = { key: id(), title: "", checked: false };
+    setLists((lists) =>
+      lists.map((l) =>
+        l === list ? { ...l, entries: [...l.entries, newItem] } : l,
+      ),
+    );
+  };
+
+  const onChangeItem = (list: List, val: string, key: string) => {
+    socket.emit("edit", { type: 'list.item.title', key: list.key, itemKey: key, title: val });
+    setLists((lists) =>
+
+      lists.map((l) =>
+        l === list
+          ? {
+            ...l,
+            entries: l.entries.map((e) =>
+              e.key === key ? { ...e, title: val } : e,
+            ),
+          } : l,
+      ),
+    );
   };
 
   return (
@@ -66,7 +132,10 @@ function App() {
           onChangeTitle={(val) => onSetTitle(list, val)}
           title={list.title}
           data={list.entries}
-          onSetData={(e) => onSetData(list, e)}
+          onDeleteItem={(key) => onDeleteItem(list, key)}
+          onCheck={(val, key) => onCheck(list, val, key)}
+          onAddItem={() => onAddItem(list)}
+          onChangeItem={(val, key) => onChangeItem(list, val, key)} // TODO: debounce
         />
       ))}
       <Card style={{ width: 300 }} hoverable onClick={onCreateListClick}>
@@ -80,49 +149,36 @@ const TodoList = ({
   title,
   onChangeTitle,
   data,
-  onSetData,
   onDeleteListClick,
+  onDeleteItem,
+  onCheck,
+  onAddItem,
+  onChangeItem,
 }: {
   onDeleteListClick: () => void;
   onChangeTitle: (val: string) => void;
   title: string;
   data: Node[];
-  onSetData: (data: Node[]) => void;
+  onDeleteItem: (key: string) => void;
+  onAddItem: () => void;
+  onCheck: (checked: boolean, key: string) => void;
+  onChangeItem: (val: string, key: string) => void;
 }) => {
-  // const [data, setData] = usePersistedState<Node[]>('data', []);
-
-  const onNewDataClick = (e: MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
-    const entry = { key: id(), title: "", checked: false };
-    onSetData([...data, entry]);
-  };
-
-  const onEditChange = (value: string, node: Node) => {
-    node.title = value;
-    onSetData([...data]);
-  };
-
-  const onChecked = (value: boolean, node: Node) => {
-    node.checked = value;
-    onSetData([...data]);
-  };
-
   const onEditPressEnter = (e: KeyboardEvent<HTMLInputElement>, node: Node) => {
     const input = e.target as HTMLInputElement;
     input.blur();
     if (data.length && data[data.length - 1] === node) {
-      onNewDataClick({ stopPropagation: () => { } } as MouseEvent<HTMLElement>);
+      onAddItem();
     }
-  };
-
-  const onDeleteClick = (e: Node) => {
-    onSetData(data.filter((d) => d !== e));
   };
 
   const showAddButton = !data.some((d) => d.title === "");
 
   const onEditBlur = () => {
-    onSetData(data.filter((d) => d.title !== ""));
+    // delete empty items from list
+    for (const d of data) {
+      if (d.title === "") onDeleteItem(d.key);
+    }
   };
 
   const onTitleEditBlur = (e: FocusEvent<HTMLInputElement>) => {
@@ -159,7 +215,7 @@ const TodoList = ({
           <Checkbox
             style={{ paddingRight: 8 }}
             checked={node.checked}
-            onChange={(e) => onChecked(e.target.checked, node)}
+            onChange={(e) => onCheck(e.target.checked, node.key)}
           />
           <Input
             style={{
@@ -172,7 +228,7 @@ const TodoList = ({
             bordered={false}
             autoFocus
             value={node.title as string}
-            onChange={(e) => onEditChange(e.target.value, node)}
+            onChange={(e) => onChangeItem(e.target.value, node.key)}
             onPressEnter={(e) => onEditPressEnter(e, node)}
             onBlur={onEditBlur}
           />
@@ -180,13 +236,13 @@ const TodoList = ({
             <DeleteButton
               type="link"
               icon={<CloseOutlined />}
-              onClick={() => onDeleteClick(node)}
+              onClick={() => onDeleteItem(node.key)}
             />
           )}
         </Row>
       ))}
       {showAddButton && (
-        <AddButton onClick={onNewDataClick} type="link" icon={<PlusOutlined />}>
+        <AddButton onClick={onAddItem} type="link" icon={<PlusOutlined />}>
           new entry
         </AddButton>
       )}
@@ -227,20 +283,6 @@ const Row = styled.div`
     opacity: 1;
   }
 `;
-
-const socket = io('http://localhost:3001');
-socket.on("connect", () => {
-  console.log("connected");
-});
-socket.on("disconnect", () => {
-  console.log("disconnected");
-});
-socket.on("message", (data) => {
-  console.log(data);
-});
-socket.on("error", (err) => {
-
-});
 
 // socket.connect();
 

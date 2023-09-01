@@ -23,10 +23,9 @@ app.use(express.static(path.join(__dirname, "public")));
 io.on("connection", (socket) => {
   console.log("connected");
 
-  // Handle custom events
-  socket.on('chat message', (message) => {
-    console.log(`Received message: ${message}`);
-    io.emit('chat message', message); // Broadcast the message to all connected clients
+  socket.on('edit', (message) => {
+    console.log('message', message);
+    io.emit('message', message); // Broadcast the message to all connected clients
   });
 
   socket.on('disconnect', () => {

@@ -241,13 +241,18 @@ const TodoList = ({
     >
       {/* <Typography.Title style={{ marginTop: 0 }} level={4} >{title}</Typography.Title> */}
       <Row>
-        <HeaderInput
-          placeholder="Add title"
-          value={title}
-          bordered={false}
-          onChange={(e) => onChangeTitle(e.target.value)}
-          onBlur={onTitleEditBlur}
-        />
+        <>
+          <div style={{ position: 'absolute', fontSize: 20, fontWeight: 500 }}>
+            {title.split(" ").map((word, n) => n % 2 ? (word) : <> <Mark>{word}</Mark><Pin><Name>Alexey Guskov</Name></Pin> </>)}
+          </div>
+          <HeaderInput
+            placeholder="Add title"
+            value={title}
+            bordered={false}
+            onChange={(e) => onChangeTitle(e.target.value)}
+            onBlur={onTitleEditBlur}
+          />
+        </>
         <Tooltip title="Delete list">
           <DeleteButton
             icon={<DeleteOutlined />}
@@ -328,6 +333,31 @@ const Row = styled.div`
   &:hover ${DeleteButton} {
     opacity: 1;
   }
+`;
+
+const Mark = styled.mark`
+border-radius: 2px;
+background-color: lightblue;
+`;
+
+const Pin = styled.span`
+display: inline-block;
+    width: 4px;
+    background: lightblue;
+    height: 1em;
+    position: absolute;
+    height: 100%;
+    border-radius: 2px;
+`
+
+const Name = styled.sup`
+  font-size: x-small;
+  margin-bottom: 1em;
+  position: absolute;
+  width: 200px;
+  /* margin-left: 5px; */
+  bottom: 2em;
+  color: lightblue;
 `;
 
 export default App;

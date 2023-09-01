@@ -1,12 +1,34 @@
 import "./App.css";
 import { Card, Space, Button, Input, Checkbox, Result, Tooltip } from "antd";
 import { PlusOutlined, CloseOutlined, DeleteOutlined } from "@ant-design/icons";
-import { KeyboardEvent, FocusEvent, useEffect } from "react";
+import { KeyboardEvent, FocusEvent, useEffect, useState } from "react";
 import { usePersistedState } from "./usePersistedState";
 import { styled } from "styled-components";
 import io from "socket.io-client";
 // TODO: publish app somewhere
 // TODO: tf for server
+
+const names = [
+  "Eric Cartman",
+  "Stan Marsh",
+  "Kyle Broflovski",
+  "Kenny McCormick",
+  "Butters Stotch",
+  "Wendy Testaburger",
+  "Bebe Stevens",
+  "Jimmy Valmer",
+  "Timmy Burch",
+  "Token Black",
+  "Clyde Donovan",
+  "Craig Tucker",
+  "Tweek Tweak",
+  "Heidi Turner",
+  "Bradley Biggle",
+  "Scott Malkinson",
+]
+
+const myId = Math.floor(Math.random() * names.length)
+const myName = names[myId];
 
 type List = {
   title: string;
@@ -18,6 +40,12 @@ type Node = {
   key: string;
   checked: boolean;
 };
+type Select = {
+  name: string;
+  listKey: string;
+  start: number;
+  end: number;
+}
 
 const socket = io("http://localhost:3001", {
   transports: ["websocket"],
@@ -123,7 +151,14 @@ function App() {
     );
   };
 
+  const [selects, setSelects] = useState<{ [name: string]: Select }>({});
+
   useEffect(() => {
+    socket.on("select", (msg) => {
+      console.log('select', msg);
+      setSelects(selects => ({ ...selects, [msg.name]: msg }));
+    });
+
     socket.on("edit", (msg) => {
       console.log('message', msg)
       if (msg.type === "list.title") {
@@ -157,6 +192,7 @@ function App() {
 
     return () => {
       socket.off("edit");
+      socket.off("select");
     }
   }, []);
 
@@ -173,6 +209,7 @@ function App() {
     >
       {lists.map((list) => (
         <TodoList
+          titleSelect={Object.values(selects).find(s => s.listKey === list.key)}
           key={list.key}
           onDeleteListClick={() => onDeleteListClick(list.key)}
           onChangeTitle={(val) => onSetTitle(list.key, val)}
@@ -182,6 +219,7 @@ function App() {
           onCheck={(val, key) => onCheck(list.key, val, key)}
           onAddItem={() => onAddItem(list.key, id())}
           onChangeItem={(val, key) => onChangeItem(list.key, val, key)} // TODO: debounce
+          onSelectTitle={(start, end) => socket.emit('select', { name: myName, listKey: list.key, start, end })}
         />
       ))}
       <Card style={{ width: 300 }} hoverable onClick={() => onCreateListClick(id())}>
@@ -200,6 +238,8 @@ const TodoList = ({
   onCheck,
   onAddItem,
   onChangeItem,
+  onSelectTitle,
+  titleSelect,
 }: {
   onDeleteListClick: () => void;
   onChangeTitle: (val: string) => void;
@@ -209,6 +249,8 @@ const TodoList = ({
   onAddItem: () => void;
   onCheck: (checked: boolean, key: string) => void;
   onChangeItem: (val: string, key: string) => void;
+  onSelectTitle: (start: number, end: number) => void;
+  titleSelect?: Select,
 }) => {
   const onEditPressEnter = (e: KeyboardEvent<HTMLInputElement>, node: Node) => {
     const input = e.target as HTMLInputElement;
@@ -231,7 +273,13 @@ const TodoList = ({
     if (e.target.value === "" && data.length === 0) {
       onDeleteListClick();
     }
+    onSelectTitle(-1, -1);
   };
+
+  const onHeaderSelect = (e: any) => {
+    const target = e.target as HTMLInputElement;
+    onSelectTitle(target.selectionStart || 0, target.selectionEnd || 0);
+  }
 
   return (
     <Container
@@ -242,15 +290,19 @@ const TodoList = ({
       {/* <Typography.Title style={{ marginTop: 0 }} level={4} >{title}</Typography.Title> */}
       <Row>
         <>
-          <div style={{ position: 'absolute', fontSize: 20, fontWeight: 500 }}>
-            {title.split(" ").map((word, n) => n % 2 ? (word) : <> <Mark>{word}</Mark><Pin><Name>Alexey Guskov</Name></Pin> </>)}
-          </div>
+          {console.log('se', titleSelect)}
+          {titleSelect && titleSelect.start >= 0 && titleSelect.end >= 0 && <div style={{ position: 'absolute', fontSize: 20, fontWeight: 500 }}>
+            {title.substring(0, titleSelect.start)}
+            <Mark>{title.substring(titleSelect.start, titleSelect.end)}</Mark><Pin><Name>{titleSelect.name}</Name></Pin>
+            {title.substring(titleSelect.end)}
+          </div>}
           <HeaderInput
             placeholder="Add title"
             value={title}
             bordered={false}
             onChange={(e) => onChangeTitle(e.target.value)}
             onBlur={onTitleEditBlur}
+            onSelect={onHeaderSelect}
           />
         </>
         <Tooltip title="Delete list">

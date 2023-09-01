@@ -1,7 +1,7 @@
 import "./App.css";
-import { Tree, Card, Space, Button, Input, Checkbox, Typography, Result } from 'antd';
-import { PlusOutlined, CloseOutlined, PlusCircleTwoTone } from '@ant-design/icons';
-import { KeyboardEvent, MouseEvent, useState } from "react";
+import { Card, Space, Button, Input, Checkbox, Result, Tooltip } from 'antd';
+import { PlusOutlined, CloseOutlined, PlusCircleTwoTone, DeleteOutlined } from '@ant-design/icons';
+import { KeyboardEvent, MouseEvent, FocusEvent } from "react";
 import { usePersistedState } from "./usePersistedState";
 import { styled } from "styled-components";
 // TODO: rewrite as a plain input
@@ -34,20 +34,28 @@ function App() {
   };
 
   const onSetTitle = (list: List, title: string) => {
+    // if (title === '' && list.entries.length === 0) {
+    //   setLists(lists => lists.filter(l => l !== list));
+    //   return;
+    // }
     setLists(lists => lists.map(l => l === list ? { ...l, title } : l));
   }
 
+  const onDeleteListClick = (list: List) => {
+    setLists(lists => lists.filter(l => l !== list));
+  }
+
   return (
-    <Space style={{ width: '100vw', height: '100vh', alignItems: 'center', justifyContent: 'center' }} align="center">
-      {lists.map(list => (<TodoList onChangeTitle={(val) => onSetTitle(list, val)} title={list.title} data={list.entries} onSetData={(e) => onSetData(list, e)} />))}
+    <Space style={{ padding: 64, minWidth: '100vw', height: '100vh', alignItems: 'center', justifyContent: 'center' }} align="center">
+      {lists.map(list => (<TodoList onDeleteListClick={() => onDeleteListClick(list)} onChangeTitle={(val) => onSetTitle(list, val)} title={list.title} data={list.entries} onSetData={(e) => onSetData(list, e)} />))}
       <Card style={{ width: 300 }} hoverable onClick={onCreateListClick}>
-        <Result icon={<PlusCircleTwoTone />} title="Create a new list" />
+        <Result icon={<PlusOutlined />} title="Create a new list" />
       </Card>
     </Space>
   );
 }
 
-const TodoList = ({ title, onChangeTitle, data, onSetData }: { onChangeTitle: (val: string) => void, title: string, data: Node[], onSetData: (data: Node[]) => void }) => {
+const TodoList = ({ title, onChangeTitle, data, onSetData, onDeleteListClick }: { onDeleteListClick: () => void, onChangeTitle: (val: string) => void, title: string, data: Node[], onSetData: (data: Node[]) => void }) => {
   // const [data, setData] = usePersistedState<Node[]>('data', []);
 
   const onNewDataClick = (e: MouseEvent<HTMLElement>) => {
@@ -84,10 +92,21 @@ const TodoList = ({ title, onChangeTitle, data, onSetData }: { onChangeTitle: (v
     onSetData(data.filter(d => d.title !== ''));
   }
 
+  const onTitleEditBlur = (e: FocusEvent<HTMLInputElement>) => {
+    if (e.target.value === '' && data.length === 0) {
+      onDeleteListClick();
+    }
+  }
+
   return (
     <Container style={{ width: 300, cursor: 'auto' }} hoverable bodyStyle={{ paddingRight: 12 }}>
       {/* <Typography.Title style={{ marginTop: 0 }} level={4} >{title}</Typography.Title> */}
-      <HeaderInput placeholder="Add title" value={title} bordered={false} onChange={(e) => onChangeTitle(e.target.value)} />
+      <Row>
+        <HeaderInput placeholder="Add title" value={title} bordered={false} onChange={(e) => onChangeTitle(e.target.value)} onBlur={onTitleEditBlur} />
+        <Tooltip title="Delete list">
+          <DeleteButton icon={<DeleteOutlined />} type="link" onClick={onDeleteListClick} />
+        </Tooltip>
+      </Row>
       {data.map(node => (
         <Row>
           <Checkbox style={{ paddingRight: 8 }} checked={node.checked} onChange={(e) => onChecked(e.target.checked, node)} />

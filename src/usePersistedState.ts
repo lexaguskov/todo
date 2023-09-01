@@ -1,7 +1,10 @@
 import local from "localforage";
 import { useEffect, useState } from "react";
 
-export function usePersistedState<T>(name: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+export function usePersistedState<T>(
+  name: string,
+  initial: T,
+): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [value, setValue] = useState<T>(initial);
 
   useEffect(() => {

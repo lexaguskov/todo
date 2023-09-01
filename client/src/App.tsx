@@ -268,13 +268,8 @@ const TodoList = ({
             checked={node.checked}
             onChange={(e) => onCheck(e.target.checked, node.key)}
           />
-          <Input
-            style={{
-              paddingLeft: 0,
-              paddingRight: 0,
-              flex: 1,
-              textOverflow: "ellipsis",
-            }}
+          <ItemInput
+            checked={node.checked}
             key={node.key}
             bordered={false}
             autoFocus
@@ -300,6 +295,15 @@ const TodoList = ({
     </Container>
   );
 };
+
+const ItemInput = styled(Input)`
+  padding-left: 0;
+  padding-right: 0;
+  flex: 1;
+  textOverflow: ellipsis;
+  text-decoration: ${p => p.checked ? 'line-through' : 'none'};
+  color: ${p => p.checked ? 'grey' : 'auto'};
+`;
 
 const AddButton = styled(Button)`
   padding: 0;

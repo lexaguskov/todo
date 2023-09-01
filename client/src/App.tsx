@@ -4,6 +4,7 @@ import { PlusOutlined, CloseOutlined, DeleteOutlined } from "@ant-design/icons";
 import { KeyboardEvent, MouseEvent, FocusEvent } from "react";
 import { usePersistedState } from "./usePersistedState";
 import { styled } from "styled-components";
+import io from "socket.io-client";
 // TODO: rewrite as a plain input
 // TODO: publish app somewhere
 // TODO: tf for server
@@ -60,6 +61,7 @@ function App() {
     >
       {lists.map((list) => (
         <TodoList
+          key={list.key}
           onDeleteListClick={() => onDeleteListClick(list)}
           onChangeTitle={(val) => onSetTitle(list, val)}
           title={list.title}
@@ -109,7 +111,7 @@ const TodoList = ({
     const input = e.target as HTMLInputElement;
     input.blur();
     if (data.length && data[data.length - 1] === node) {
-      onNewDataClick({ stopPropagation: () => {} } as MouseEvent<HTMLElement>);
+      onNewDataClick({ stopPropagation: () => { } } as MouseEvent<HTMLElement>);
     }
   };
 
@@ -153,7 +155,7 @@ const TodoList = ({
         </Tooltip>
       </Row>
       {data.map((node) => (
-        <Row>
+        <Row key={node.key}>
           <Checkbox
             style={{ paddingRight: 8 }}
             checked={node.checked}
@@ -225,5 +227,21 @@ const Row = styled.div`
     opacity: 1;
   }
 `;
+
+const socket = io('http://localhost:3001');
+socket.on("connect", () => {
+  console.log("connected");
+});
+socket.on("disconnect", () => {
+  console.log("disconnected");
+});
+socket.on("message", (data) => {
+  console.log(data);
+});
+socket.on("error", (err) => {
+
+});
+
+// socket.connect();
 
 export default App;

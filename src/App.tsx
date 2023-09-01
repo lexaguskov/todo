@@ -1,5 +1,5 @@
 import "./App.css";
-import { Tree, Card, Space, Button, Input, Checkbox } from 'antd';
+import { Tree, Card, Space, Button, Input, Checkbox, Typography } from 'antd';
 import { PlusOutlined, CloseOutlined } from '@ant-design/icons';
 import { KeyboardEvent, MouseEvent, useState } from "react";
 import { usePersistedState } from "./usePersistedState";
@@ -55,7 +55,8 @@ function App() {
 
   return (
     <Space style={{ width: '100vw', height: '100vh', alignItems: 'center', justifyContent: 'center' }} align="center">
-      <Card title="My todo list" extra={""} style={{ width: 300, cursor: 'auto' }} hoverable bodyStyle={{ paddingRight: 12 }}>
+      <Card extra={""} style={{ width: 300, cursor: 'auto' }} hoverable bodyStyle={{ paddingRight: 12 }}>
+        <Typography.Title style={{ marginTop: 0 }} level={4} >My todo list</Typography.Title>
         {/* <Tree
           selectable={false}
           checkable
@@ -67,8 +68,8 @@ function App() {
         /> */}
         {data.map(node => (
           <Row>
-            <Checkbox checked={node.checked} onChange={(e) => onChecked(e.target.checked, node)} />
-            <Input style={{ paddingLeft: 0, flex: 1 }} key={node.key} bordered={false} autoFocus value={node.title as string} onChange={(e) => onEditChange(e.target.value, node)} onPressEnter={(e) => onEditPressEnter(e, node)} onBlur={onEditBlur} />
+            <Checkbox style={{ paddingRight: 8 }} checked={node.checked} onChange={(e) => onChecked(e.target.checked, node)} />
+            <Input style={{ paddingLeft: 0, paddingRight: 0, flex: 1, textOverflow: 'ellipsis' }} key={node.key} bordered={false} autoFocus value={node.title as string} onChange={(e) => onEditChange(e.target.value, node)} onPressEnter={(e) => onEditPressEnter(e, node)} onBlur={onEditBlur} />
             {node.title && <DeleteButton type="link" icon={<CloseOutlined />} onClick={() => onDeleteClick(node)} />}
           </Row>)
         )}
@@ -85,7 +86,6 @@ opacity: 0;
 const Row = styled.div`
   width: 100%;
   display: flex;
-  gap: 8px;
   &:hover ${DeleteButton} {
     opacity: 1;
   }

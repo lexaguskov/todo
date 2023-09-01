@@ -19,7 +19,7 @@ type Node = {
   checked: boolean;
 };
 
-const socket = io('http://localhost:3001');
+const socket = io("http://localhost:3001");
 socket.on("connect", () => {
   console.log("connected");
 });
@@ -29,9 +29,7 @@ socket.on("disconnect", () => {
 socket.on("message", (data) => {
   console.log(data);
 });
-socket.on("error", (err) => {
-
-});
+socket.on("error", (err) => {});
 
 const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
@@ -54,42 +52,53 @@ function App() {
     //   setLists(lists => lists.filter(l => l !== list));
     //   return;
     // }
-    socket.emit("edit", { type: 'list.title', title, key: list.key });
+    socket.emit("edit", { type: "list.title", title, key: list.key });
     setLists((lists) => lists.map((l) => (l === list ? { ...l, title } : l)));
   };
 
   const onDeleteListClick = (list: List) => {
-    socket.emit("edit", { type: 'list.delete', key: list.key });
+    socket.emit("edit", { type: "list.delete", key: list.key });
     setLists((lists) => lists.filter((l) => l !== list));
   };
 
   const onDeleteItem = (list: List, key: string) => {
-    socket.emit("edit", { type: 'list.item.delete', key: list.key, itemKey: key });
+    socket.emit("edit", {
+      type: "list.item.delete",
+      key: list.key,
+      itemKey: key,
+    });
     setLists((lists) =>
       lists.map((l) =>
-        l === list ? { ...l, entries: l.entries.filter((e) => e.key !== key) } : l,
+        l === list
+          ? { ...l, entries: l.entries.filter((e) => e.key !== key) }
+          : l,
       ),
     );
   };
 
   const onCheck = (list: List, checked: boolean, key: string) => {
-    socket.emit("edit", { type: 'list.item.check', key: list.key, itemKey: key, checked });
+    socket.emit("edit", {
+      type: "list.item.check",
+      key: list.key,
+      itemKey: key,
+      checked,
+    });
     setLists((lists) =>
-
       lists.map((l) =>
         l === list
           ? {
-            ...l,
-            entries: l.entries.map((e) =>
-              e.key === key ? { ...e, checked } : e,
-            ),
-          } : l,
+              ...l,
+              entries: l.entries.map((e) =>
+                e.key === key ? { ...e, checked } : e,
+              ),
+            }
+          : l,
       ),
     );
   };
 
   const onAddItem = (list: List) => {
-    socket.emit("edit", { type: 'list.item.add', key: list.key });
+    socket.emit("edit", { type: "list.item.add", key: list.key });
     const newItem: Node = { key: id(), title: "", checked: false };
     setLists((lists) =>
       lists.map((l) =>
@@ -99,17 +108,22 @@ function App() {
   };
 
   const onChangeItem = (list: List, val: string, key: string) => {
-    socket.emit("edit", { type: 'list.item.title', key: list.key, itemKey: key, title: val });
+    socket.emit("edit", {
+      type: "list.item.title",
+      key: list.key,
+      itemKey: key,
+      title: val,
+    });
     setLists((lists) =>
-
       lists.map((l) =>
         l === list
           ? {
-            ...l,
-            entries: l.entries.map((e) =>
-              e.key === key ? { ...e, title: val } : e,
-            ),
-          } : l,
+              ...l,
+              entries: l.entries.map((e) =>
+                e.key === key ? { ...e, title: val } : e,
+              ),
+            }
+          : l,
       ),
     );
   };

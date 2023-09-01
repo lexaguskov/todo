@@ -3,6 +3,7 @@ import { Tree, Card, Space, Button, Input, Checkbox } from 'antd';
 import { PlusOutlined, CloseOutlined } from '@ant-design/icons';
 import { KeyboardEvent, MouseEvent, useState } from "react";
 import { usePersistedState } from "./usePersistedState";
+import { styled } from "styled-components";
 // TODO: rewrite as a plain input
 // TODO: publish app somewhere
 // TODO: tf for server
@@ -17,23 +18,10 @@ const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
 function App() {
   const [data, setData] = usePersistedState<Node[]>('data', []);
-  const [edit, setEdit] = useState<Node | null>(null);
-
-  const onSelect = (e: MouseEvent<HTMLElement>, info: Node) => {
-    e.stopPropagation();
-    // console.log('selected', selectedKeys, info);
-    const found = data.find(d => d.key === info.key);
-    if (found) setEdit(found);
-  };
-
-  // const onCheck: TreeProps['onCheck'] = (checkedKeys, info) => {
-  //   console.log('onCheck', checkedKeys, info);
-  // };
 
   const onNewDataClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     const entry = { key: id(), title: '', checked: false };
-    setEdit(entry);
     setData(data => [...data, entry]);
   }
 
@@ -47,15 +35,12 @@ function App() {
     setData(data => [...data]);
   }
 
-  const onEditPressEnter = (e: KeyboardEvent<HTMLInputElement>) => {
+  const onEditPressEnter = (e: KeyboardEvent<HTMLInputElement>, node: Node) => {
     const input = e.target as HTMLInputElement;
     input.blur();
-  }
-
-  // const renderItem = (node: Node) => node === edit ? <Input bordered={false} style={{ padding: 0 }} autoFocus value={node.title as string} onAbort={onEditPressEnter} onChange={onEditChange} onPressEnter={onEditPressEnter} /> : <>{node.title}</>
-
-  const onFocus = (e: Node) => {
-    setEdit(e);
+    if (data.length && data[data.length - 1] === node) {
+      onNewDataClick({ stopPropagation: () => { } } as MouseEvent<HTMLElement>);
+    }
   }
 
   const onDeleteClick = (e: Node) => {
@@ -63,6 +48,10 @@ function App() {
   }
 
   const showAddButton = !data.some(d => d.title === '');
+
+  const onEditBlur = () => {
+    setData(data => data.filter(d => d.title !== ''));
+  }
 
   return (
     <Space style={{ width: '100vw', height: '100vh', alignItems: 'center', justifyContent: 'center' }} align="center">
@@ -79,8 +68,8 @@ function App() {
         {data.map(node => (
           <div style={{ width: '100%', display: 'flex', gap: 8 }} >
             <Checkbox checked={node.checked} onChange={(e) => onChecked(e.target.checked, node)} />
-            <Input style={{ paddingLeft: 0, flex: 1 }} key={node.key} bordered={false} autoFocus value={node.title as string} onChange={(e) => onEditChange(e.target.value, node)} onPressEnter={onEditPressEnter} />
-            {node.title && <Button type="link" icon={<CloseOutlined />} onClick={() => onDeleteClick(node)}></Button>}
+            <Input style={{ paddingLeft: 0, flex: 1 }} key={node.key} bordered={false} autoFocus value={node.title as string} onChange={(e) => onEditChange(e.target.value, node)} onPressEnter={(e) => onEditPressEnter(e, node)} onBlur={onEditBlur} />
+            {node.title && <DeleteButton type="link" icon={<CloseOutlined />} onClick={() => onDeleteClick(node)} />}
           </div>)
         )}
         {showAddButton && <Button onClick={onNewDataClick} style={{ padding: 0 }} type="link" icon={<PlusOutlined />}>new entry</Button>}
@@ -88,5 +77,11 @@ function App() {
     </Space>
   );
 }
+
+const DeleteButton = styled(Button)`
+opacity: 0;
+&:hover {
+  opacity: 1;
+}`;
 
 export default App;

@@ -4,8 +4,7 @@
 
 - DONE: I as another user can collaborate in real-time with user - so that we
 can (for example) edit our family shopping-list together
-  - TODO: conflict resolution
-  - TODO: send current cursors to newly connected client
+  - TODO: expire old sessions
 
 - DONE: I as a user can mark to-do items as “done” - so that I can avoid clutter and focus on
 things that are still pending
@@ -19,9 +18,8 @@ and work related tasks.
 
 - DONE: I as a user can change the order of tasks via drag & drop
 
-- WIP: I as a user can keep editing the list even when I lose internet connection, and can
+- DONE: I as a user can keep editing the list even when I lose internet connection, and can
 expect it to sync up with BE as I regain connection
-  - TODO: sync
 
 - TODO: I as a user can filter the to-do list and view items that were marked as - DONE: so that I
 can retrospect on my prior progress.

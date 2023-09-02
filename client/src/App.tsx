@@ -410,7 +410,7 @@ const Name = styled.sup`
   font-size: x-small;
   margin-bottom: 1em;
   position: absolute;
-  width: 200px;
+  white-space: nowrap;
   bottom: 2em;
   color: ${p => p.color};
   background: white;

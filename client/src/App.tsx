@@ -156,6 +156,35 @@ function App() {
 
   const [selects, setSelects] = useState<{ [name: string]: Select }>({});
 
+  const onListItemReorder = (
+    listKey: string,
+    fromIndex: number,
+    toIndex: number,
+    emit: boolean = true,
+  ) => {
+    emit &&
+      socket.emit("edit", {
+        type: "list.item.reorder",
+        listKey,
+        fromIndex,
+        toIndex,
+      });
+    setLists((lists) =>
+      lists.map((l) =>
+        l.key === listKey
+          ? {
+            ...l,
+            entries: l.entries.map((e, i) => {
+              if (i === fromIndex) return l.entries[toIndex];
+              if (i === toIndex) return l.entries[fromIndex];
+              return e;
+            }),
+          }
+          : l,
+      ),
+    );
+  };
+
   useEffect(() => {
     socket.on("select", (msg) => {
       console.log("select", msg);
@@ -190,6 +219,10 @@ function App() {
 
       if (msg.type === "list.create") {
         onCreateListClick(msg.listKey, false);
+      }
+
+      if (msg.type === "list.item.reorder") {
+        onListItemReorder(msg.listKey, msg.fromIndex, msg.toIndex, false);
       }
     });
 
@@ -245,16 +278,9 @@ function App() {
               end,
             })
           }
-          onReorder={(fromIndex, toIndex) => {
-            const newList = [...list.entries];
-            const [removed] = newList.splice(fromIndex, 1);
-            newList.splice(toIndex, 0, removed);
-            setLists((lists) =>
-              lists.map((l) =>
-                l.key === list.key ? { ...l, entries: newList } : l,
-              ),
-            );
-          }}
+          onReorder={(fromIndex, toIndex) =>
+            onListItemReorder(list.key, fromIndex, toIndex)
+          }
         />
       ))}
       <Card

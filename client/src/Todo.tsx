@@ -1,11 +1,15 @@
 import styled from "styled-components";
 import { Button, Card, Checkbox, Input, Tooltip } from "antd";
-import { CloseOutlined, DeleteOutlined, PlusOutlined, HolderOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  HolderOutlined,
+} from "@ant-design/icons";
 import { FocusEvent, KeyboardEvent } from "react";
 import Cursor from "./Cursor";
 import { Node, Select } from "./types";
-import ReactDragListView from 'react-drag-listview';
-
+import ReactDragListView from "react-drag-listview";
 
 const cursorColors = [
   "lightblue",
@@ -46,7 +50,10 @@ const TodoList = ({
   onSelectItem: (start: number, end: number, key: string) => void;
   onReorder: (fromIndex: number, toIndex: number) => void;
 }) => {
-  const onEditPressEnter = (e: KeyboardEvent<HTMLInputElement>, key: string) => {
+  const onEditPressEnter = (
+    e: KeyboardEvent<HTMLInputElement>,
+    key: string,
+  ) => {
     const input = e.target as HTMLInputElement;
     input.blur();
     if (data.length && data[data.length - 1].key === key) {
@@ -82,8 +89,8 @@ const TodoList = ({
 
   const dragProps = {
     onDragEnd: onReorder,
-    nodeSelector: 'li',
-    handleSelector: 'a'
+    nodeSelector: "li",
+    handleSelector: "a",
   };
 
   return (
@@ -140,20 +147,30 @@ const TodoList = ({
   );
 };
 
-const Item = ({ node, onCheck, selects, onChange, onPressEnter, onBlur, onDelete, onSelect }:
-  {
-    node: Node,
-    onCheck: (checked: boolean, key: string) => void,
-    selects: Select[],
-    onChange: (val: string, key: string) => void,
-    onPressEnter: (e: KeyboardEvent<HTMLInputElement>, key: string) => void,
-    onBlur: () => void,
-    onDelete: (key: string) => void,
-    onSelect: (e: any, key: string) => void,
-  }) => {
+const Item = ({
+  node,
+  onCheck,
+  selects,
+  onChange,
+  onPressEnter,
+  onBlur,
+  onDelete,
+  onSelect,
+}: {
+  node: Node;
+  onCheck: (checked: boolean, key: string) => void;
+  selects: Select[];
+  onChange: (val: string, key: string) => void;
+  onPressEnter: (e: KeyboardEvent<HTMLInputElement>, key: string) => void;
+  onBlur: () => void;
+  onDelete: (key: string) => void;
+  onSelect: (e: any, key: string) => void;
+}) => {
   return (
     <Row key={node.key}>
-      <GrabIcon href="#"><HolderOutlined /></GrabIcon>
+      <GrabIcon href="#">
+        <HolderOutlined />
+      </GrabIcon>
       <Checkbox
         style={{ paddingRight: 8 }}
         checked={node.checked}
@@ -188,7 +205,8 @@ const Item = ({ node, onCheck, selects, onChange, onPressEnter, onBlur, onDelete
           onClick={() => onDelete(node.key)}
         />
       )}
-    </Row>)
+    </Row>
+  );
 };
 
 const ItemInput = styled(Input)`

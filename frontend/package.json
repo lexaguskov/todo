@@ -23,6 +23,7 @@
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4",
     "y-indexeddb": "^9.0.11",
+    "y-partykit": "^0.0.0-8193b4e",
     "y-webrtc": "^10.2.5",
     "y-websocket": "^1.5.0",
     "yjs": "^13.6.7"

@@ -4,10 +4,11 @@ import { PlusOutlined, UserOutlined } from "@ant-design/icons";
 import Todo from "./components/Todo";
 import { List, Select, Node } from "./types";
 import { styled } from "styled-components";
-import { WebrtcProvider } from "y-webrtc";
 import { syncedStore, getYjsDoc } from "@syncedstore/core";
 import { useSyncedStore } from "@syncedstore/react";
 import { useMemo } from "react";
+import YPartyKitProvider from "y-partykit/provider";
+import { IndexeddbPersistence } from "y-indexeddb";
 
 // TODO: publish app somewhere
 // TODO: tf for server
@@ -18,7 +19,13 @@ const store = syncedStore({
   lists: [] as List[],
 });
 const doc = getYjsDoc(store);
-new WebrtcProvider("lexaguskov.todo", doc);
+new YPartyKitProvider(
+  "blocknote-dev.yousefed.partykit.dev",
+  // use a unique name as a "room" for your application:
+  "lexaguskov.todo",
+  doc,
+);
+new IndexeddbPersistence("lexaguskov.todo", doc);
 
 const names = [
   "Eric Cartman",

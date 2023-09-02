@@ -2,11 +2,12 @@ import styled from "styled-components";
 import { Button, Card, Input, Tooltip } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { FocusEvent, KeyboardEvent } from "react";
-import Cursor from "./Cursor";
-import { Node, Select } from "../types";
 import ReactDragListView from "react-drag-listview";
-import { cursorColors } from "../lib";
+
+import Cursor from "./Cursor";
 import Item from "./Item";
+import { Node, Select } from "../types";
+import { cursorColors } from "../lib";
 
 const Todo = ({
   title,

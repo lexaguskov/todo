@@ -1,13 +1,13 @@
 import "./App.css";
 import { Card, Space, Result, Avatar, Typography } from "antd";
 import { PlusOutlined, UserOutlined } from "@ant-design/icons";
-import io from "socket.io-client";
 import Todo from "./components/Todo";
 import { List, Select, Node } from "./types";
 import { styled } from "styled-components";
 import { WebrtcProvider } from "y-webrtc";
 import { syncedStore, getYjsDoc } from "@syncedstore/core";
 import { useSyncedStore } from "@syncedstore/react";
+import { useMemo } from "react";
 
 // TODO: publish app somewhere
 // TODO: tf for server
@@ -92,8 +92,6 @@ function App() {
     }
   };
 
-  // const [selects, setSelects] = useState<{ [name: string]: Select }>({});
-
   const onListItemReorder = (
     listKey: string,
     fromIndex: number,
@@ -109,22 +107,21 @@ function App() {
     }
   };
 
+  const selects = useMemo<Select[]>(
+    () =>
+      Object.values(state.selections).filter(
+        (a) => a && a.name !== myName,
+      ) as Select[],
+    [state.selections],
+  );
+
   return (
     <>
       <Username>
         <Avatar size={32} style={{ margin: 6 }} icon={<UserOutlined />} />
         <Typography.Text>{myName}</Typography.Text>
       </Username>
-      <Space
-        style={{
-          padding: 64,
-          minWidth: "100vw",
-          height: "100vh",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        align="center"
-      >
+      <Container align="center">
         {state.lists.map((list) => (
           <Todo
             titleSelect={
@@ -137,11 +134,7 @@ function App() {
                   s.end >= 0,
               ) as Select[]
             }
-            selects={
-              Object.values(state.selections).filter(
-                (a) => a && a.name !== myName,
-              ) as Select[]
-            }
+            selects={selects}
             key={list.key}
             onDeleteListClick={() => onDeleteListClick(list.key)}
             onChangeTitle={(val) => onSetTitle(list.key, val)}
@@ -167,17 +160,25 @@ function App() {
             }
           />
         ))}
-        <Card
-          style={{ width: 300 }}
-          hoverable
-          onClick={() => onCreateListClick(id())}
-        >
+        <TodoCard hoverable onClick={() => onCreateListClick(id())}>
           <Result icon={<PlusOutlined />} title="Create a new list" />
-        </Card>
-      </Space>
+        </TodoCard>
+      </Container>
     </>
   );
 }
+
+const TodoCard = styled(Card)`
+  width: 300px;
+`;
+
+const Container = styled(Space)`
+  padding: 64px;
+  min-width: 100vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+`;
 
 const Username = styled.div`
   position: fixed;

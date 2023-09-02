@@ -1,11 +1,10 @@
 import { styled } from "styled-components";
-import { Select } from "../types";
 import { KeyboardEvent } from "react";
 import { CloseOutlined, HolderOutlined } from "@ant-design/icons";
-
-import { Node } from "../types";
 import { Button, Checkbox, Input } from "antd";
+
 import Cursor from "./Cursor";
+import { Node, Select } from "../types";
 import { cursorColors } from "../lib";
 
 const Item = ({

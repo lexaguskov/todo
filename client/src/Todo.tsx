@@ -77,11 +77,7 @@ const TodoList = ({
   };
 
   return (
-    <Container
-      style={{ width: 300, cursor: "auto" }}
-      hoverable
-      bodyStyle={{ paddingRight: 12 }}
-    >
+    <Container hoverable bodyStyle={{ paddingRight: 12 }}>
       <Row>
         <>
           {titleSelect.map((select, i) => (
@@ -116,7 +112,7 @@ const TodoList = ({
             checked={node.checked}
             onChange={(e) => onCheck(e.target.checked, node.key)}
           />
-          <div>
+          <div style={{ flex: 1 }}>
             {selects
               .filter((select) => select.key === node.key)
               .map((select, i) => (

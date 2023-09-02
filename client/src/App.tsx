@@ -7,8 +7,8 @@ import io from "socket.io-client";
 import Todo from "./components/Todo";
 import { List, Select, Node } from "./types";
 import { styled } from "styled-components";
-import * as Y from 'yjs';
-import { WebrtcProvider } from 'y-webrtc';
+import * as Y from "yjs";
+import { WebrtcProvider } from "y-webrtc";
 import { syncedStore, getYjsDoc } from "@syncedstore/core";
 import { useSyncedStore } from "@syncedstore/react";
 
@@ -20,7 +20,7 @@ import { useSyncedStore } from "@syncedstore/react";
 type Selections = { [user: string]: Select };
 const store = syncedStore({ selections: {} as Selections });
 const doc = getYjsDoc(store);
-new WebrtcProvider('lexaguskov.todo', doc);
+new WebrtcProvider("lexaguskov.todo", doc);
 
 const names = [
   "Eric Cartman",
@@ -53,7 +53,7 @@ socket.on("connect", () => {
 socket.on("disconnect", () => {
   console.log("disconnected");
 });
-socket.on("error", (err) => { });
+socket.on("error", (err) => {});
 
 const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
@@ -117,11 +117,11 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-            ...l,
-            entries: l.entries.map((e) =>
-              e.key === itemKey ? { ...e, checked } : e,
-            ),
-          }
+              ...l,
+              entries: l.entries.map((e) =>
+                e.key === itemKey ? { ...e, checked } : e,
+              ),
+            }
           : l,
       ),
     );
@@ -158,11 +158,11 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-            ...l,
-            entries: l.entries.map((e) =>
-              e.key === itemKey ? { ...e, title: val } : e,
-            ),
-          }
+              ...l,
+              entries: l.entries.map((e) =>
+                e.key === itemKey ? { ...e, title: val } : e,
+              ),
+            }
           : l,
       ),
     );
@@ -187,13 +187,13 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-            ...l,
-            entries: l.entries.map((e, i) => {
-              if (i === fromIndex) return l.entries[toIndex];
-              if (i === toIndex) return l.entries[fromIndex];
-              return e;
-            }),
-          }
+              ...l,
+              entries: l.entries.map((e, i) => {
+                if (i === fromIndex) return l.entries[toIndex];
+                if (i === toIndex) return l.entries[fromIndex];
+                return e;
+              }),
+            }
           : l,
       ),
     );
@@ -264,15 +264,19 @@ function App() {
       >
         {lists.map((list) => (
           <Todo
-            titleSelect={Object.values(state.selections).filter(
-              (s) =>
-                s &&
-                s.key === list.key &&
-                s.name !== myName &&
-                s.start >= 0 &&
-                s.end >= 0,
-            ) as Select[]}
-            selects={Object.values(state.selections).filter(a => a) as Select[]}
+            titleSelect={
+              Object.values(state.selections).filter(
+                (s) =>
+                  s &&
+                  s.key === list.key &&
+                  s.name !== myName &&
+                  s.start >= 0 &&
+                  s.end >= 0,
+              ) as Select[]
+            }
+            selects={
+              Object.values(state.selections).filter((a) => a) as Select[]
+            }
             key={list.key}
             onDeleteListClick={() => onDeleteListClick(list.key)}
             onChangeTitle={(val) => onSetTitle(list.key, val)}
@@ -283,10 +287,15 @@ function App() {
             onAddItem={() => onAddItem(list.key, id())}
             onChangeItem={(val, key) => onChangeItem(list.key, val, key)} // TODO: debounce
             onSelectTitle={(start, end) =>
-              state.selections[myName] = { name: myName, key: list.key, start, end }
+              (state.selections[myName] = {
+                name: myName,
+                key: list.key,
+                start,
+                end,
+              })
             }
             onSelectItem={(start, end, key) =>
-              state.selections[myName] = { name: myName, key, start, end }
+              (state.selections[myName] = { name: myName, key, start, end })
             }
             onReorder={(fromIndex, toIndex) =>
               onListItemReorder(list.key, fromIndex, toIndex)

@@ -1,12 +1,16 @@
 import "./App.css";
 import { Card, Space, Result, Avatar, Typography } from "antd";
 import { PlusOutlined, UserOutlined } from "@ant-design/icons";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePersistedState } from "./usePersistedState";
 import io from "socket.io-client";
 import Todo from "./components/Todo";
 import { List, Select, Node } from "./types";
 import { styled } from "styled-components";
+import * as Y from 'yjs';
+import { WebrtcProvider } from 'y-webrtc';
+// import { WebsocketProvider } from 'y-websocket';
+// import { IndexeddbPersistence } from 'y-indexeddb';
 // TODO: publish app somewhere
 // TODO: tf for server
 
@@ -41,11 +45,23 @@ socket.on("connect", () => {
 socket.on("disconnect", () => {
   console.log("disconnected");
 });
-socket.on("error", (err) => {});
+socket.on("error", (err) => { });
 
 const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
+const doc = new Y.Doc();
+new WebrtcProvider('lexaguskov.todo', doc);
+const selections = doc.getMap('selections');
+
 function App() {
+  useEffect(() => {
+    selections.observe(() => {
+
+      console.log('map is changed', selections.toJSON());
+    });
+  }, []);
+
+
   const [lists, setLists] = usePersistedState<List[]>("lists", []);
 
   const onCreateListClick = (listKey: string, emit: boolean = true) => {
@@ -104,11 +120,11 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-              ...l,
-              entries: l.entries.map((e) =>
-                e.key === itemKey ? { ...e, checked } : e,
-              ),
-            }
+            ...l,
+            entries: l.entries.map((e) =>
+              e.key === itemKey ? { ...e, checked } : e,
+            ),
+          }
           : l,
       ),
     );
@@ -145,11 +161,11 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-              ...l,
-              entries: l.entries.map((e) =>
-                e.key === itemKey ? { ...e, title: val } : e,
-              ),
-            }
+            ...l,
+            entries: l.entries.map((e) =>
+              e.key === itemKey ? { ...e, title: val } : e,
+            ),
+          }
           : l,
       ),
     );
@@ -174,23 +190,23 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-              ...l,
-              entries: l.entries.map((e, i) => {
-                if (i === fromIndex) return l.entries[toIndex];
-                if (i === toIndex) return l.entries[fromIndex];
-                return e;
-              }),
-            }
+            ...l,
+            entries: l.entries.map((e, i) => {
+              if (i === fromIndex) return l.entries[toIndex];
+              if (i === toIndex) return l.entries[fromIndex];
+              return e;
+            }),
+          }
           : l,
       ),
     );
   };
 
   useEffect(() => {
-    socket.on("select", (msg) => {
-      console.log("select", msg);
-      setSelects((selects) => ({ ...selects, [msg.name]: msg }));
-    });
+    // socket.on("select", (msg) => {
+    //   console.log("select", msg);
+    //   setSelects((selects) => ({ ...selects, [msg.name]: msg }));
+    // });
 
     socket.on("edit", (msg) => {
       console.log("message", msg);
@@ -229,7 +245,7 @@ function App() {
 
     return () => {
       socket.off("edit");
-      socket.off("select");
+      //socket.off("select");
     };
   }, []);
 
@@ -269,20 +285,10 @@ function App() {
             onAddItem={() => onAddItem(list.key, id())}
             onChangeItem={(val, key) => onChangeItem(list.key, val, key)} // TODO: debounce
             onSelectTitle={(start, end) =>
-              socket.emit("select", {
-                name: myName,
-                key: list.key,
-                start,
-                end,
-              })
+              selections.set(myName, { name: myName, key: list.key, start, end })
             }
             onSelectItem={(start, end, key) =>
-              socket.emit("select", {
-                name: myName,
-                key,
-                start,
-                end,
-              })
+              selections.set(myName, { name: myName, key, start, end })
             }
             onReorder={(fromIndex, toIndex) =>
               onListItemReorder(list.key, fromIndex, toIndex)

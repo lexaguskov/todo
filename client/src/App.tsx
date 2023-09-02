@@ -25,9 +25,9 @@ const names = [
   "Heidi Turner",
   "Bradley Biggle",
   "Scott Malkinson",
-]
+];
 
-const myId = Math.floor(Math.random() * names.length)
+const myId = Math.floor(Math.random() * names.length);
 const myName = names[myId];
 
 type List = {
@@ -45,7 +45,7 @@ type Select = {
   listKey: string;
   start: number;
   end: number;
-}
+};
 
 const socket = io("http://localhost:3001", {
   transports: ["websocket"],
@@ -56,7 +56,7 @@ socket.on("connect", () => {
 socket.on("disconnect", () => {
   console.log("disconnected");
 });
-socket.on("error", (err) => { });
+socket.on("error", (err) => {});
 
 const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
@@ -70,9 +70,11 @@ function App() {
   };
 
   const onSetTitle = (listKey: string, title: string, emit: boolean = true) => {
-    console.log('editing title for list', listKey, title)
+    console.log("editing title for list", listKey, title);
     emit && socket.emit("edit", { type: "list.title", title, listKey });
-    setLists((lists) => lists.map((l) => (l.key === listKey ? { ...l, title } : l)));
+    setLists((lists) =>
+      lists.map((l) => (l.key === listKey ? { ...l, title } : l)),
+    );
   };
 
   const onDeleteListClick = (listKey: string, emit: boolean = true) => {
@@ -80,12 +82,17 @@ function App() {
     setLists((lists) => lists.filter((l) => l.key !== listKey));
   };
 
-  const onDeleteItem = (listKey: string, itemKey: string, emit: boolean = true) => {
-    emit && socket.emit("edit", {
-      type: "list.item.delete",
-      listKey: listKey,
-      itemKey: itemKey,
-    });
+  const onDeleteItem = (
+    listKey: string,
+    itemKey: string,
+    emit: boolean = true,
+  ) => {
+    emit &&
+      socket.emit("edit", {
+        type: "list.item.delete",
+        listKey: listKey,
+        itemKey: itemKey,
+      });
     setLists((lists) =>
       lists.map((l) =>
         l.key === listKey
@@ -95,28 +102,38 @@ function App() {
     );
   };
 
-  const onCheck = (listKey: string, checked: boolean, itemKey: string, emit: boolean = true) => {
-    emit && socket.emit("edit", {
-      type: "list.item.check",
-      listKey,
-      itemKey,
-      checked,
-    });
+  const onCheck = (
+    listKey: string,
+    checked: boolean,
+    itemKey: string,
+    emit: boolean = true,
+  ) => {
+    emit &&
+      socket.emit("edit", {
+        type: "list.item.check",
+        listKey,
+        itemKey,
+        checked,
+      });
     setLists((lists) =>
       lists.map((l) =>
         l.key === listKey
           ? {
-            ...l,
-            entries: l.entries.map((e) =>
-              e.key === itemKey ? { ...e, checked } : e,
-            ),
-          }
+              ...l,
+              entries: l.entries.map((e) =>
+                e.key === itemKey ? { ...e, checked } : e,
+              ),
+            }
           : l,
       ),
     );
   };
 
-  const onAddItem = (listKey: string, itemKey: string, emit: boolean = true) => {
+  const onAddItem = (
+    listKey: string,
+    itemKey: string,
+    emit: boolean = true,
+  ) => {
     emit && socket.emit("edit", { type: "list.item.add", listKey, itemKey });
     const newItem: Node = { key: itemKey, title: "", checked: false };
     setLists((lists) =>
@@ -126,22 +143,28 @@ function App() {
     );
   };
 
-  const onChangeItem = (listKey: string, val: string, itemKey: string, emit: boolean = true) => {
-    emit && socket.emit("edit", {
-      type: "list.item.title",
-      listKey,
-      itemKey,
-      title: val,
-    });
+  const onChangeItem = (
+    listKey: string,
+    val: string,
+    itemKey: string,
+    emit: boolean = true,
+  ) => {
+    emit &&
+      socket.emit("edit", {
+        type: "list.item.title",
+        listKey,
+        itemKey,
+        title: val,
+      });
     setLists((lists) =>
       lists.map((l) =>
         l.key === listKey
           ? {
-            ...l,
-            entries: l.entries.map((e) =>
-              e.key === itemKey ? { ...e, title: val } : e,
-            ),
-          }
+              ...l,
+              entries: l.entries.map((e) =>
+                e.key === itemKey ? { ...e, title: val } : e,
+              ),
+            }
           : l,
       ),
     );
@@ -151,12 +174,12 @@ function App() {
 
   useEffect(() => {
     socket.on("select", (msg) => {
-      console.log('select', msg);
-      setSelects(selects => ({ ...selects, [msg.name]: msg }));
+      console.log("select", msg);
+      setSelects((selects) => ({ ...selects, [msg.name]: msg }));
     });
 
     socket.on("edit", (msg) => {
-      console.log('message', msg)
+      console.log("message", msg);
       if (msg.type === "list.title") {
         onSetTitle(msg.listKey, msg.title, false);
       }
@@ -189,7 +212,7 @@ function App() {
     return () => {
       socket.off("edit");
       socket.off("select");
-    }
+    };
   }, []);
 
   return (
@@ -205,7 +228,13 @@ function App() {
     >
       {lists.map((list) => (
         <TodoList
-          titleSelect={Object.values(selects).filter(s => s.listKey === list.key && s.name !== myName && s.start >= 0 && s.end >= 0)}
+          titleSelect={Object.values(selects).filter(
+            (s) =>
+              s.listKey === list.key &&
+              s.name !== myName &&
+              s.start >= 0 &&
+              s.end >= 0,
+          )}
           key={list.key}
           onDeleteListClick={() => onDeleteListClick(list.key)}
           onChangeTitle={(val) => onSetTitle(list.key, val)}
@@ -215,17 +244,36 @@ function App() {
           onCheck={(val, key) => onCheck(list.key, val, key)}
           onAddItem={() => onAddItem(list.key, id())}
           onChangeItem={(val, key) => onChangeItem(list.key, val, key)} // TODO: debounce
-          onSelectTitle={(start, end) => socket.emit('select', { name: myName, listKey: list.key, start, end })}
+          onSelectTitle={(start, end) =>
+            socket.emit("select", {
+              name: myName,
+              listKey: list.key,
+              start,
+              end,
+            })
+          }
         />
       ))}
-      <Card style={{ width: 300 }} hoverable onClick={() => onCreateListClick(id())}>
+      <Card
+        style={{ width: 300 }}
+        hoverable
+        onClick={() => onCreateListClick(id())}
+      >
         <Result icon={<PlusOutlined />} title="Create a new list" />
       </Card>
     </Space>
   );
 }
 
-const custorColors = ['lightblue', 'lightgreen', 'lightcoral', 'lightpink', 'lightsalmon', 'lightskyblue', 'lightsteelblue'];
+const custorColors = [
+  "lightblue",
+  "lightgreen",
+  "lightcoral",
+  "lightpink",
+  "lightsalmon",
+  "lightskyblue",
+  "lightsteelblue",
+];
 
 const TodoList = ({
   title,
@@ -248,7 +296,7 @@ const TodoList = ({
   onCheck: (checked: boolean, key: string) => void;
   onChangeItem: (val: string, key: string) => void;
   onSelectTitle: (start: number, end: number) => void;
-  titleSelect: Select[],
+  titleSelect: Select[];
 }) => {
   const onEditPressEnter = (e: KeyboardEvent<HTMLInputElement>, node: Node) => {
     const input = e.target as HTMLInputElement;
@@ -277,7 +325,7 @@ const TodoList = ({
   const onHeaderSelect = (e: any) => {
     const target = e.target as HTMLInputElement;
     onSelectTitle(target.selectionStart || 0, target.selectionEnd || 0);
-  }
+  };
 
   return (
     <Container
@@ -288,11 +336,17 @@ const TodoList = ({
       <Row>
         <>
           {titleSelect.map((select, i) => (
-            <div key={select.name} style={{ position: 'absolute', fontSize: 20, fontWeight: 500 }}>
+            <div
+              key={select.name}
+              style={{ position: "absolute", fontSize: 20, fontWeight: 500 }}
+            >
               {title.substring(0, select.start)}
-              <Mark color={custorColors[i]}>{title.substring(select.start, select.end)}</Mark>
+              <Mark color={custorColors[i]}>
+                {title.substring(select.start, select.end)}
+              </Mark>
               <Pin color={custorColors[i]}>
-                <Name color={custorColors[i]}>{select.name}</Name></Pin>
+                <Name color={custorColors[i]}>{select.name}</Name>
+              </Pin>
               {title.substring(select.end)}
             </div>
           ))}
@@ -352,9 +406,9 @@ const ItemInput = styled(Input)`
   padding-left: 0;
   padding-right: 0;
   flex: 1;
-  textOverflow: ellipsis;
-  text-decoration: ${p => p.checked ? 'line-through' : 'none'};
-  color: ${p => p.checked ? 'grey' : 'auto'};
+  textoverflow: ellipsis;
+  text-decoration: ${(p) => (p.checked ? "line-through" : "none")};
+  color: ${(p) => (p.checked ? "grey" : "auto")};
 `;
 
 const AddButton = styled(Button)`
@@ -392,19 +446,19 @@ const Row = styled.div`
 `;
 
 const Mark = styled.mark`
-border-radius: 2px;
-background-color: ${p => p.color};
+  border-radius: 2px;
+  background-color: ${(p) => p.color};
 `;
 
 const Pin = styled.span`
-display: inline-block;
-    width: 4px;
-    background: ${p => p.color};
-    height: 1em;
-    position: absolute;
-    height: 100%;
-    border-radius: 2px;
-`
+  display: inline-block;
+  width: 4px;
+  background: ${(p) => p.color};
+  height: 1em;
+  position: absolute;
+  height: 100%;
+  border-radius: 2px;
+`;
 
 const Name = styled.sup`
   font-size: x-small;
@@ -412,7 +466,7 @@ const Name = styled.sup`
   position: absolute;
   white-space: nowrap;
   bottom: 2em;
-  color: ${p => p.color};
+  color: ${(p) => p.color};
   background: white;
 `;
 

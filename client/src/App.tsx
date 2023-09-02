@@ -42,17 +42,6 @@ const names = [
 const myId = Math.floor(Math.random() * names.length);
 const myName = names[myId];
 
-const socket = io("http://localhost:3001", {
-  transports: ["websocket"],
-});
-socket.on("connect", () => {
-  console.log("connected");
-});
-socket.on("disconnect", () => {
-  console.log("disconnected");
-});
-socket.on("error", (err) => {});
-
 const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
 function App() {

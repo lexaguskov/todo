@@ -1,9 +1,6 @@
 import styled from "styled-components";
 import { Button, Card, Input, Tooltip } from "antd";
-import {
-  DeleteOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { FocusEvent, KeyboardEvent } from "react";
 import Cursor from "./Cursor";
 import { Node, Select } from "../types";
@@ -11,8 +8,7 @@ import ReactDragListView from "react-drag-listview";
 import { cursorColors } from "../lib";
 import Item from "./Item";
 
-
-const TodoList = ({
+const Todo = ({
   title,
   onChangeTitle,
   data,
@@ -65,7 +61,6 @@ const TodoList = ({
     if (e.target.value === "" && data.length === 0) {
       onDeleteListClick();
     }
-    // onSelectTitle(-1, -1);
   };
 
   const onHeaderSelect = (e: any) => {
@@ -89,7 +84,7 @@ const TodoList = ({
       hoverable
       bodyStyle={{ paddingRight: 12, paddingLeft: 12, paddingBottom: 6 }}
     >
-      <Row style={{ paddingLeft: 18, width: "auto" }}>
+      <Row>
         <>
           {titleSelect.map((select, i) => (
             <Cursor
@@ -118,8 +113,8 @@ const TodoList = ({
         </Tooltip>
       </Row>
       <ReactDragListView {...dragProps}>
-        {data.map((node) => (
-          <li key={node.key}>
+        {data.map((node, i) => (
+          <li key={`${i}`}>
             <Item
               node={node}
               onCheck={onCheck}
@@ -174,6 +169,8 @@ const Row = styled.div`
   &:hover ${DeleteButton} {
     opacity: 1;
   }
+  padding-left: 18px;
+  width: auto;
 `;
 
-export default TodoList;
+export default Todo;

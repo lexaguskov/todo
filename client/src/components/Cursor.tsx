@@ -11,10 +11,10 @@ const Cursor = ({
   color: string;
   header?: Boolean;
 }) => (
-  <Container header={header}>
+  <Container $header={header}>
     {title.substring(0, select.start)}
     <Mark color={color}>
-      <Name header={header} color={color}>
+      <Name $header={header} color={color}>
         {select.name}
       </Name>
       {title.substring(select.start, select.end)}
@@ -22,13 +22,13 @@ const Cursor = ({
   </Container>
 );
 
-const Container = styled.div<{ header: Boolean }>`
+const Container = styled.div<{ $header: Boolean }>`
   position: absolute;
-  font-size: ${(p) => (p.header ? 20 : 14)}px;
-  font-weight: ${(p) => (p.header ? 500 : "normal")};
+  font-size: ${(p) => (p.$header ? 20 : 14)}px;
+  font-weight: ${(p) => (p.$header ? 500 : "normal")};
   color: rgba(0, 0, 0, 0);
-  padding-top: ${(p) => (p.header ? 0 : 4)}px;
-  height: ${(p) => (p.header ? "auto" : "1.1em")};
+  padding-top: ${(p) => (p.$header ? 0 : 4)}px;
+  height: ${(p) => (p.$header ? "auto" : "1.1em")};
 `;
 
 const Mark = styled.mark`
@@ -40,12 +40,12 @@ const Mark = styled.mark`
   padding: 2px;
 `;
 
-const Name = styled.sup<{ header: Boolean }>`
+const Name = styled.sup<{ $header: Boolean }>`
   font-size: x-small;
   margin-bottom: 1em;
   position: absolute;
   white-space: nowrap;
-  bottom: ${(p) => (p.header ? 2 : 0.5)}em;
+  bottom: ${(p) => (p.$header ? 2 : 0.5)}em;
   color: ${(p) => p.color};
   background: white;
 `;

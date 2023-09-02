@@ -10,6 +10,19 @@ can (for example) edit our family shopping-list together
 - DONE: I as a user can mark to-do items as “done” - so that I can avoid clutter and focus on
 things that are still pending
 
+- DONE: I as a user can see the cursor and/or selection of another-user as he selects/types
+when he is editing text - so that we can discuss focused words during our online call.
+
+- DONE: I as a user can create multiple to-do lists where each list has its unique URL that I
+can share with my friends - so that I could have separate to-do lists for my groceries
+and work related tasks.
+
+- DONE: I as a user can change the order of tasks via drag & drop
+
+- WIP: I as a user can keep editing the list even when I lose internet connection, and can
+expect it to sync up with BE as I regain connection
+  - TODO: sync
+
 - TODO: I as a user can filter the to-do list and view items that were marked as - DONE: so that I
 can retrospect on my prior progress.
 
@@ -29,13 +42,6 @@ how much a salad costs on my shopping list.
 - TODO: I as a user can add sub-descriptions of tasks in Markdown and view them as rich
 text while I'm not editing the descriptions.
 
-- DONE: I as a user can see the cursor and/or selection of another-user as he selects/types
-when he is editing text - so that we can discuss focused words during our online call.
-
-- DONE: I as a user can create multiple to-do lists where each list has its unique URL that I
-can share with my friends - so that I could have separate to-do lists for my groceries
-and work related tasks.
-
 - TODO: In addition to regular to-do tasks, I as a user can add “special” typed to-do items, that
 will have custom style and some required fields:
   - ”work-task”, which has a required field “deadline” - which is a date
@@ -43,14 +49,8 @@ will have custom style and some required fields:
   - required: “carbohydrate”, “fat”, “protein” (each specified in g/100g)
   - optional: “picture” an URL to an image used to render this item
 
-- WIP: I as a user can keep editing the list even when I lose internet connection, and can
-expect it to sync up with BE as I regain connection
-  - TODO: sync
-
 - TODO: I as a user can use my VR goggles to edit/browse multiple to-do lists in parallel in 3D
 space so that I can feel ultra-productive
-
-- TODO: I as a user can change the order of tasks via drag & drop
 
 - TODO: I as a user can move/convert subtasks to tasks via drag & drop
 

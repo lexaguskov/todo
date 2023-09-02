@@ -1,11 +1,12 @@
 import "./App.css";
-import { Card, Space, Result } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Card, Space, Result, Avatar, Typography } from "antd";
+import { PlusOutlined, UserOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { usePersistedState } from "./usePersistedState";
 import io from "socket.io-client";
 import Todo from "./Todo";
 import { List, Select, Node } from "./types";
+import { styled } from "styled-components";
 // TODO: publish app somewhere
 // TODO: tf for server
 
@@ -233,65 +234,78 @@ function App() {
   }, []);
 
   return (
-    <Space
-      style={{
-        padding: 64,
-        minWidth: "100vw",
-        height: "100vh",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-      align="center"
-    >
-      {lists.map((list) => (
-        <Todo
-          titleSelect={Object.values(selects).filter(
-            (s) =>
-              s.key === list.key &&
-              s.name !== myName &&
-              s.start >= 0 &&
-              s.end >= 0,
-          )}
-          selects={Object.values(selects)}
-          key={list.key}
-          onDeleteListClick={() => onDeleteListClick(list.key)}
-          onChangeTitle={(val) => onSetTitle(list.key, val)}
-          title={list.title}
-          data={list.entries}
-          onDeleteItem={(key) => onDeleteItem(list.key, key)}
-          onCheck={(val, key) => onCheck(list.key, val, key)}
-          onAddItem={() => onAddItem(list.key, id())}
-          onChangeItem={(val, key) => onChangeItem(list.key, val, key)} // TODO: debounce
-          onSelectTitle={(start, end) =>
-            socket.emit("select", {
-              name: myName,
-              key: list.key,
-              start,
-              end,
-            })
-          }
-          onSelectItem={(start, end, key) =>
-            socket.emit("select", {
-              name: myName,
-              key,
-              start,
-              end,
-            })
-          }
-          onReorder={(fromIndex, toIndex) =>
-            onListItemReorder(list.key, fromIndex, toIndex)
-          }
-        />
-      ))}
-      <Card
-        style={{ width: 300 }}
-        hoverable
-        onClick={() => onCreateListClick(id())}
+    <>
+      <Username>
+        <Avatar size={32} style={{ margin: 6 }} icon={<UserOutlined />} /><Typography.Text>{myName}</Typography.Text>
+      </Username >
+      <Space
+        style={{
+          padding: 64,
+          minWidth: "100vw",
+          height: "100vh",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        align="center"
       >
-        <Result icon={<PlusOutlined />} title="Create a new list" />
-      </Card>
-    </Space>
+        {lists.map((list) => (
+          <Todo
+            titleSelect={Object.values(selects).filter(
+              (s) =>
+                s.key === list.key &&
+                s.name !== myName &&
+                s.start >= 0 &&
+                s.end >= 0,
+            )}
+            selects={Object.values(selects)}
+            key={list.key}
+            onDeleteListClick={() => onDeleteListClick(list.key)}
+            onChangeTitle={(val) => onSetTitle(list.key, val)}
+            title={list.title}
+            data={list.entries}
+            onDeleteItem={(key) => onDeleteItem(list.key, key)}
+            onCheck={(val, key) => onCheck(list.key, val, key)}
+            onAddItem={() => onAddItem(list.key, id())}
+            onChangeItem={(val, key) => onChangeItem(list.key, val, key)} // TODO: debounce
+            onSelectTitle={(start, end) =>
+              socket.emit("select", {
+                name: myName,
+                key: list.key,
+                start,
+                end,
+              })
+            }
+            onSelectItem={(start, end, key) =>
+              socket.emit("select", {
+                name: myName,
+                key,
+                start,
+                end,
+              })
+            }
+            onReorder={(fromIndex, toIndex) =>
+              onListItemReorder(list.key, fromIndex, toIndex)
+            }
+          />
+        ))}
+        <Card
+          style={{ width: 300 }}
+          hoverable
+          onClick={() => onCreateListClick(id())}
+        >
+          <Result icon={<PlusOutlined />} title="Create a new list" />
+        </Card>
+      </Space>
+    </>
   );
 }
+
+const Username = styled.div`
+  position: fixed;  
+  right: 8px;
+  top: 0;
+  display: flex;
+  align-items: baseline;
+`;
 
 export default App;

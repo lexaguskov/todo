@@ -94,8 +94,8 @@ const TodoList = ({
   };
 
   return (
-    <Container hoverable bodyStyle={{ paddingRight: 12 }}>
-      <Row>
+    <Container hoverable bodyStyle={{ paddingRight: 12, paddingLeft: 12 }}>
+      <Row style={{ paddingLeft: 18, width: 'auto' }}>
         <>
           {titleSelect.map((select, i) => (
             <Cursor
@@ -219,7 +219,7 @@ const ItemInput = styled(Input)`
 `;
 
 const AddButton = styled(Button)`
-  padding: 0;
+  padding: 0 0 0 18px;
   opacity: 0;
 `;
 

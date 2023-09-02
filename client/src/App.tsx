@@ -31,8 +31,6 @@ const names = [
 const myId = Math.floor(Math.random() * names.length);
 const myName = names[myId];
 
-
-
 const socket = io("http://localhost:3001", {
   transports: ["websocket"],
 });
@@ -42,7 +40,7 @@ socket.on("connect", () => {
 socket.on("disconnect", () => {
   console.log("disconnected");
 });
-socket.on("error", (err) => { });
+socket.on("error", (err) => {});
 
 const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
@@ -105,11 +103,11 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-            ...l,
-            entries: l.entries.map((e) =>
-              e.key === itemKey ? { ...e, checked } : e,
-            ),
-          }
+              ...l,
+              entries: l.entries.map((e) =>
+                e.key === itemKey ? { ...e, checked } : e,
+              ),
+            }
           : l,
       ),
     );
@@ -146,11 +144,11 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-            ...l,
-            entries: l.entries.map((e) =>
-              e.key === itemKey ? { ...e, title: val } : e,
-            ),
-          }
+              ...l,
+              entries: l.entries.map((e) =>
+                e.key === itemKey ? { ...e, title: val } : e,
+              ),
+            }
           : l,
       ),
     );
@@ -247,7 +245,8 @@ function App() {
               end,
             })
           }
-        />))}
+        />
+      ))}
       <Card
         style={{ width: 300 }}
         hoverable
@@ -258,8 +257,5 @@ function App() {
     </Space>
   );
 }
-
-
-
 
 export default App;

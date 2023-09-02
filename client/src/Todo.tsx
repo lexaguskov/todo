@@ -1,9 +1,9 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 import { Button, Card, Checkbox, Input, Tooltip } from "antd";
 import { CloseOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { FocusEvent, KeyboardEvent } from "react";
-import Cursor from './Cursor';
-import { Node, Select } from './types'
+import Cursor from "./Cursor";
+import { Node, Select } from "./types";
 
 const cursorColors = [
   "lightblue",
@@ -14,8 +14,6 @@ const cursorColors = [
   "lightskyblue",
   "lightsteelblue",
 ];
-
-
 
 const TodoList = ({
   title,
@@ -76,7 +74,7 @@ const TodoList = ({
   const onSelect = (e: any, key: string) => {
     const target = e.target as HTMLInputElement;
     onSelectItem(target.selectionStart || 0, target.selectionEnd || 0, key);
-  }
+  };
 
   return (
     <Container
@@ -87,7 +85,12 @@ const TodoList = ({
       <Row>
         <>
           {titleSelect.map((select, i) => (
-            <Cursor header color={cursorColors[i]} select={select} title={title} />
+            <Cursor
+              header
+              color={cursorColors[i]}
+              select={select}
+              title={title}
+            />
           ))}
           <HeaderInput
             placeholder="Add title"
@@ -113,20 +116,28 @@ const TodoList = ({
             checked={node.checked}
             onChange={(e) => onCheck(e.target.checked, node.key)}
           />
-          {selects.filter(select => select.key === node.key).map((select, i) => (
-            <Cursor color={cursorColors[i]} select={select} title={node.title} />
-          ))}
-          <ItemInput
-            checked={node.checked}
-            key={node.key}
-            bordered={false}
-            autoFocus
-            value={node.title as string}
-            onChange={(e) => onChangeItem(e.target.value, node.key)}
-            onPressEnter={(e) => onEditPressEnter(e, node)}
-            onBlur={onEditBlur}
-            onSelect={(e) => onSelect(e, node.key)}
-          />
+          <div>
+            {selects
+              .filter((select) => select.key === node.key)
+              .map((select, i) => (
+                <Cursor
+                  color={cursorColors[i]}
+                  select={select}
+                  title={node.title}
+                />
+              ))}
+            <ItemInput
+              checked={node.checked}
+              key={node.key}
+              bordered={false}
+              autoFocus
+              value={node.title as string}
+              onChange={(e) => onChangeItem(e.target.value, node.key)}
+              onPressEnter={(e) => onEditPressEnter(e, node)}
+              onBlur={onEditBlur}
+              onSelect={(e) => onSelect(e, node.key)}
+            />
+          </div>
           {node.title && (
             <DeleteButton
               type="link"
@@ -144,7 +155,6 @@ const TodoList = ({
     </Container>
   );
 };
-
 
 const ItemInput = styled(Input)`
   padding-left: 0;
@@ -181,7 +191,6 @@ const DeleteButton = styled(Button)`
   opacity: 0;
 `;
 
-
 const Row = styled.div`
   width: 100%;
   display: flex;
@@ -189,6 +198,5 @@ const Row = styled.div`
     opacity: 1;
   }
 `;
-
 
 export default TodoList;

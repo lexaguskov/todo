@@ -28,7 +28,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "tsc --noemit && eslint src",
-    "lint-fix": "tsc --noemit && eslint --fix src && prettier -w src"
+    "format": "tsc --noemit && eslint --fix src && prettier -w src"
   },
   "eslintConfig": {
     "extends": [

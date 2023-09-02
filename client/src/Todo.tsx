@@ -1,9 +1,11 @@
 import styled from "styled-components";
 import { Button, Card, Checkbox, Input, Tooltip } from "antd";
-import { CloseOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { CloseOutlined, DeleteOutlined, PlusOutlined, HolderOutlined } from "@ant-design/icons";
 import { FocusEvent, KeyboardEvent } from "react";
 import Cursor from "./Cursor";
 import { Node, Select } from "./types";
+import ReactDragListView from 'react-drag-listview';
+
 
 const cursorColors = [
   "lightblue",
@@ -28,6 +30,7 @@ const TodoList = ({
   titleSelect,
   selects,
   onSelectItem,
+  onReorder,
 }: {
   onDeleteListClick: () => void;
   onChangeTitle: (val: string) => void;
@@ -41,6 +44,7 @@ const TodoList = ({
   titleSelect: Select[];
   selects: Select[];
   onSelectItem: (start: number, end: number, key: string) => void;
+  onReorder: (fromIndex: number, toIndex: number) => void;
 }) => {
   const onEditPressEnter = (e: KeyboardEvent<HTMLInputElement>, key: string) => {
     const input = e.target as HTMLInputElement;
@@ -76,6 +80,12 @@ const TodoList = ({
     onSelectItem(target.selectionStart || 0, target.selectionEnd || 0, key);
   };
 
+  const dragProps = {
+    onDragEnd: onReorder,
+    nodeSelector: 'li',
+    handleSelector: 'a'
+  };
+
   return (
     <Container hoverable bodyStyle={{ paddingRight: 12 }}>
       <Row>
@@ -105,18 +115,22 @@ const TodoList = ({
           />
         </Tooltip>
       </Row>
-      {data.map((node) => (
-        <Item
-          node={node}
-          onCheck={onCheck}
-          selects={selects}
-          onChange={onChangeItem}
-          onPressEnter={onEditPressEnter}
-          onBlur={onEditBlur}
-          onDelete={onDeleteItem}
-          onSelect={onSelect}
-        />
-      ))}
+      <ReactDragListView {...dragProps}>
+        {data.map((node) => (
+          <li key={node.key}>
+            <Item
+              node={node}
+              onCheck={onCheck}
+              selects={selects}
+              onChange={onChangeItem}
+              onPressEnter={onEditPressEnter}
+              onBlur={onEditBlur}
+              onDelete={onDeleteItem}
+              onSelect={onSelect}
+            />
+          </li>
+        ))}
+      </ReactDragListView>
       {showAddButton && (
         <AddButton onClick={onAddItem} type="link" icon={<PlusOutlined />}>
           new entry
@@ -139,6 +153,7 @@ const Item = ({ node, onCheck, selects, onChange, onPressEnter, onBlur, onDelete
   }) => {
   return (
     <Row key={node.key}>
+      <GrabIcon href="#"><HolderOutlined /></GrabIcon>
       <Checkbox
         style={{ paddingRight: 8 }}
         checked={node.checked}
@@ -211,10 +226,21 @@ const DeleteButton = styled(Button)`
   opacity: 0;
 `;
 
+const GrabIcon = styled.a`
+  opacity: 0;
+  display: flex;
+  padding: 4px 4px 4px 0;
+  cursor: move;
+  color: gray;
+`;
+
 const Row = styled.div`
   width: 100%;
   display: flex;
   &:hover ${DeleteButton} {
+    opacity: 1;
+  }
+  &:hover ${GrabIcon} {
     opacity: 1;
   }
 `;

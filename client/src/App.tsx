@@ -40,7 +40,7 @@ socket.on("connect", () => {
 socket.on("disconnect", () => {
   console.log("disconnected");
 });
-socket.on("error", (err) => {});
+socket.on("error", (err) => { });
 
 const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
@@ -103,11 +103,11 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-              ...l,
-              entries: l.entries.map((e) =>
-                e.key === itemKey ? { ...e, checked } : e,
-              ),
-            }
+            ...l,
+            entries: l.entries.map((e) =>
+              e.key === itemKey ? { ...e, checked } : e,
+            ),
+          }
           : l,
       ),
     );
@@ -144,11 +144,11 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-              ...l,
-              entries: l.entries.map((e) =>
-                e.key === itemKey ? { ...e, title: val } : e,
-              ),
-            }
+            ...l,
+            entries: l.entries.map((e) =>
+              e.key === itemKey ? { ...e, title: val } : e,
+            ),
+          }
           : l,
       ),
     );
@@ -245,6 +245,16 @@ function App() {
               end,
             })
           }
+          onReorder={(fromIndex, toIndex) => {
+            const newList = [...list.entries];
+            const [removed] = newList.splice(fromIndex, 1);
+            newList.splice(toIndex, 0, removed);
+            setLists((lists) =>
+              lists.map((l) =>
+                l.key === list.key ? { ...l, entries: newList } : l,
+              ),
+            );
+          }}
         />
       ))}
       <Card

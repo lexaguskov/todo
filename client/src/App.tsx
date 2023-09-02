@@ -1,24 +1,22 @@
 import "./App.css";
 import { Card, Space, Result, Avatar, Typography } from "antd";
 import { PlusOutlined, UserOutlined } from "@ant-design/icons";
-import { useEffect, useRef, useState } from "react";
-import { usePersistedState } from "./usePersistedState";
 import io from "socket.io-client";
 import Todo from "./components/Todo";
 import { List, Select, Node } from "./types";
 import { styled } from "styled-components";
-import * as Y from "yjs";
 import { WebrtcProvider } from "y-webrtc";
 import { syncedStore, getYjsDoc } from "@syncedstore/core";
 import { useSyncedStore } from "@syncedstore/react";
 
-// import { WebsocketProvider } from 'y-websocket';
-// import { IndexeddbPersistence } from 'y-indexeddb';
 // TODO: publish app somewhere
 // TODO: tf for server
 
 type Selections = { [user: string]: Select };
-const store = syncedStore({ selections: {} as Selections });
+const store = syncedStore({
+  selections: {} as Selections,
+  lists: [] as List[],
+});
 const doc = getYjsDoc(store);
 new WebrtcProvider("lexaguskov.todo", doc);
 
@@ -59,113 +57,50 @@ const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
 function App() {
   const state = useSyncedStore(store);
-  const [lists, setLists] = usePersistedState<List[]>("lists", []);
 
-  const onCreateListClick = (listKey: string, emit: boolean = true) => {
+  const onCreateListClick = (listKey: string) => {
     const newList = { title: "New todo list", key: listKey, entries: [] };
-    emit && socket.emit("edit", { type: "list.create", listKey });
-    setLists((lists) => [...lists, newList]);
+    store.lists.push(newList);
   };
 
-  const onSetTitle = (listKey: string, title: string, emit: boolean = true) => {
-    console.log("editing title for list", listKey, title);
-    emit && socket.emit("edit", { type: "list.title", title, listKey });
-    setLists((lists) =>
-      lists.map((l) => (l.key === listKey ? { ...l, title } : l)),
-    );
+  const onSetTitle = (listKey: string, title: string) => {
+    const list = store.lists.find((l) => l.key === listKey);
+    if (list) list.title = title;
   };
 
-  const onDeleteListClick = (listKey: string, emit: boolean = true) => {
-    emit && socket.emit("edit", { type: "list.delete", listKey });
-    setLists((lists) => lists.filter((l) => l.key !== listKey));
+  const onDeleteListClick = (listKey: string) => {
+    const index = store.lists.findIndex((l) => l.key === listKey);
+    if (index > -1) store.lists.splice(index, 1);
   };
 
-  const onDeleteItem = (
-    listKey: string,
-    itemKey: string,
-    emit: boolean = true,
-  ) => {
-    emit &&
-      socket.emit("edit", {
-        type: "list.item.delete",
-        listKey: listKey,
-        itemKey: itemKey,
-      });
-    setLists((lists) =>
-      lists.map((l) =>
-        l.key === listKey
-          ? { ...l, entries: l.entries.filter((e) => e.key !== itemKey) }
-          : l,
-      ),
-    );
+  const onDeleteItem = (listKey: string, itemKey: string) => {
+    const list = store.lists.find((l) => l.key === listKey);
+    if (list) {
+      const index = list.entries.findIndex((e) => e.key === itemKey);
+      if (index > -1) list.entries.splice(index, 1);
+    }
   };
 
-  const onCheck = (
-    listKey: string,
-    checked: boolean,
-    itemKey: string,
-    emit: boolean = true,
-  ) => {
-    emit &&
-      socket.emit("edit", {
-        type: "list.item.check",
-        listKey,
-        itemKey,
-        checked,
-      });
-    setLists((lists) =>
-      lists.map((l) =>
-        l.key === listKey
-          ? {
-              ...l,
-              entries: l.entries.map((e) =>
-                e.key === itemKey ? { ...e, checked } : e,
-              ),
-            }
-          : l,
-      ),
-    );
+  const onCheck = (listKey: string, checked: boolean, itemKey: string) => {
+    const list = store.lists.find((l) => l.key === listKey);
+    if (list) {
+      const item = list.entries.find((e) => e.key === itemKey);
+      if (item) item.checked = checked;
+    }
   };
 
-  const onAddItem = (
-    listKey: string,
-    itemKey: string,
-    emit: boolean = true,
-  ) => {
-    emit && socket.emit("edit", { type: "list.item.add", listKey, itemKey });
+  const onAddItem = (listKey: string, itemKey: string) => {
     const newItem: Node = { key: itemKey, title: "", checked: false };
-    setLists((lists) =>
-      lists.map((l) =>
-        l.key === listKey ? { ...l, entries: [...l.entries, newItem] } : l,
-      ),
-    );
+    const list = store.lists.find((l) => l.key === listKey);
+    if (list) list.entries.push(newItem);
   };
 
-  const onChangeItem = (
-    listKey: string,
-    val: string,
-    itemKey: string,
-    emit: boolean = true,
-  ) => {
-    emit &&
-      socket.emit("edit", {
-        type: "list.item.title",
-        listKey,
-        itemKey,
-        title: val,
-      });
-    setLists((lists) =>
-      lists.map((l) =>
-        l.key === listKey
-          ? {
-              ...l,
-              entries: l.entries.map((e) =>
-                e.key === itemKey ? { ...e, title: val } : e,
-              ),
-            }
-          : l,
-      ),
-    );
+  const onChangeItem = (listKey: string, val: string, itemKey: string) => {
+    const list = store.lists.find((l) => l.key === listKey);
+    if (list) {
+      const item = list.entries.find((e) => e.key === itemKey);
+      if (item) item.title = val;
+    }
   };
 
   // const [selects, setSelects] = useState<{ [name: string]: Select }>({});
@@ -174,77 +109,16 @@ function App() {
     listKey: string,
     fromIndex: number,
     toIndex: number,
-    emit: boolean = true,
   ) => {
-    emit &&
-      socket.emit("edit", {
-        type: "list.item.reorder",
-        listKey,
-        fromIndex,
-        toIndex,
-      });
-    setLists((lists) =>
-      lists.map((l) =>
-        l.key === listKey
-          ? {
-              ...l,
-              entries: l.entries.map((e, i) => {
-                if (i === fromIndex) return l.entries[toIndex];
-                if (i === toIndex) return l.entries[fromIndex];
-                return e;
-              }),
-            }
-          : l,
-      ),
-    );
+    const list = store.lists.find((l) => l.key === listKey);
+    if (list) {
+      // TRICKY: reusing object from list.entries causes error:
+      // 'Not supported: reassigning object that already occurs in the tree.'
+      const { key, title, checked } = list.entries[fromIndex];
+      list.entries.splice(fromIndex, 1);
+      list.entries.splice(toIndex, 0, { key, title, checked });
+    }
   };
-
-  useEffect(() => {
-    // socket.on("select", (msg) => {
-    //   console.log("select", msg);
-    //   setSelects((selects) => ({ ...selects, [msg.name]: msg }));
-    // });
-
-    socket.on("edit", (msg) => {
-      console.log("message", msg);
-      if (msg.type === "list.title") {
-        onSetTitle(msg.listKey, msg.title, false);
-      }
-
-      if (msg.type === "list.delete") {
-        onDeleteListClick(msg.listKey, false);
-      }
-
-      if (msg.type === "list.item.delete") {
-        onDeleteItem(msg.listKey, msg.itemKey, false);
-      }
-
-      if (msg.type === "list.item.check") {
-        onCheck(msg.listKey, msg.checked, msg.itemKey, false);
-      }
-
-      if (msg.type === "list.item.add") {
-        onAddItem(msg.listKey, msg.itemKey, false);
-      }
-
-      if (msg.type === "list.item.title") {
-        onChangeItem(msg.listKey, msg.title, msg.itemKey, false);
-      }
-
-      if (msg.type === "list.create") {
-        onCreateListClick(msg.listKey, false);
-      }
-
-      if (msg.type === "list.item.reorder") {
-        onListItemReorder(msg.listKey, msg.fromIndex, msg.toIndex, false);
-      }
-    });
-
-    return () => {
-      socket.off("edit");
-      //socket.off("select");
-    };
-  }, []);
 
   return (
     <>
@@ -262,7 +136,7 @@ function App() {
         }}
         align="center"
       >
-        {lists.map((list) => (
+        {state.lists.map((list) => (
           <Todo
             titleSelect={
               Object.values(state.selections).filter(
@@ -275,7 +149,9 @@ function App() {
               ) as Select[]
             }
             selects={
-              Object.values(state.selections).filter((a) => a) as Select[]
+              Object.values(state.selections).filter(
+                (a) => a && a.name !== myName,
+              ) as Select[]
             }
             key={list.key}
             onDeleteListClick={() => onDeleteListClick(list.key)}
@@ -286,14 +162,14 @@ function App() {
             onCheck={(val, key) => onCheck(list.key, val, key)}
             onAddItem={() => onAddItem(list.key, id())}
             onChangeItem={(val, key) => onChangeItem(list.key, val, key)} // TODO: debounce
-            onSelectTitle={(start, end) =>
-              (state.selections[myName] = {
+            onSelectTitle={(start, end) => {
+              state.selections[myName] = {
                 name: myName,
                 key: list.key,
                 start,
                 end,
-              })
-            }
+              };
+            }}
             onSelectItem={(start, end, key) =>
               (state.selections[myName] = { name: myName, key, start, end })
             }

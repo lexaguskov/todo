@@ -94,11 +94,15 @@ const TodoList = ({
   };
 
   return (
-    <Container hoverable bodyStyle={{ paddingRight: 12, paddingLeft: 12 }}>
+    <Container
+      hoverable
+      bodyStyle={{ paddingRight: 12, paddingLeft: 12, paddingBottom: 6 }}
+    >
       <Row style={{ paddingLeft: 18, width: "auto" }}>
         <>
           {titleSelect.map((select, i) => (
             <Cursor
+              key={select.name}
               header
               color={cursorColors[i]}
               select={select}
@@ -181,6 +185,7 @@ const Item = ({
           .filter((select) => select.key === node.key)
           .map((select, i) => (
             <Cursor
+              key={select.name}
               color={cursorColors[i]}
               select={select}
               title={node.title}

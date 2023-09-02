@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 const Cursor = ({
-  title,
+  title = "",
   select,
   color,
   header = false,
@@ -9,20 +9,20 @@ const Cursor = ({
   title: string;
   select: { start: number; end: number; name: string };
   color: string;
-  header?: boolean;
+  header?: Boolean;
 }) => (
   <Container header={header}>
     {title.substring(0, select.start)}
-    <Mark color={color}>{title.substring(select.start, select.end)}</Mark>
-    <Pin color={color}>
+    <Mark color={color}>
       <Name header={header} color={color}>
         {select.name}
       </Name>
-    </Pin>
+      {title.substring(select.start, select.end)}
+    </Mark>
   </Container>
 );
 
-const Container = styled.div<{ header: boolean }>`
+const Container = styled.div<{ header: Boolean }>`
   position: absolute;
   font-size: ${(p) => (p.header ? 20 : 14)}px;
   font-weight: ${(p) => (p.header ? 500 : "normal")};
@@ -35,23 +35,17 @@ const Mark = styled.mark`
   border-radius: 2px;
   background-color: ${(p) => p.color};
   color: rgba(0, 0, 0, 0);
+  margin-left: -2px;
+  margin-right: -2px;
+  padding: 2px;
 `;
 
-const Pin = styled.span`
-  display: inline-block;
-  width: 4px;
-  background: ${(p) => p.color};
-  position: absolute;
-  height: 100%;
-  border-radius: 2px;
-`;
-
-const Name = styled.sup<{ header: boolean }>`
+const Name = styled.sup<{ header: Boolean }>`
   font-size: x-small;
   margin-bottom: 1em;
   position: absolute;
   white-space: nowrap;
-  bottom: ${(p) => (p.header ? 2 : 1)}em;
+  bottom: ${(p) => (p.header ? 2 : 0.5)}em;
   color: ${(p) => p.color};
   background: white;
 `;

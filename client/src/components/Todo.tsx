@@ -74,7 +74,7 @@ const TodoList = ({
     if (e.target.value === "" && data.length === 0) {
       onDeleteListClick();
     }
-    onSelectTitle(-1, -1);
+    // onSelectTitle(-1, -1);
   };
 
   const onHeaderSelect = (e: any) => {

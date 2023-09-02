@@ -5,6 +5,7 @@ import { KeyboardEvent, FocusEvent, useEffect, useState } from "react";
 import { usePersistedState } from "./usePersistedState";
 import { styled } from "styled-components";
 import io from "socket.io-client";
+import Cursor from "./Cursor";
 // TODO: publish app somewhere
 // TODO: tf for server
 
@@ -42,7 +43,7 @@ type Node = {
 };
 type Select = {
   name: string;
-  listKey: string;
+  key: string;
   start: number;
   end: number;
 };
@@ -56,7 +57,7 @@ socket.on("connect", () => {
 socket.on("disconnect", () => {
   console.log("disconnected");
 });
-socket.on("error", (err) => {});
+socket.on("error", (err) => { });
 
 const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
@@ -119,11 +120,11 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-              ...l,
-              entries: l.entries.map((e) =>
-                e.key === itemKey ? { ...e, checked } : e,
-              ),
-            }
+            ...l,
+            entries: l.entries.map((e) =>
+              e.key === itemKey ? { ...e, checked } : e,
+            ),
+          }
           : l,
       ),
     );
@@ -160,11 +161,11 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-              ...l,
-              entries: l.entries.map((e) =>
-                e.key === itemKey ? { ...e, title: val } : e,
-              ),
-            }
+            ...l,
+            entries: l.entries.map((e) =>
+              e.key === itemKey ? { ...e, title: val } : e,
+            ),
+          }
           : l,
       ),
     );
@@ -230,11 +231,12 @@ function App() {
         <TodoList
           titleSelect={Object.values(selects).filter(
             (s) =>
-              s.listKey === list.key &&
+              s.key === list.key &&
               s.name !== myName &&
               s.start >= 0 &&
               s.end >= 0,
           )}
+          selects={Object.values(selects)}
           key={list.key}
           onDeleteListClick={() => onDeleteListClick(list.key)}
           onChangeTitle={(val) => onSetTitle(list.key, val)}
@@ -247,13 +249,20 @@ function App() {
           onSelectTitle={(start, end) =>
             socket.emit("select", {
               name: myName,
-              listKey: list.key,
+              key: list.key,
               start,
               end,
             })
           }
-        />
-      ))}
+          onSelectItem={(start, end, key) =>
+            socket.emit("select", {
+              name: myName,
+              key,
+              start,
+              end,
+            })
+          }
+        />))}
       <Card
         style={{ width: 300 }}
         hoverable
@@ -265,7 +274,7 @@ function App() {
   );
 }
 
-const custorColors = [
+const cursorColors = [
   "lightblue",
   "lightgreen",
   "lightcoral",
@@ -286,6 +295,8 @@ const TodoList = ({
   onChangeItem,
   onSelectTitle,
   titleSelect,
+  selects,
+  onSelectItem,
 }: {
   onDeleteListClick: () => void;
   onChangeTitle: (val: string) => void;
@@ -297,6 +308,8 @@ const TodoList = ({
   onChangeItem: (val: string, key: string) => void;
   onSelectTitle: (start: number, end: number) => void;
   titleSelect: Select[];
+  selects: Select[];
+  onSelectItem: (start: number, end: number, key: string) => void;
 }) => {
   const onEditPressEnter = (e: KeyboardEvent<HTMLInputElement>, node: Node) => {
     const input = e.target as HTMLInputElement;
@@ -327,6 +340,11 @@ const TodoList = ({
     onSelectTitle(target.selectionStart || 0, target.selectionEnd || 0);
   };
 
+  const onSelect = (e: any, key: string) => {
+    const target = e.target as HTMLInputElement;
+    onSelectItem(target.selectionStart || 0, target.selectionEnd || 0, key);
+  }
+
   return (
     <Container
       style={{ width: 300, cursor: "auto" }}
@@ -336,19 +354,7 @@ const TodoList = ({
       <Row>
         <>
           {titleSelect.map((select, i) => (
-            <div
-              key={select.name}
-              style={{ position: "absolute", fontSize: 20, fontWeight: 500 }}
-            >
-              {title.substring(0, select.start)}
-              <Mark color={custorColors[i]}>
-                {title.substring(select.start, select.end)}
-              </Mark>
-              <Pin color={custorColors[i]}>
-                <Name color={custorColors[i]}>{select.name}</Name>
-              </Pin>
-              {title.substring(select.end)}
-            </div>
+            <Cursor header color={cursorColors[i]} select={select} title={title} />
           ))}
           <HeaderInput
             placeholder="Add title"
@@ -374,6 +380,9 @@ const TodoList = ({
             checked={node.checked}
             onChange={(e) => onCheck(e.target.checked, node.key)}
           />
+          {selects.filter(select => select.key === node.key).map((select, i) => (
+            <Cursor color={cursorColors[i]} select={select} title={node.title} />
+          ))}
           <ItemInput
             checked={node.checked}
             key={node.key}
@@ -383,6 +392,7 @@ const TodoList = ({
             onChange={(e) => onChangeItem(e.target.value, node.key)}
             onPressEnter={(e) => onEditPressEnter(e, node)}
             onBlur={onEditBlur}
+            onSelect={(e) => onSelect(e, node.key)}
           />
           {node.title && (
             <DeleteButton
@@ -445,29 +455,5 @@ const Row = styled.div`
   }
 `;
 
-const Mark = styled.mark`
-  border-radius: 2px;
-  background-color: ${(p) => p.color};
-`;
-
-const Pin = styled.span`
-  display: inline-block;
-  width: 4px;
-  background: ${(p) => p.color};
-  height: 1em;
-  position: absolute;
-  height: 100%;
-  border-radius: 2px;
-`;
-
-const Name = styled.sup`
-  font-size: x-small;
-  margin-bottom: 1em;
-  position: absolute;
-  white-space: nowrap;
-  bottom: 2em;
-  color: ${(p) => p.color};
-  background: white;
-`;
 
 export default App;

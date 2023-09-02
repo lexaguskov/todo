@@ -4,7 +4,7 @@ import { PlusOutlined, UserOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { usePersistedState } from "./usePersistedState";
 import io from "socket.io-client";
-import Todo from "./Todo";
+import Todo from "./components/Todo";
 import { List, Select, Node } from "./types";
 import { styled } from "styled-components";
 // TODO: publish app somewhere
@@ -41,7 +41,7 @@ socket.on("connect", () => {
 socket.on("disconnect", () => {
   console.log("disconnected");
 });
-socket.on("error", (err) => { });
+socket.on("error", (err) => {});
 
 const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
@@ -104,11 +104,11 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-            ...l,
-            entries: l.entries.map((e) =>
-              e.key === itemKey ? { ...e, checked } : e,
-            ),
-          }
+              ...l,
+              entries: l.entries.map((e) =>
+                e.key === itemKey ? { ...e, checked } : e,
+              ),
+            }
           : l,
       ),
     );
@@ -145,11 +145,11 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-            ...l,
-            entries: l.entries.map((e) =>
-              e.key === itemKey ? { ...e, title: val } : e,
-            ),
-          }
+              ...l,
+              entries: l.entries.map((e) =>
+                e.key === itemKey ? { ...e, title: val } : e,
+              ),
+            }
           : l,
       ),
     );
@@ -174,13 +174,13 @@ function App() {
       lists.map((l) =>
         l.key === listKey
           ? {
-            ...l,
-            entries: l.entries.map((e, i) => {
-              if (i === fromIndex) return l.entries[toIndex];
-              if (i === toIndex) return l.entries[fromIndex];
-              return e;
-            }),
-          }
+              ...l,
+              entries: l.entries.map((e, i) => {
+                if (i === fromIndex) return l.entries[toIndex];
+                if (i === toIndex) return l.entries[fromIndex];
+                return e;
+              }),
+            }
           : l,
       ),
     );
@@ -236,8 +236,9 @@ function App() {
   return (
     <>
       <Username>
-        <Avatar size={32} style={{ margin: 6 }} icon={<UserOutlined />} /><Typography.Text>{myName}</Typography.Text>
-      </Username >
+        <Avatar size={32} style={{ margin: 6 }} icon={<UserOutlined />} />
+        <Typography.Text>{myName}</Typography.Text>
+      </Username>
       <Space
         style={{
           padding: 64,
@@ -301,7 +302,7 @@ function App() {
 }
 
 const Username = styled.div`
-  position: fixed;  
+  position: fixed;
   right: 8px;
   top: 0;
   display: flex;

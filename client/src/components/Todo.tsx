@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { FocusEvent, KeyboardEvent } from "react";
 import Cursor from "./Cursor";
-import { Node, Select } from "./types";
+import { Node, Select } from "../types";
 import ReactDragListView from "react-drag-listview";
 
 const cursorColors = [
@@ -95,7 +95,7 @@ const TodoList = ({
 
   return (
     <Container hoverable bodyStyle={{ paddingRight: 12, paddingLeft: 12 }}>
-      <Row style={{ paddingLeft: 18, width: 'auto' }}>
+      <Row style={{ paddingLeft: 18, width: "auto" }}>
         <>
           {titleSelect.map((select, i) => (
             <Cursor

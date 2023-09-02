@@ -42,10 +42,10 @@ const TodoList = ({
   selects: Select[];
   onSelectItem: (start: number, end: number, key: string) => void;
 }) => {
-  const onEditPressEnter = (e: KeyboardEvent<HTMLInputElement>, node: Node) => {
+  const onEditPressEnter = (e: KeyboardEvent<HTMLInputElement>, key: string) => {
     const input = e.target as HTMLInputElement;
     input.blur();
-    if (data.length && data[data.length - 1] === node) {
+    if (data.length && data[data.length - 1].key === key) {
       onAddItem();
     }
   };
@@ -106,42 +106,16 @@ const TodoList = ({
         </Tooltip>
       </Row>
       {data.map((node) => (
-        <Row key={node.key}>
-          <Checkbox
-            style={{ paddingRight: 8 }}
-            checked={node.checked}
-            onChange={(e) => onCheck(e.target.checked, node.key)}
-          />
-          <div style={{ flex: 1 }}>
-            {selects
-              .filter((select) => select.key === node.key)
-              .map((select, i) => (
-                <Cursor
-                  color={cursorColors[i]}
-                  select={select}
-                  title={node.title}
-                />
-              ))}
-            <ItemInput
-              checked={node.checked}
-              key={node.key}
-              bordered={false}
-              autoFocus
-              value={node.title as string}
-              onChange={(e) => onChangeItem(e.target.value, node.key)}
-              onPressEnter={(e) => onEditPressEnter(e, node)}
-              onBlur={onEditBlur}
-              onSelect={(e) => onSelect(e, node.key)}
-            />
-          </div>
-          {node.title && (
-            <DeleteButton
-              type="link"
-              icon={<CloseOutlined />}
-              onClick={() => onDeleteItem(node.key)}
-            />
-          )}
-        </Row>
+        <Item
+          node={node}
+          onCheck={onCheck}
+          selects={selects}
+          onChange={onChangeItem}
+          onPressEnter={onEditPressEnter}
+          onBlur={onEditBlur}
+          onDelete={onDeleteItem}
+          onSelect={onSelect}
+        />
       ))}
       {showAddButton && (
         <AddButton onClick={onAddItem} type="link" icon={<PlusOutlined />}>
@@ -150,6 +124,56 @@ const TodoList = ({
       )}
     </Container>
   );
+};
+
+const Item = ({ node, onCheck, selects, onChange, onPressEnter, onBlur, onDelete, onSelect }:
+  {
+    node: Node,
+    onCheck: (checked: boolean, key: string) => void,
+    selects: Select[],
+    onChange: (val: string, key: string) => void,
+    onPressEnter: (e: KeyboardEvent<HTMLInputElement>, key: string) => void,
+    onBlur: () => void,
+    onDelete: (key: string) => void,
+    onSelect: (e: any, key: string) => void,
+  }) => {
+  return (
+    <Row key={node.key}>
+      <Checkbox
+        style={{ paddingRight: 8 }}
+        checked={node.checked}
+        onChange={(e) => onCheck(e.target.checked, node.key)}
+      />
+      <div style={{ flex: 1 }}>
+        {selects
+          .filter((select) => select.key === node.key)
+          .map((select, i) => (
+            <Cursor
+              color={cursorColors[i]}
+              select={select}
+              title={node.title}
+            />
+          ))}
+        <ItemInput
+          checked={node.checked}
+          key={node.key}
+          bordered={false}
+          autoFocus
+          value={node.title as string}
+          onChange={(e) => onChange(e.target.value, node.key)}
+          onPressEnter={(e) => onPressEnter(e, node.key)}
+          onBlur={onBlur}
+          onSelect={(e) => onSelect(e, node.key)}
+        />
+      </div>
+      {node.title && (
+        <DeleteButton
+          type="link"
+          icon={<CloseOutlined />}
+          onClick={() => onDelete(node.key)}
+        />
+      )}
+    </Row>)
 };
 
 const ItemInput = styled(Input)`

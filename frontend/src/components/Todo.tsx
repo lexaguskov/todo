@@ -135,7 +135,7 @@ const Todo = ({
             placeholder="Add title"
             value={title}
             bordered={false}
-            onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
+            onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
             onBlur={onTitleEditBlur}
             onSelect={onHeaderSelect}
           />
@@ -164,6 +164,11 @@ const Todo = ({
           </li>
         ))}
       </ReactDragListView>
+      {showAddButton && (
+        <AddButton onClick={onAddItem} type="link" icon={<PlusOutlined />}>
+          new entry
+        </AddButton>
+      )}
       {unchecked.length > 0 && checked.length > 0 && (
         <Divider style={{ marginTop: 4, marginBottom: 4 }} />
       )}
@@ -172,12 +177,6 @@ const Todo = ({
         <CustomCollapse ghost items={collapsed} />
       ) : (
         checkedItems
-      )}
-
-      {showAddButton && (
-        <AddButton onClick={onAddItem} type="link" icon={<PlusOutlined />}>
-          new entry
-        </AddButton>
       )}
       <Toolbar>
         {locked ? (

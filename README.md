@@ -1,10 +1,8 @@
 ## User Stories to Consider/Implement
 - ✅ I as a user can create to-do items, such as a grocery list
-  - 👉 clean up the ui
 
 - ✅ I as another user can collaborate in real-time with user - so that we
 can (for example) edit our family shopping-list together
-  - 👉 expire old sessions
 
 - ✅ I as a user can mark to-do items as “done” - so that I can avoid clutter and focus on things that are still pending
 
@@ -18,6 +16,10 @@ can share with my friends - so that I could have separate to-do lists for my gro
 - ✅ I as a user can keep editing the list even when I lose internet connection, and can expect it to sync up with BE as I regain connection
 
 - ✅ I as a user can filter the to-do list and view items that were marked as - (check) so that I can retrospect on my prior progress.
+
+- ✅ I as an owner/creator of a certain to-do list can freeze/unfreeze a to-do list I've created to avoid other users from mutating it
+  - 👉 do server side checks
+  - 👉 only owner can freeze
 
 - 👉 I as a user can add sub-tasks to my to-do items - so that I could make logical groups of tasks and see their overall progress.
 
@@ -42,4 +44,4 @@ space so that I can feel ultra-productive
 
 - 👉 I as a user can be sure that my todos will be persisted so that important information is not lost when server restarts
 
-- 👉 I as an owner/creator of a certain to-do list can freeze/unfreeze a to-do list I've created to avoid other users from mutating it
+

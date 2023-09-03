@@ -114,10 +114,12 @@ function App() {
     }
   };
 
+  const now = Date.now();
+
   const selects = useMemo<Select[]>(
     () =>
       Object.values(state.selections).filter(
-        (a) => a && a.name !== myName,
+        (a) => a && a.name !== myName && a.timestamp > now - 120000,
       ) as Select[],
     [state.selections],
   );
@@ -157,14 +159,19 @@ function App() {
                 key: list.key,
                 start,
                 end,
+                timestamp: Date.now(),
               };
             }}
             onSelectItem={(start, end, key) =>
-              (state.selections[myName] = { name: myName, key, start, end })
+              (state.selections[myName] = { name: myName, key, start, end, timestamp: Date.now() })
             }
             onReorder={(fromIndex, toIndex) =>
               onListItemReorder(list.key, fromIndex, toIndex)
             }
+            onToggleLock={() => {
+              list.locked = !list.locked;
+            }}
+            locked={list.locked}
           />
         ))}
         <TodoCard hoverable onClick={() => onCreateListClick(id())}>

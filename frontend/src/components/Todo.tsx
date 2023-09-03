@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { Button, Card, Collapse, Divider, Input, Tooltip } from "antd";
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { FocusEvent, KeyboardEvent, useState } from "react";
+import { DeleteOutlined, PlusOutlined, LockOutlined, UnlockOutlined } from "@ant-design/icons";
+import { FocusEvent, KeyboardEvent } from "react";
 import ReactDragListView from "react-drag-listview";
 
 import Cursor from "./Cursor";
@@ -23,6 +23,8 @@ const Todo = ({
   selects,
   onSelectItem,
   onReorder,
+  locked,
+  onToggleLock,
 }: {
   onDeleteListClick: () => void;
   onChangeTitle: (val: string) => void;
@@ -37,6 +39,8 @@ const Todo = ({
   selects: Select[];
   onSelectItem: (start: number, end: number, key: string) => void;
   onReorder: (fromIndex: number, toIndex: number) => void;
+  locked?: boolean;
+  onToggleLock: () => void;
 }) => {
   const onEditPressEnter = (
     e: KeyboardEvent<HTMLInputElement>,
@@ -49,7 +53,7 @@ const Todo = ({
     }
   };
 
-  const showAddButton = !data.some((d) => d.title === "");
+  const showAddButton = !locked && !data.some((d) => d.title === "");
 
   const onEditBlur = () => {
     // delete empty items from list
@@ -86,6 +90,7 @@ const Todo = ({
   const checkedItems = checked.map((node, i) => (
     <li key={`${i}`}>
       <Item
+        locked={locked}
         node={node}
         onCheck={onCheck}
         selects={selects}
@@ -125,23 +130,19 @@ const Todo = ({
             placeholder="Add title"
             value={title}
             bordered={false}
-            onChange={(e) => onChangeTitle(e.target.value)}
+            onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
             onBlur={onTitleEditBlur}
             onSelect={onHeaderSelect}
           />
+          {locked && <LockOutlined style={{ fontSize: 20, margin: '0 4px 8px 0', color: "#aaa" }} />}
         </>
-        <Tooltip title="Delete list">
-          <DeleteButton
-            icon={<DeleteOutlined />}
-            type="link"
-            onClick={onDeleteListClick}
-          />
-        </Tooltip>
+
       </Row>
       <ReactDragListView {...dragProps}>
         {unchecked.map((node, i) => (
           <li key={`${i}`}>
             <Item
+              locked={locked}
               draggable
               node={node}
               onCheck={onCheck}
@@ -155,22 +156,53 @@ const Todo = ({
           </li>
         ))}
       </ReactDragListView>
-      {unchecked.length > 0 && checked.length > 0 && (
-        <Divider style={{ marginTop: 4, marginBottom: 4 }} />
-      )}
+      {
+        unchecked.length > 0 && checked.length > 0 && (
+          <Divider style={{ marginTop: 4, marginBottom: 4 }} />
+        )
+      }
 
-      {checked.length > 3 ? (
-        <CustomCollapse ghost items={collapsed} />
-      ) : (
-        checkedItems
-      )}
+      {
+        checked.length > 3 ? (
+          <CustomCollapse ghost items={collapsed} />
+        ) : (
+          checkedItems
+        )
+      }
 
-      {showAddButton && (
-        <AddButton onClick={onAddItem} type="link" icon={<PlusOutlined />}>
-          new entry
-        </AddButton>
-      )}
-    </Container>
+      {
+        showAddButton && (
+          <AddButton onClick={onAddItem} type="link" icon={<PlusOutlined />}>
+            new entry
+          </AddButton>
+        )
+      }
+      <Toolbar>
+        {locked ? (
+          <DeleteButton
+            icon={<UnlockOutlined />}
+            type='link'
+            onClick={onToggleLock}
+          >
+            Unlock
+          </DeleteButton>
+        ) : (
+          <DeleteButton
+            icon={<LockOutlined />}
+            type='link'
+            onClick={onToggleLock}
+          >
+            Lock
+          </DeleteButton>)}
+        <DeleteButton
+          disabled={locked}
+          icon={<DeleteOutlined />}
+          type="link"
+          danger
+          onClick={onDeleteListClick}
+        >Delete</DeleteButton>
+      </Toolbar>
+    </Container >
   );
 };
 
@@ -191,10 +223,17 @@ const AddButton = styled(Button)`
   opacity: 0;
 `;
 
+const DeleteButton = styled(Button)`
+  opacity: 0;
+`;
+
 const Container = styled(Card)`
   width: 300px;
   cursor: auto;
   &:hover ${AddButton} {
+    opacity: 1;
+  }
+  &:hover ${DeleteButton} {
     opacity: 1;
   }
 `;
@@ -208,10 +247,6 @@ const HeaderInput = styled(Input)`
   text-overflow: ellipsis;
 `;
 
-const DeleteButton = styled(Button)`
-  opacity: 0;
-`;
-
 const Row = styled.div`
   width: 100%;
   display: flex;
@@ -220,6 +255,15 @@ const Row = styled.div`
   }
   padding-left: 18px;
   width: auto;
+`;
+
+const Toolbar = styled.div`
+  position: absolute;
+  right: 0;
+  left:0;
+  bottom:-40px;
+  display: flex;
+  justify-content: center;
 `;
 
 export default Todo;

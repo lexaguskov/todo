@@ -2,6 +2,7 @@ export type List = {
   title: string;
   key: string;
   entries: Node[];
+  locked?: boolean;
 };
 export type Node = {
   title: string;
@@ -13,4 +14,5 @@ export type Select = {
   key: string;
   start: number;
   end: number;
+  timestamp: number;
 };

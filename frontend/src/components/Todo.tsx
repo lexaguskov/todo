@@ -1,6 +1,11 @@
 import styled from "styled-components";
-import { Button, Card, Collapse, Divider, Input, Tooltip } from "antd";
-import { DeleteOutlined, PlusOutlined, LockOutlined, UnlockOutlined } from "@ant-design/icons";
+import { Button, Card, Collapse, Divider, Input } from "antd";
+import {
+  DeleteOutlined,
+  PlusOutlined,
+  LockOutlined,
+  UnlockOutlined,
+} from "@ant-design/icons";
 import { FocusEvent, KeyboardEvent } from "react";
 import ReactDragListView from "react-drag-listview";
 
@@ -130,13 +135,16 @@ const Todo = ({
             placeholder="Add title"
             value={title}
             bordered={false}
-            onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
+            onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
             onBlur={onTitleEditBlur}
             onSelect={onHeaderSelect}
           />
-          {locked && <LockOutlined style={{ fontSize: 20, margin: '0 4px 8px 0', color: "#aaa" }} />}
+          {locked && (
+            <LockOutlined
+              style={{ fontSize: 20, margin: "0 4px 8px 0", color: "#aaa" }}
+            />
+          )}
         </>
-
       </Row>
       <ReactDragListView {...dragProps}>
         {unchecked.map((node, i) => (
@@ -156,32 +164,26 @@ const Todo = ({
           </li>
         ))}
       </ReactDragListView>
-      {
-        unchecked.length > 0 && checked.length > 0 && (
-          <Divider style={{ marginTop: 4, marginBottom: 4 }} />
-        )
-      }
+      {unchecked.length > 0 && checked.length > 0 && (
+        <Divider style={{ marginTop: 4, marginBottom: 4 }} />
+      )}
 
-      {
-        checked.length > 3 ? (
-          <CustomCollapse ghost items={collapsed} />
-        ) : (
-          checkedItems
-        )
-      }
+      {checked.length > 3 ? (
+        <CustomCollapse ghost items={collapsed} />
+      ) : (
+        checkedItems
+      )}
 
-      {
-        showAddButton && (
-          <AddButton onClick={onAddItem} type="link" icon={<PlusOutlined />}>
-            new entry
-          </AddButton>
-        )
-      }
+      {showAddButton && (
+        <AddButton onClick={onAddItem} type="link" icon={<PlusOutlined />}>
+          new entry
+        </AddButton>
+      )}
       <Toolbar>
         {locked ? (
           <DeleteButton
             icon={<UnlockOutlined />}
-            type='link'
+            type="link"
             onClick={onToggleLock}
           >
             Unlock
@@ -189,20 +191,23 @@ const Todo = ({
         ) : (
           <DeleteButton
             icon={<LockOutlined />}
-            type='link'
+            type="link"
             onClick={onToggleLock}
           >
             Lock
-          </DeleteButton>)}
+          </DeleteButton>
+        )}
         <DeleteButton
           disabled={locked}
           icon={<DeleteOutlined />}
           type="link"
           danger
           onClick={onDeleteListClick}
-        >Delete</DeleteButton>
+        >
+          Delete
+        </DeleteButton>
       </Toolbar>
-    </Container >
+    </Container>
   );
 };
 
@@ -260,8 +265,8 @@ const Row = styled.div`
 const Toolbar = styled.div`
   position: absolute;
   right: 0;
-  left:0;
-  bottom:-40px;
+  left: 0;
+  bottom: -40px;
   display: flex;
   justify-content: center;
 `;

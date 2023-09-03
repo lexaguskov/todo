@@ -32,7 +32,7 @@ const Item = ({
 }) => {
   return (
     <Row key={node.key}>
-      {(draggable && !locked) ? (
+      {draggable && !locked ? (
         <GrabIcon href="#">
           <HolderOutlined />
         </GrabIcon>
@@ -42,7 +42,9 @@ const Item = ({
       <Checkbox
         style={{ paddingRight: 8 }}
         checked={node.checked}
-        onChange={locked ? () => { } : (e) => onCheck(e.target.checked, node.key)}
+        onChange={
+          locked ? () => {} : (e) => onCheck(e.target.checked, node.key)
+        }
       />
       <div style={{ flex: 1 }}>
         {selects
@@ -61,13 +63,15 @@ const Item = ({
           bordered={false}
           autoFocus
           value={node.title as string}
-          onChange={locked ? () => { } : (e) => onChange(e.target.value, node.key)}
+          onChange={
+            locked ? () => {} : (e) => onChange(e.target.value, node.key)
+          }
           onPressEnter={(e) => onPressEnter(e, node.key)}
           onBlur={onBlur}
           onSelect={(e) => onSelect(e, node.key)}
         />
       </div>
-      {(!locked && node.title) && (
+      {!locked && node.title && (
         <DeleteButton
           type="link"
           icon={<CloseOutlined />}

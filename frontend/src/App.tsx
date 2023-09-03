@@ -163,7 +163,13 @@ function App() {
               };
             }}
             onSelectItem={(start, end, key) =>
-              (state.selections[myName] = { name: myName, key, start, end, timestamp: Date.now() })
+              (state.selections[myName] = {
+                name: myName,
+                key,
+                start,
+                end,
+                timestamp: Date.now(),
+              })
             }
             onReorder={(fromIndex, toIndex) =>
               onListItemReorder(list.key, fromIndex, toIndex)

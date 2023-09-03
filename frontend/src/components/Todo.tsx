@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import { Button, Card, Input, Tooltip } from "antd";
+import { Button, Card, Collapse, Divider, Input, Tooltip } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { FocusEvent, KeyboardEvent } from "react";
+import { FocusEvent, KeyboardEvent, useState } from "react";
 import ReactDragListView from "react-drag-listview";
 
 import Cursor from "./Cursor";
@@ -80,6 +80,31 @@ const Todo = ({
     handleSelector: "a",
   };
 
+  const checked = data.filter((node) => node.checked);
+  const unchecked = data.filter((node) => !node.checked);
+
+  const checkedItems = checked.map((node, i) => (
+    <li key={`${i}`}>
+      <Item
+        node={node}
+        onCheck={onCheck}
+        selects={selects}
+        onChange={onChangeItem}
+        onPressEnter={onEditPressEnter}
+        onBlur={onEditBlur}
+        onDelete={onDeleteItem}
+        onSelect={onSelect}
+      />
+    </li>
+  ));
+  const collapsed = [
+    {
+      key: "1",
+      label: `${checked.length} checked items`,
+      children: checkedItems,
+    },
+  ];
+
   return (
     <Container
       hoverable
@@ -114,9 +139,10 @@ const Todo = ({
         </Tooltip>
       </Row>
       <ReactDragListView {...dragProps}>
-        {data.map((node, i) => (
+        {unchecked.map((node, i) => (
           <li key={`${i}`}>
             <Item
+              draggable
               node={node}
               onCheck={onCheck}
               selects={selects}
@@ -129,6 +155,16 @@ const Todo = ({
           </li>
         ))}
       </ReactDragListView>
+      {unchecked.length > 0 && checked.length > 0 && (
+        <Divider style={{ marginTop: 4, marginBottom: 4 }} />
+      )}
+
+      {checked.length > 3 ? (
+        <CustomCollapse ghost items={collapsed} />
+      ) : (
+        checkedItems
+      )}
+
       {showAddButton && (
         <AddButton onClick={onAddItem} type="link" icon={<PlusOutlined />}>
           new entry
@@ -137,6 +173,18 @@ const Todo = ({
     </Container>
   );
 };
+
+const CustomCollapse = styled(Collapse)`
+  & .ant-collapse-item .ant-collapse-header {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    color: gray;
+  }
+  & .ant-collapse-item .ant-collapse-content-box {
+    padding: 0;
+    padding-block: 0 !important;
+  }
+`;
 
 const AddButton = styled(Button)`
   padding: 0 0 0 18px;

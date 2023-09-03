@@ -16,6 +16,7 @@ const Item = ({
   onBlur,
   onDelete,
   onSelect,
+  draggable = false,
 }: {
   node: Node;
   onCheck: (checked: boolean, key: string) => void;
@@ -25,12 +26,17 @@ const Item = ({
   onBlur: () => void;
   onDelete: (key: string) => void;
   onSelect: (e: any, key: string) => void;
+  draggable?: boolean;
 }) => {
   return (
     <Row key={node.key}>
-      <GrabIcon href="#">
-        <HolderOutlined />
-      </GrabIcon>
+      {draggable ? (
+        <GrabIcon href="#">
+          <HolderOutlined />
+        </GrabIcon>
+      ) : (
+        <span style={{ width: 18 }} />
+      )}
       <Checkbox
         style={{ paddingRight: 8 }}
         checked={node.checked}

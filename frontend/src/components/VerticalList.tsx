@@ -2,6 +2,8 @@ import { Space } from "antd";
 import { useEffect, useRef } from "react";
 import { styled } from "styled-components";
 
+const CARD_WIDTH = 600;
+
 function VerticalList({
   children,
   focusedItem,
@@ -14,7 +16,7 @@ function VerticalList({
   useEffect(() => {
     if (!scrollerRef.current) return;
     scrollerRef.current.scrollTo({
-      left: window.innerWidth / 2 - 300 + focusedItem * 600,
+      left: window.innerWidth / 2 - CARD_WIDTH / 2 + focusedItem * CARD_WIDTH,
       behavior: "smooth",
     });
   }, [focusedItem]);
@@ -34,7 +36,7 @@ const Scroller = styled.div`
 `;
 
 const Container = styled(Space)`
-  padding: 0 600px 0 600px;
+  padding: 0 ${CARD_WIDTH}px 0 ${CARD_WIDTH}px;
 
   align-items: center;
   justify-content: center;

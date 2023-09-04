@@ -19,13 +19,14 @@ const cloneEntry = (entry: Entry): Entry => {
   return { key, title, checked, children: children.map(cloneEntry) };
 };
 
+type ThreeStatus = true | false | "indeterminate";
+
 const TodoList = ({
   onDelete,
   onFocus,
   onSelectTitle,
   selects,
   onSelectItem,
-  onToggleLock,
   item,
 }: {
   onFocus: () => void;
@@ -34,7 +35,6 @@ const TodoList = ({
   onSelectTitle: (start: number, end: number) => void;
   selects: Select[];
   onSelectItem: (start: number, end: number, key: string) => void;
-  onToggleLock: () => void;
 }) => {
   const data = item.entries;
   const title = item.title;
@@ -42,13 +42,36 @@ const TodoList = ({
   const titleSelect = selects.filter((s) => s.key === item.key);
 
   const flatList: { indent: number; entry: Entry; parent: Entry[] }[] = [];
+  const flatListWithoutChecked: {
+    status: ThreeStatus;
+    indent: number;
+    entry: Entry;
+    parent: Entry[];
+  }[] = [];
   const traverse = (entries: Entry[], indent: number) => {
     for (const entry of entries) {
+      // if (entry.checked && entry.children.length === 0) continue;
       flatList.push({ entry, indent, parent: entries });
       traverse(entry.children, indent + 1);
     }
   };
   traverse(data, 0);
+
+  const traverseWithoutChecked = (entries: Entry[], indent: number) => {
+    for (const entry of entries) {
+      if (entry.checked && entry.children.length === 0 && indent === 0)
+        continue;
+      const item = {
+        entry,
+        indent,
+        parent: entries,
+        status: entry.checked as ThreeStatus,
+      };
+      flatListWithoutChecked.push(item);
+      traverseWithoutChecked(entry.children, indent + 1);
+    }
+  };
+  traverseWithoutChecked(data, 0);
 
   const onChangeTitle = (val: string) => {
     item.title = val;
@@ -63,7 +86,14 @@ const TodoList = ({
   const onCheck = (checked: boolean, itemKey: string) => {
     const entry = flatList.find((node) => node.entry.key === itemKey);
     if (!entry) return;
-    entry.entry.checked = checked;
+
+    const checkRecursive = (entry: Entry, checked: boolean) => {
+      entry.checked = checked;
+      for (const child of entry.children) {
+        checkRecursive(child, checked);
+      }
+    };
+    checkRecursive(entry.entry, checked);
   };
 
   const onAddItem = (afterKey?: string) => {
@@ -100,7 +130,7 @@ const TodoList = ({
   const showAddButton = !locked && !data.some((d) => d.title === "");
 
   const onEditBlur = () => {
-    // delete empty items from list
+    // if item is empty, do not add it
     // for (const d of data) {
     //   if (d.title === "") onDeleteItem(d.key);
     // }
@@ -123,8 +153,8 @@ const TodoList = ({
   };
 
   const onDragEnd = (fromIndex: number, toIndex: number) => {
-    const fromEntry = flatList[fromIndex];
-    const toEntry = flatList[toIndex];
+    const fromEntry = flatListWithoutChecked[fromIndex];
+    const toEntry = flatListWithoutChecked[toIndex];
     if (!fromEntry || !toEntry) return;
 
     const copy = cloneEntry(fromEntry.entry);
@@ -136,16 +166,18 @@ const TodoList = ({
   const unchecked = data.filter((node) => !node.checked);
 
   const onIndent = (key: string) => {
-    const index = flatList.findIndex((node) => node.entry.key === key);
-    const entry = flatList[index];
+    const index = flatListWithoutChecked.findIndex(
+      (node) => node.entry.key === key,
+    );
+    const entry = flatListWithoutChecked[index];
     if (!entry) return;
 
     const indent = entry.indent;
     let newParent: Entry | null = null;
     // find item in flatList with index<index and indent === indent
     for (let i = index - 1; i >= 0; i--) {
-      if (flatList[i].indent > indent) continue;
-      newParent = flatList[i].entry;
+      if (flatListWithoutChecked[i].indent > indent) continue;
+      newParent = flatListWithoutChecked[i].entry;
       break;
     }
     if (!newParent) return;
@@ -160,8 +192,10 @@ const TodoList = ({
   };
 
   const onUnindent = (key: string) => {
-    const index = flatList.findIndex((node) => node.entry.key === key);
-    const entry = flatList[index];
+    const index = flatListWithoutChecked.findIndex(
+      (node) => node.entry.key === key,
+    );
+    const entry = flatListWithoutChecked[index];
     if (!entry) return;
 
     if (entry.indent === 0) return;
@@ -170,8 +204,8 @@ const TodoList = ({
     let newParent: Entry[] | null = null;
     // find item in flatList with index<index and indent === indent
     for (let i = index - 1; i >= 0; i--) {
-      if (flatList[i].indent >= indent) continue;
-      newParent = flatList[i].parent;
+      if (flatListWithoutChecked[i].indent >= indent) continue;
+      newParent = flatListWithoutChecked[i].parent;
       break;
     }
     if (!newParent) return;
@@ -181,6 +215,10 @@ const TodoList = ({
     entry.parent.splice(entry.parent.indexOf(entry.entry), 1);
 
     newParent.push(copy);
+  };
+
+  const onToggleLock = () => {
+    item.locked = !item.locked;
   };
 
   const checkedItems = checked.map((node, i) => (
@@ -239,7 +277,7 @@ const TodoList = ({
         nodeSelector="li"
         handleSelector="a"
       >
-        {flatList.map((node) => (
+        {flatListWithoutChecked.map((node) => (
           <li key={node.entry.key} style={{ paddingLeft: node.indent * 18 }}>
             <Item
               locked={locked}

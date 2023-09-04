@@ -33,6 +33,22 @@ const Item = ({
   onIndent: (key: string) => void;
   onUnindent: (key: string) => void;
 }) => {
+  const traverseChildren = (entry: Entry) => {
+    if (entry.children.length) {
+      let on = 0;
+      let off = 0;
+      for (const child of entry.children) {
+        const [onChild, offChild] = traverseChildren(child);
+        on += onChild;
+        off += offChild;
+      }
+      return [on, off];
+    }
+    return entry.checked ? [1, 0] : [0, 1];
+  };
+  const [onChildren, offChildren] = traverseChildren(node);
+  const checked = onChildren > offChildren && offChildren === 0;
+
   return (
     <Row key={node.key}>
       {draggable && !locked ? (
@@ -43,10 +59,11 @@ const Item = ({
         <span style={{ width: 18 }} />
       )}
       <Checkbox
+        indeterminate={onChildren > 0 && offChildren > 0}
         style={{ paddingRight: 8 }}
-        checked={node.checked}
+        checked={checked}
         onChange={
-          locked ? () => {} : (e) => onCheck(e.target.checked, node.key)
+          locked ? () => { } : (e) => onCheck(e.target.checked, node.key)
         }
       />
       <div style={{ flex: 1 }}>
@@ -56,13 +73,13 @@ const Item = ({
             <Cursor key={select.name} select={select} title={node.title} />
           ))}
         <ItemInput
-          checked={node.checked}
+          checked={checked}
           key={node.key}
           bordered={false}
           autoFocus={node.title === ""}
           value={node.title as string}
           onChange={
-            locked ? () => {} : (e) => onChange(e.target.value, node.key)
+            locked ? () => { } : (e) => onChange(e.target.value, node.key)
           }
           onPressEnter={(e) => onPressEnter(e, node.key)}
           onBlur={onBlur}

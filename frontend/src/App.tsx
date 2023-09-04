@@ -1,7 +1,7 @@
 import "./App.css";
 import { Card, Space, Result, Avatar, Typography } from "antd";
 import { PlusOutlined, UserOutlined } from "@ant-design/icons";
-import Todo from "./components/Todo";
+import TodoList from "./components/TodoList";
 import { List, Select, Node } from "./types";
 import { styled } from "styled-components";
 import { syncedStore, getYjsDoc } from "@syncedstore/core";
@@ -18,11 +18,11 @@ const store = syncedStore({
   selections: {} as Selections,
   lists: [] as List[],
 });
+const room = document.location.host;
 const doc = getYjsDoc(store);
 new YPartyKitProvider(
   "blocknote-dev.yousefed.partykit.dev",
-  // use a unique name as a "room" for your application:
-  "lexaguskov.todo",
+  room, // use the current hostname as the room name
   doc,
 );
 new IndexeddbPersistence("lexaguskov.todo", doc);
@@ -132,23 +132,12 @@ function App() {
       </Username>
       <Container align="center">
         {state.lists.map((list) => (
-          <Todo
-            titleSelect={
-              Object.values(state.selections).filter(
-                (s) =>
-                  s &&
-                  s.key === list.key &&
-                  s.name !== myName &&
-                  s.start >= 0 &&
-                  s.end >= 0,
-              ) as Select[]
-            }
+          <TodoList
+            item={list}
             selects={selects}
             key={list.key}
             onDeleteListClick={() => onDeleteListClick(list.key)}
             onChangeTitle={(val) => onSetTitle(list.key, val)}
-            title={list.title}
-            data={list.entries}
             onDeleteItem={(key) => onDeleteItem(list.key, key)}
             onCheck={(val, key) => onCheck(list.key, val, key)}
             onAddItem={() => onAddItem(list.key, id())}
@@ -177,7 +166,6 @@ function App() {
             onToggleLock={() => {
               list.locked = !list.locked;
             }}
-            locked={list.locked}
           />
         ))}
         <TodoCard hoverable onClick={() => onCreateListClick(id())}>

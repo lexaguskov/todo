@@ -11,42 +11,41 @@ import ReactDragListView from "react-drag-listview";
 
 import Cursor from "./Cursor";
 import Item from "./Item";
-import { Node, Select } from "../types";
+import { List, Select } from "../types";
 import { cursorColors } from "../lib";
 
-const Todo = ({
-  title,
+const TodoList = ({
   onChangeTitle,
-  data,
   onDeleteListClick,
   onDeleteItem,
   onCheck,
   onAddItem,
   onChangeItem,
   onSelectTitle,
-  titleSelect,
   selects,
   onSelectItem,
   onReorder,
-  locked,
   onToggleLock,
+  item,
 }: {
+  item: List;
   onDeleteListClick: () => void;
   onChangeTitle: (val: string) => void;
-  title: string;
-  data: Node[];
   onDeleteItem: (key: string) => void;
   onAddItem: () => void;
   onCheck: (checked: boolean, key: string) => void;
   onChangeItem: (val: string, key: string) => void;
   onSelectTitle: (start: number, end: number) => void;
-  titleSelect: Select[];
   selects: Select[];
   onSelectItem: (start: number, end: number, key: string) => void;
   onReorder: (fromIndex: number, toIndex: number) => void;
-  locked?: boolean;
   onToggleLock: () => void;
 }) => {
+  const data = item.entries;
+  const title = item.title;
+  const locked = item.locked;
+  const titleSelect = selects.filter((s) => s.key === item.key);
+
   const onEditPressEnter = (
     e: KeyboardEvent<HTMLInputElement>,
     key: string,
@@ -270,4 +269,4 @@ const Toolbar = styled.div`
   justify-content: center;
 `;
 
-export default Todo;
+export default TodoList;

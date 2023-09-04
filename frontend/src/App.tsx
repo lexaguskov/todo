@@ -1,6 +1,6 @@
 import { Card, Result, Avatar, Typography } from "antd";
 import { PlusOutlined, UserOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import TodoList from "./components/TodoList";
 import { List, Select } from "./lib/types";
@@ -37,7 +37,20 @@ function App() {
   const [focused, setFocused] = useState<number>(0);
   const onFocus = (list: List) => {
     setFocused(state.lists.findIndex((l) => l === list));
+    document.location.hash = list.key;
   };
+
+  useEffect(() => {
+    // add event when document location hash changes
+    const listener = () => {
+      const hash = document.location.hash;
+      let index = state.lists.findIndex((l) => l.key === hash.substring(1));
+      if (index === -1) index = state.lists.length - 1;
+      setFocused(index);
+    }
+    window.addEventListener("hashchange", listener);
+    return () => window.removeEventListener("hashchange", listener);
+  }, [setFocused, state.lists]);
 
   const onCreateList = () => {
     const newList = { title: "New todo list", key: id(), entries: [] };
@@ -79,13 +92,13 @@ function App() {
               };
             }}
             onSelectItem={(start, end, key) =>
-              (state.selections[myName] = {
-                name: myName,
-                key,
-                start,
-                end,
-                timestamp: Date.now(),
-              })
+            (state.selections[myName] = {
+              name: myName,
+              key,
+              start,
+              end,
+              timestamp: Date.now(),
+            })
             }
           />
         ))}

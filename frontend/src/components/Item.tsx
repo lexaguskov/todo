@@ -60,7 +60,7 @@ const Item = ({
   return (
     <Row key={node.key}>
       {draggable && !locked ? (
-        <GrabIcon href="#">
+        <GrabIcon className="grab-icon">
           <HolderOutlined />
         </GrabIcon>
       ) : (
@@ -121,7 +121,7 @@ const ItemInput = styled(Input)`
   color: ${(p) => (p.checked ? "grey" : "auto")};
 `;
 
-const GrabIcon = styled.a`
+const GrabIcon = styled.span`
   opacity: 0;
   display: flex;
   padding: 4px 4px 4px 0;

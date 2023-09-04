@@ -276,7 +276,7 @@ const TodoList = ({
       <ReactDragListView
         onDragEnd={onDragEnd}
         nodeSelector="li"
-        handleSelector="a"
+        handleSelector="span.grab-icon"
       >
         {flatListWithoutChecked.map((node) => (
           <li key={node.entry.key} style={{ paddingLeft: node.indent * 18 }}>
@@ -310,7 +310,6 @@ const TodoList = ({
       {unchecked.length > 0 && checked.length > 0 && (
         <Divider style={{ marginTop: 4, marginBottom: 4 }} />
       )}
-
       {checked.length > 3 ? (
         <CustomCollapse ghost items={collapsed} />
       ) : (

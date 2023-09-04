@@ -4,8 +4,7 @@ import { CloseOutlined, HolderOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Input } from "antd";
 
 import Cursor from "./Cursor";
-import { Node, Select } from "../types";
-import { cursorColors } from "../lib";
+import { Node, Select } from "../lib/types";
 
 const Item = ({
   node,
@@ -50,12 +49,7 @@ const Item = ({
         {selects
           .filter((select) => select.key === node.key)
           .map((select, i) => (
-            <Cursor
-              key={select.name}
-              color={cursorColors[i]}
-              select={select}
-              title={node.title}
-            />
+            <Cursor key={select.name} select={select} title={node.title} />
           ))}
         <ItemInput
           checked={node.checked}

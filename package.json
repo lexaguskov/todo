@@ -1,0 +1,20 @@
+{
+  "name": "ubi",
+  "version": "1.0.0",
+  "description": "- ✅ I as a user can create to-do items, such as a grocery list",
+  "main": "index.js",
+  "scripts": {
+    "tf-apply": "cd terraform && terraform apply",
+    "deploy": "(cd frontend && npm run build) && npm run tf-apply"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lexaguskov/todo.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lexaguskov/todo/issues"
+  },
+  "homepage": "https://github.com/lexaguskov/todo#readme"
+}

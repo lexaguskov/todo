@@ -11,8 +11,7 @@ import ReactDragListView from "react-drag-listview";
 
 import Cursor from "./Cursor";
 import Item from "./Item";
-import { List, Select } from "../types";
-import { cursorColors } from "../lib";
+import { List, Select } from "../lib/types";
 
 const TodoList = ({
   onChangeTitle,
@@ -126,19 +125,13 @@ const TodoList = ({
       <Row>
         <>
           {titleSelect.map((select, i) => (
-            <Cursor
-              key={select.name}
-              header
-              color={cursorColors[i]}
-              select={select}
-              title={title}
-            />
+            <Cursor key={select.name} header select={select} title={title} />
           ))}
           <HeaderInput
             placeholder="Add title"
             value={title}
             bordered={false}
-            onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
+            onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
             onBlur={onTitleEditBlur}
             onSelect={onHeaderSelect}
           />

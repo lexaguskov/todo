@@ -1,26 +1,47 @@
 import styled from "styled-components";
 
+export const colors = [
+  "lightblue",
+  "lightgreen",
+  "lightcoral",
+  "lightpink",
+  "lightsalmon",
+  "lightskyblue",
+  "lightsteelblue",
+];
+
+const knownNames: { [name: string]: string } = {};
+function getColor(name: string): string {
+  if (knownNames[name]) {
+    return knownNames[name];
+  }
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  knownNames[name] = color;
+  return color;
+}
+
 const Cursor = ({
   title = "",
   select,
-  color,
   header = false,
 }: {
   title: string;
   select: { start: number; end: number; name: string };
-  color: string;
   header?: Boolean;
-}) => (
-  <Container $header={header}>
-    {title.substring(0, select.start)}
-    <Mark color={color}>
-      <Name $header={header} color={color}>
-        {select.name}
-      </Name>
-      {title.substring(select.start, select.end)}
-    </Mark>
-  </Container>
-);
+}) => {
+  const color = getColor(select.name);
+  return (
+    <Container $header={header}>
+      {title.substring(0, select.start)}
+      <Mark color={color}>
+        <Name $header={header} color={color}>
+          {select.name}
+        </Name>
+        {title.substring(select.start, select.end)}
+      </Mark>
+    </Container>
+  );
+};
 
 const Container = styled.div<{ $header: Boolean }>`
   position: absolute;

@@ -1,31 +1,13 @@
 import "./App.css";
 import { Card, Space, Result, Avatar, Typography } from "antd";
 import { PlusOutlined, UserOutlined } from "@ant-design/icons";
-import TodoList from "./components/TodoList";
-import { List, Select, Node } from "./types";
-import { styled } from "styled-components";
-import { syncedStore, getYjsDoc } from "@syncedstore/core";
-import { useSyncedStore } from "@syncedstore/react";
 import { useMemo } from "react";
-import YPartyKitProvider from "y-partykit/provider";
-import { IndexeddbPersistence } from "y-indexeddb";
 
-// TODO: publish app somewhere
-// TODO: tf for server
+import TodoList from "./components/TodoList";
+import { Select, Node } from "./lib/types";
+import { styled } from "styled-components";
 
-type Selections = { [user: string]: Select };
-const store = syncedStore({
-  selections: {} as Selections,
-  lists: [] as List[],
-});
-const room = document.location.host;
-const doc = getYjsDoc(store);
-new YPartyKitProvider(
-  "blocknote-dev.yousefed.partykit.dev",
-  room, // use the current hostname as the room name
-  doc,
-);
-new IndexeddbPersistence("lexaguskov.todo", doc);
+import useStore from "./lib/store";
 
 const names = [
   "Eric Cartman",
@@ -52,25 +34,25 @@ const myName = names[myId];
 const id = () => Number(Math.random() * 0xffffffff).toString(16);
 
 function App() {
-  const state = useSyncedStore(store);
+  const state = useStore();
 
   const onCreateListClick = (listKey: string) => {
     const newList = { title: "New todo list", key: listKey, entries: [] };
-    store.lists.push(newList);
+    state.lists.push(newList);
   };
 
   const onSetTitle = (listKey: string, title: string) => {
-    const list = store.lists.find((l) => l.key === listKey);
+    const list = state.lists.find((l) => l.key === listKey);
     if (list) list.title = title;
   };
 
   const onDeleteListClick = (listKey: string) => {
-    const index = store.lists.findIndex((l) => l.key === listKey);
-    if (index > -1) store.lists.splice(index, 1);
+    const index = state.lists.findIndex((l) => l.key === listKey);
+    if (index > -1) state.lists.splice(index, 1);
   };
 
   const onDeleteItem = (listKey: string, itemKey: string) => {
-    const list = store.lists.find((l) => l.key === listKey);
+    const list = state.lists.find((l) => l.key === listKey);
     if (list) {
       const index = list.entries.findIndex((e) => e.key === itemKey);
       if (index > -1) list.entries.splice(index, 1);
@@ -78,7 +60,7 @@ function App() {
   };
 
   const onCheck = (listKey: string, checked: boolean, itemKey: string) => {
-    const list = store.lists.find((l) => l.key === listKey);
+    const list = state.lists.find((l) => l.key === listKey);
     if (list) {
       const item = list.entries.find((e) => e.key === itemKey);
       if (item) item.checked = checked;
@@ -87,12 +69,12 @@ function App() {
 
   const onAddItem = (listKey: string, itemKey: string) => {
     const newItem: Node = { key: itemKey, title: "", checked: false };
-    const list = store.lists.find((l) => l.key === listKey);
+    const list = state.lists.find((l) => l.key === listKey);
     if (list) list.entries.push(newItem);
   };
 
   const onChangeItem = (listKey: string, val: string, itemKey: string) => {
-    const list = store.lists.find((l) => l.key === listKey);
+    const list = state.lists.find((l) => l.key === listKey);
     if (list) {
       const item = list.entries.find((e) => e.key === itemKey);
       if (item) item.title = val;
@@ -104,7 +86,7 @@ function App() {
     fromIndex: number,
     toIndex: number,
   ) => {
-    const list = store.lists.find((l) => l.key === listKey);
+    const list = state.lists.find((l) => l.key === listKey);
     if (list) {
       // TRICKY: reusing object from list.entries causes error:
       // 'Not supported: reassigning object that already occurs in the tree.'
@@ -152,13 +134,13 @@ function App() {
               };
             }}
             onSelectItem={(start, end, key) =>
-            (state.selections[myName] = {
-              name: myName,
-              key,
-              start,
-              end,
-              timestamp: Date.now(),
-            })
+              (state.selections[myName] = {
+                name: myName,
+                key,
+                start,
+                end,
+                timestamp: Date.now(),
+              })
             }
             onReorder={(fromIndex, toIndex) =>
               onListItemReorder(list.key, fromIndex, toIndex)

@@ -19,6 +19,8 @@ const Item = ({
   locked = false,
   onIndent,
   onUnindent,
+  hideChecked = false,
+  hideUnchecked = false,
 }: {
   node: Entry;
   onCheck: (checked: boolean, key: string) => void;
@@ -32,6 +34,8 @@ const Item = ({
   locked?: boolean;
   onIndent: (key: string) => void;
   onUnindent: (key: string) => void;
+  hideChecked?: boolean;
+  hideUnchecked?: boolean;
 }) => {
   const traverseChildren = (entry: Entry) => {
     if (entry.children.length) {
@@ -48,6 +52,10 @@ const Item = ({
   };
   const [onChildren, offChildren] = traverseChildren(node);
   const checked = onChildren > offChildren && offChildren === 0;
+  const unchecked = offChildren > onChildren && onChildren === 0;
+
+  if (hideChecked && checked) return null;
+  if (hideUnchecked && unchecked) return null;
 
   return (
     <Row key={node.key}>

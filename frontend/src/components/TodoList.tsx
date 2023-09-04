@@ -221,11 +221,12 @@ const TodoList = ({
     item.locked = !item.locked;
   };
 
-  const checkedItems = checked.map((node, i) => (
-    <li key={`${i}`}>
+  const checkedItems = flatList.map((node, i) => (
+    <li key={`${i}`} style={{ paddingLeft: node.indent * 18 }}>
       <Item
+        hideUnchecked
         locked={locked}
-        node={node}
+        node={node.entry}
         onCheck={onCheck}
         selects={selects}
         onChange={onChangeItem}
@@ -261,7 +262,7 @@ const TodoList = ({
             placeholder="Add title"
             value={title}
             bordered={false}
-            onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
+            onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
             onBlur={onTitleEditBlur}
             onSelect={onHeaderSelect}
           />
@@ -280,6 +281,7 @@ const TodoList = ({
         {flatListWithoutChecked.map((node) => (
           <li key={node.entry.key} style={{ paddingLeft: node.indent * 18 }}>
             <Item
+              hideChecked
               locked={locked}
               draggable
               node={node.entry}

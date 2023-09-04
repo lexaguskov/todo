@@ -18,7 +18,7 @@ import { key } from "localforage";
 const cloneEntry = (entry: Entry): Entry => {
   const { key, title, checked, children = [] } = entry;
   return { key, title, checked, children: children.map(cloneEntry) };
-}
+};
 
 const TodoList = ({
   onDelete,
@@ -40,18 +40,29 @@ const TodoList = ({
   const locked = item.locked;
   const titleSelect = selects.filter((s) => s.key === item.key);
 
+  const flatList: { indent: number; entry: Entry; parent: Entry[] }[] = [];
+  const traverse = (entries: Entry[], indent: number) => {
+    for (const entry of entries) {
+      flatList.push({ entry, indent, parent: entries });
+      traverse(entry.children, indent + 1);
+    }
+  };
+  traverse(data, 0);
+
   const onChangeTitle = (val: string) => {
     item.title = val;
   };
 
   const onDeleteItem = (itemKey: string) => {
-    const index = item.entries.findIndex((e) => e.key === itemKey);
-    if (index > -1) item.entries.splice(index, 1);
+    const entry = flatList.find((node) => node.entry.key === itemKey);
+    if (!entry) return;
+    entry.parent.splice(entry.parent.indexOf(entry.entry), 1);
   };
 
   const onCheck = (checked: boolean, itemKey: string) => {
-    const entry = item.entries.find((e) => e.key === itemKey);
-    if (entry) entry.checked = checked;
+    const entry = flatList.find((node) => node.entry.key === itemKey);
+    if (!entry) return;
+    entry.entry.checked = checked;
   };
 
   const onAddItem = (afterKey?: string) => {
@@ -62,18 +73,18 @@ const TodoList = ({
       children: [],
     };
     if (afterKey) {
-      const index = item.entries.findIndex((e) => e.key === afterKey);
-      if (index < 0) return;
-      if (item.entries[index].checked) newItem.checked = true;
-      item.entries.splice(index + 1, 0, newItem);
+      const prev = flatList.find((e) => e.entry.key === afterKey);
+      if (!prev) return;
+      if (prev.entry.checked) newItem.checked = true;
+      prev.parent.splice(prev.parent.indexOf(prev.entry) + 1, 0, newItem);
     } else {
       item.entries.push(newItem);
     }
   };
 
   const onChangeItem = (val: string, itemKey: string) => {
-    const entry = item.entries.find((e) => e.key === itemKey);
-    if (entry) entry.title = val;
+    const entry = flatList.find((e) => e.entry.key === itemKey);
+    if (entry) entry.entry.title = val;
   };
 
   const onEditPressEnter = (
@@ -110,21 +121,12 @@ const TodoList = ({
     onSelectItem(target.selectionStart || 0, target.selectionEnd || 0, key);
   };
 
-  const flatList: { indent: number, entry: Entry, parent: Entry[] }[] = [];
-  const traverse = (entries: Entry[], indent: number) => {
-    for (const entry of entries) {
-      flatList.push({ entry, indent, parent: entries });
-      traverse(entry.children, indent + 1);
-    }
-  }
-  traverse(data, 0);
-
   const onDragEnd = (fromIndex: number, toIndex: number) => {
     const fromEntry = flatList[fromIndex];
     const toEntry = flatList[toIndex];
     if (!fromEntry || !toEntry) return;
 
-    const copy = cloneEntry(fromEntry.entry)
+    const copy = cloneEntry(fromEntry.entry);
     fromEntry.parent.splice(fromEntry.parent.indexOf(fromEntry.entry), 1);
     toEntry.parent.splice(toEntry.parent.indexOf(toEntry.entry), 0, copy);
   };
@@ -139,7 +141,7 @@ const TodoList = ({
 
     const indent = entry.indent;
     let newParent: Entry | null = null;
-    // find item in flatList with index<index and indent === indent 
+    // find item in flatList with index<index and indent === indent
     for (let i = index - 1; i >= 0; i--) {
       if (flatList[i].indent > indent) continue;
       newParent = flatList[i].entry;
@@ -165,7 +167,7 @@ const TodoList = ({
 
     const indent = entry.indent;
     let newParent: Entry[] | null = null;
-    // find item in flatList with index<index and indent === indent 
+    // find item in flatList with index<index and indent === indent
     for (let i = index - 1; i >= 0; i--) {
       if (flatList[i].indent >= indent) continue;
       newParent = flatList[i].parent;
@@ -178,7 +180,7 @@ const TodoList = ({
     entry.parent.splice(entry.parent.indexOf(entry.entry), 1);
 
     newParent.push(copy);
-  }
+  };
 
   const checkedItems = checked.map((node, i) => (
     <li key={`${i}`}>
@@ -219,7 +221,7 @@ const TodoList = ({
             placeholder="Add title"
             value={title}
             bordered={false}
-            onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
+            onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
             onBlur={onTitleEditBlur}
             onSelect={onHeaderSelect}
           />
@@ -230,7 +232,11 @@ const TodoList = ({
           )}
         </>
       </Row>
-      <ReactDragListView onDragEnd={onDragEnd} nodeSelector="li" handleSelector="a">
+      <ReactDragListView
+        onDragEnd={onDragEnd}
+        nodeSelector="li"
+        handleSelector="a"
+      >
         {flatList.map((node) => (
           <li key={node.entry.key} style={{ paddingLeft: node.indent * 18 }}>
             <Item

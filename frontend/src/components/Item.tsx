@@ -46,7 +46,7 @@ const Item = ({
         style={{ paddingRight: 8 }}
         checked={node.checked}
         onChange={
-          locked ? () => { } : (e) => onCheck(e.target.checked, node.key)
+          locked ? () => {} : (e) => onCheck(e.target.checked, node.key)
         }
       />
       <div style={{ flex: 1 }}>
@@ -62,7 +62,7 @@ const Item = ({
           autoFocus={node.title === ""}
           value={node.title as string}
           onChange={
-            locked ? () => { } : (e) => onChange(e.target.value, node.key)
+            locked ? () => {} : (e) => onChange(e.target.value, node.key)
           }
           onPressEnter={(e) => onPressEnter(e, node.key)}
           onBlur={onBlur}
@@ -70,10 +70,8 @@ const Item = ({
           onKeyDown={(e) => {
             e.stopPropagation();
             if (e.key === "Tab" && !locked) {
-              if (e.shiftKey)
-                onUnindent(node.key);
-              else
-                onIndent(node.key);
+              if (e.shiftKey) onUnindent(node.key);
+              else onIndent(node.key);
             }
           }}
         />

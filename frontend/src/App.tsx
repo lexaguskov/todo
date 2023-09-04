@@ -44,8 +44,6 @@ function App() {
     if (index > -1) state.lists.splice(index, 1);
   };
 
-
-
   const now = Date.now();
 
   const selects = useMemo<Select[]>(
@@ -79,13 +77,13 @@ function App() {
               };
             }}
             onSelectItem={(start, end, key) =>
-            (state.selections[myName] = {
-              name: myName,
-              key,
-              start,
-              end,
-              timestamp: Date.now(),
-            })
+              (state.selections[myName] = {
+                name: myName,
+                key,
+                start,
+                end,
+                timestamp: Date.now(),
+              })
             }
             onToggleLock={() => {
               list.locked = !list.locked;

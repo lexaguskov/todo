@@ -44,20 +44,7 @@ function App() {
     if (index > -1) state.lists.splice(index, 1);
   };
 
-  const onListItemReorder = (
-    listKey: string,
-    fromIndex: number,
-    toIndex: number,
-  ) => {
-    const list = state.lists.find((l) => l.key === listKey);
-    if (list) {
-      // TRICKY: reusing object from list.entries causes error:
-      // 'Not supported: reassigning object that already occurs in the tree.'
-      const { key, title, checked, children } = list.entries[fromIndex];
-      list.entries.splice(fromIndex, 1);
-      list.entries.splice(toIndex, 0, { key, title, checked, children });
-    }
-  };
+
 
   const now = Date.now();
 
@@ -92,16 +79,13 @@ function App() {
               };
             }}
             onSelectItem={(start, end, key) =>
-              (state.selections[myName] = {
-                name: myName,
-                key,
-                start,
-                end,
-                timestamp: Date.now(),
-              })
-            }
-            onReorder={(fromIndex, toIndex) =>
-              onListItemReorder(list.key, fromIndex, toIndex)
+            (state.selections[myName] = {
+              name: myName,
+              key,
+              start,
+              end,
+              timestamp: Date.now(),
+            })
             }
             onToggleLock={() => {
               list.locked = !list.locked;

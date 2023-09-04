@@ -13,13 +13,18 @@ import Cursor from "./Cursor";
 import Item from "./Item";
 import { List, Select, Entry } from "../lib/types";
 import { id } from "../lib/store";
+import { key } from "localforage";
+
+const cloneEntry = (entry: Entry): Entry => {
+  const { key, title, checked, children = [] } = entry;
+  return { key, title, checked, children: children.map(cloneEntry) };
+}
 
 const TodoList = ({
   onDelete,
   onSelectTitle,
   selects,
   onSelectItem,
-  onReorder,
   onToggleLock,
   item,
 }: {
@@ -28,7 +33,6 @@ const TodoList = ({
   onSelectTitle: (start: number, end: number) => void;
   selects: Select[];
   onSelectItem: (start: number, end: number, key: string) => void;
-  onReorder: (fromIndex: number, toIndex: number) => void;
   onToggleLock: () => void;
 }) => {
   const data = item.entries;
@@ -106,40 +110,75 @@ const TodoList = ({
     onSelectItem(target.selectionStart || 0, target.selectionEnd || 0, key);
   };
 
-  const dragProps = {
-    onDragEnd: (keya: number, keyb: number) => {
-      const indexA = data.findIndex((node) => node.key === unchecked[keya].key);
-      const indexB = data.findIndex((node) => node.key === unchecked[keyb].key);
-      onReorder(indexA, indexB);
-    },
-    nodeSelector: "li",
-    handleSelector: "a",
-  };
+  const flatList: { indent: number, entry: Entry, parent: Entry[] }[] = [];
+  const traverse = (entries: Entry[], indent: number) => {
+    for (const entry of entries) {
+      flatList.push({ entry, indent, parent: entries });
+      traverse(entry.children, indent + 1);
+    }
+  }
+  traverse(data, 0);
 
-  // const flatList = [];
-  // const traverse = (entries: Entry[]) => {
-  //   for (const entry of entries) {
-  //     flatList.push(entry);
-  //     traverse(entry.children || []);
-  //   }
-  // }
-  // traverse(data);
+  const onDragEnd = (fromIndex: number, toIndex: number) => {
+    const fromEntry = flatList[fromIndex];
+    const toEntry = flatList[toIndex];
+    if (!fromEntry || !toEntry) return;
+
+    const copy = cloneEntry(fromEntry.entry)
+    fromEntry.parent.splice(fromEntry.parent.indexOf(fromEntry.entry), 1);
+    toEntry.parent.splice(toEntry.parent.indexOf(toEntry.entry), 0, copy);
+  };
 
   const checked = data.filter((node) => node.checked);
   const unchecked = data.filter((node) => !node.checked);
 
   const onIndent = (key: string) => {
-    const index = data.findIndex((node) => node.key === key);
-    const node = data[index];
-    if (!node) return;
-    const { title, checked, children } = node;
-    const prev = data[index - 1];
-    if (!prev) return;
-    if (!prev.children) prev.children = [];
+    const index = flatList.findIndex((node) => node.entry.key === key);
+    const entry = flatList[index];
+    if (!entry) return;
 
-    item.entries.splice(index, 1);
-    prev.children.push({ title, checked, children: [], key });
+    const indent = entry.indent;
+    let newParent: Entry | null = null;
+    // find item in flatList with index<index and indent === indent 
+    for (let i = index - 1; i >= 0; i--) {
+      if (flatList[i].indent > indent) continue;
+      newParent = flatList[i].entry;
+      break;
+    }
+    if (!newParent) return;
+    if (newParent.children === entry.parent) return;
+
+    // remove from current parent
+    const copy = cloneEntry(entry.entry);
+    entry.parent.splice(entry.parent.indexOf(entry.entry), 1);
+
+    // add to a new parent
+    newParent.children.push(copy);
   };
+
+  const onUnindent = (key: string) => {
+    const index = flatList.findIndex((node) => node.entry.key === key);
+    const entry = flatList[index];
+    if (!entry) return;
+
+    if (entry.indent === 0) return;
+
+    const indent = entry.indent;
+    let newParent: Entry[] | null = null;
+    // find item in flatList with index<index and indent === indent 
+    for (let i = index - 1; i >= 0; i--) {
+      if (flatList[i].indent >= indent) continue;
+      newParent = flatList[i].parent;
+      break;
+    }
+    if (!newParent) return;
+
+    // remove from current parent
+    const copy = cloneEntry(entry.entry);
+    entry.parent.splice(entry.parent.indexOf(entry.entry), 1);
+
+    newParent.push(copy);
+  }
 
   const checkedItems = checked.map((node, i) => (
     <li key={`${i}`}>
@@ -154,6 +193,7 @@ const TodoList = ({
         onDelete={onDeleteItem}
         onSelect={onSelect}
         onIndent={onIndent}
+        onUnindent={onUnindent}
       />
     </li>
   ));
@@ -190,44 +230,24 @@ const TodoList = ({
           )}
         </>
       </Row>
-      <ReactDragListView {...dragProps}>
-        {unchecked.map((node, i) => (
-          <>
-            <li key={`${i}`}>
-              <Item
-                locked={locked}
-                draggable
-                node={node}
-                onCheck={onCheck}
-                selects={selects}
-                onChange={onChangeItem}
-                onPressEnter={onEditPressEnter}
-                onBlur={onEditBlur}
-                onDelete={onDeleteItem}
-                onSelect={onSelect}
-                onIndent={onIndent}
-              />
-            </li>
-            <div style={{ paddingLeft: 16 }}>
-              {(node.children || []).map((child, j) => (
-                <li key={`${i}.${j}`}>
-                  <Item
-                    locked={locked}
-                    draggable
-                    node={child}
-                    onCheck={onCheck}
-                    selects={selects}
-                    onChange={onChangeItem}
-                    onPressEnter={onEditPressEnter}
-                    onBlur={onEditBlur}
-                    onDelete={onDeleteItem}
-                    onSelect={onSelect}
-                    onIndent={onIndent}
-                  />
-                </li>
-              ))}
-            </div>
-          </>
+      <ReactDragListView onDragEnd={onDragEnd} nodeSelector="li" handleSelector="a">
+        {flatList.map((node) => (
+          <li key={node.entry.key} style={{ paddingLeft: node.indent * 18 }}>
+            <Item
+              locked={locked}
+              draggable
+              node={node.entry}
+              onCheck={onCheck}
+              selects={selects}
+              onChange={onChangeItem}
+              onPressEnter={onEditPressEnter}
+              onBlur={onEditBlur}
+              onDelete={onDeleteItem}
+              onSelect={onSelect}
+              onIndent={onIndent}
+              onUnindent={onUnindent}
+            />
+          </li>
         ))}
       </ReactDragListView>
       {showAddButton && (

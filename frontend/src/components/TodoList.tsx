@@ -21,12 +21,14 @@ const cloneEntry = (entry: Entry): Entry => {
 
 const TodoList = ({
   onDelete,
+  onFocus,
   onSelectTitle,
   selects,
   onSelectItem,
   onToggleLock,
   item,
 }: {
+  onFocus: () => void;
   item: List;
   onDelete: () => void;
   onSelectTitle: (start: number, end: number) => void;
@@ -208,6 +210,7 @@ const TodoList = ({
 
   return (
     <Container
+      onClick={onFocus}
       hoverable
       bodyStyle={{ paddingRight: 12, paddingLeft: 12, paddingBottom: 6 }}
     >
@@ -220,7 +223,7 @@ const TodoList = ({
             placeholder="Add title"
             value={title}
             bordered={false}
-            onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
+            onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
             onBlur={onTitleEditBlur}
             onSelect={onHeaderSelect}
           />

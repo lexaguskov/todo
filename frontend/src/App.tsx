@@ -1,13 +1,13 @@
-import "./App.css";
 import { Card, Space, Result, Avatar, Typography } from "antd";
 import { PlusOutlined, UserOutlined } from "@ant-design/icons";
-import { useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import TodoList from "./components/TodoList";
 import { Select } from "./lib/types";
 import { styled } from "styled-components";
 
 import useStore, { id } from "./lib/store";
+import VerticalList from "./components/VerticalList";
 
 const names = [
   "Eric Cartman",
@@ -54,15 +54,23 @@ function App() {
     [state.selections],
   );
 
+  const scrollerRef = useRef<HTMLDivElement>(null);
+
+  const [focused, setFocused] = useState<number>(0);
+  const onFocus = (n: number) => {
+    setFocused(n);
+  };
+
   return (
     <>
       <Username>
         <Avatar size={32} style={{ margin: 6 }} icon={<UserOutlined />} />
         <Typography.Text>{myName}</Typography.Text>
       </Username>
-      <Container align="center">
-        {state.lists.map((list) => (
+      <VerticalList focusedItem={focused}>
+        {state.lists.map((list, n) => (
           <TodoList
+            onFocus={() => onFocus(n)}
             item={list}
             selects={selects}
             key={list.key}
@@ -93,22 +101,13 @@ function App() {
         <TodoCard hoverable onClick={() => onCreateListClick(id())}>
           <Result icon={<PlusOutlined />} title="Create a new list" />
         </TodoCard>
-      </Container>
+      </VerticalList>
     </>
   );
 }
 
 const TodoCard = styled(Card)`
   width: 300px;
-`;
-
-const Container = styled(Space)`
-  padding: 0 600px 0 600px;
-
-  min-width: 100vw;
-  height: 100vh;
-  align-items: center;
-  justify-content: center;
 `;
 
 const Username = styled.div`

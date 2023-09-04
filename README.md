@@ -11,7 +11,7 @@ can (for example) edit our family shopping-list together
 - ✅ I as a user can create multiple to-do lists where each list has its unique URL that I
 can share with my friends - so that I could have separate to-do lists for my groceries and work related tasks.
 
-- ⛔️ I as a user can change the order of tasks via drag & drop
+- ✅ I as a user can change the order of tasks via drag & drop
 
 - ✅ I as a user can keep editing the list even when I lose internet connection, and can expect it to sync up with BE as I regain connection
 

@@ -83,7 +83,11 @@ const TodoList = ({
   };
 
   const dragProps = {
-    onDragEnd: onReorder,
+    onDragEnd: (keya: number, keyb: number) => {
+      const indexA = data.findIndex((node) => node.key === unchecked[keya].key);
+      const indexB = data.findIndex((node) => node.key === unchecked[keyb].key);
+      onReorder(indexA, indexB);
+    },
     nodeSelector: "li",
     handleSelector: "a",
   };

@@ -5,8 +5,10 @@ import {
   PlusOutlined,
   LockOutlined,
   UnlockOutlined,
+  EyeOutlined,
+  EyeInvisibleOutlined
 } from "@ant-design/icons";
-import { FocusEvent, KeyboardEvent } from "react";
+import { FocusEvent, KeyboardEvent, useState } from "react";
 import ReactDragListView from "react-drag-listview";
 
 import Cursor from "./Cursor";
@@ -42,12 +44,12 @@ const TodoList = ({
   const titleSelect = selects.filter((s) => s.key === item.key);
 
   const flatList: { indent: number; entry: Entry; parent: Entry[] }[] = [];
-  const flatListWithoutChecked: {
-    status: ThreeStatus;
-    indent: number;
-    entry: Entry;
-    parent: Entry[];
-  }[] = [];
+  // const flatListWithoutChecked: {
+  //   status: ThreeStatus;
+  //   indent: number;
+  //   entry: Entry;
+  //   parent: Entry[];
+  // }[] = [];
   const traverse = (entries: Entry[], indent: number) => {
     for (const entry of entries) {
       // if (entry.checked && entry.children.length === 0) continue;
@@ -57,21 +59,21 @@ const TodoList = ({
   };
   traverse(data, 0);
 
-  const traverseWithoutChecked = (entries: Entry[], indent: number) => {
-    for (const entry of entries) {
-      if (entry.checked && entry.children.length === 0 && indent === 0)
-        continue;
-      const item = {
-        entry,
-        indent,
-        parent: entries,
-        status: entry.checked as ThreeStatus,
-      };
-      flatListWithoutChecked.push(item);
-      traverseWithoutChecked(entry.children, indent + 1);
-    }
-  };
-  traverseWithoutChecked(data, 0);
+  // const traverseWithoutChecked = (entries: Entry[], indent: number) => {
+  //   for (const entry of entries) {
+  //     if (entry.checked && entry.children.length === 0 && indent === 0)
+  //       continue;
+  //     const item = {
+  //       entry,
+  //       indent,
+  //       parent: entries,
+  //       status: entry.checked as ThreeStatus,
+  //     };
+  //     flatListWithoutChecked.push(item);
+  //     traverseWithoutChecked(entry.children, indent + 1);
+  //   }
+  // };
+  // traverseWithoutChecked(data, 0);
 
   const onChangeTitle = (val: string) => {
     item.title = val;
@@ -153,8 +155,8 @@ const TodoList = ({
   };
 
   const onDragEnd = (fromIndex: number, toIndex: number) => {
-    const fromEntry = flatListWithoutChecked[fromIndex];
-    const toEntry = flatListWithoutChecked[toIndex];
+    const fromEntry = flatList[fromIndex];
+    const toEntry = flatList[toIndex];
     if (!fromEntry || !toEntry) return;
 
     const copy = cloneEntry(fromEntry.entry);
@@ -162,22 +164,25 @@ const TodoList = ({
     toEntry.parent.splice(toEntry.parent.indexOf(toEntry.entry), 0, copy);
   };
 
-  const checked = data.filter((node) => node.checked);
-  const unchecked = data.filter((node) => !node.checked);
+  const [showchecked, setShowChecked] = useState(true);
+  const toggleShowChecked = () => setShowChecked(s => !s);
+
+  // const checked = data.filter((node) => node.checked);
+  // const unchecked = data.filter((node) => !node.checked);
 
   const onIndent = (key: string) => {
-    const index = flatListWithoutChecked.findIndex(
+    const index = flatList.findIndex(
       (node) => node.entry.key === key,
     );
-    const entry = flatListWithoutChecked[index];
+    const entry = flatList[index];
     if (!entry) return;
 
     const indent = entry.indent;
     let newParent: Entry | null = null;
     // find item in flatList with index<index and indent === indent
     for (let i = index - 1; i >= 0; i--) {
-      if (flatListWithoutChecked[i].indent > indent) continue;
-      newParent = flatListWithoutChecked[i].entry;
+      if (flatList[i].indent > indent) continue;
+      newParent = flatList[i].entry;
       break;
     }
     if (!newParent) return;
@@ -192,10 +197,10 @@ const TodoList = ({
   };
 
   const onUnindent = (key: string) => {
-    const index = flatListWithoutChecked.findIndex(
+    const index = flatList.findIndex(
       (node) => node.entry.key === key,
     );
-    const entry = flatListWithoutChecked[index];
+    const entry = flatList[index];
     if (!entry) return;
 
     if (entry.indent === 0) return;
@@ -204,8 +209,8 @@ const TodoList = ({
     let newParent: Entry[] | null = null;
     // find item in flatList with index<index and indent === indent
     for (let i = index - 1; i >= 0; i--) {
-      if (flatListWithoutChecked[i].indent >= indent) continue;
-      newParent = flatListWithoutChecked[i].parent;
+      if (flatList[i].indent >= indent) continue;
+      newParent = flatList[i].parent;
       break;
     }
     if (!newParent) return;
@@ -221,31 +226,30 @@ const TodoList = ({
     item.locked = !item.locked;
   };
 
-  const checkedItems = flatList.map((node, i) => (
-    <li key={`${i}`} style={{ paddingLeft: node.indent * 18 }}>
-      <Item
-        hideUnchecked
-        locked={locked}
-        node={node.entry}
-        onCheck={onCheck}
-        selects={selects}
-        onChange={onChangeItem}
-        onPressEnter={onEditPressEnter}
-        onBlur={onEditBlur}
-        onDelete={onDeleteItem}
-        onSelect={onSelect}
-        onIndent={onIndent}
-        onUnindent={onUnindent}
-      />
-    </li>
-  ));
-  const collapsed = [
-    {
-      key: "1",
-      label: `${checked.length} checked items`,
-      children: checkedItems,
-    },
-  ];
+  // const checkedItems = flatList.map((node, i) => (
+  //   <li key={`${i}`} style={{ paddingLeft: node.indent * 18 }}>
+  //     <Item
+  //       locked={locked}
+  //       node={node.entry}
+  //       onCheck={onCheck}
+  //       selects={selects}
+  //       onChange={onChangeItem}
+  //       onPressEnter={onEditPressEnter}
+  //       onBlur={onEditBlur}
+  //       onDelete={onDeleteItem}
+  //       onSelect={onSelect}
+  //       onIndent={onIndent}
+  //       onUnindent={onUnindent}
+  //     />
+  //   </li>
+  // ));
+  // const collapsed = [
+  //   {
+  //     key: "1",
+  //     label: `${checked.length} checked items`,
+  //     children: checkedItems,
+  //   },
+  // ];
 
   return (
     <Container
@@ -262,7 +266,7 @@ const TodoList = ({
             placeholder="Add title"
             value={title}
             bordered={false}
-            onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
+            onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
             onBlur={onTitleEditBlur}
             onSelect={onHeaderSelect}
           />
@@ -278,10 +282,10 @@ const TodoList = ({
         nodeSelector="li"
         handleSelector="span.grab-icon"
       >
-        {flatListWithoutChecked.map((node) => (
+        {flatList.map((node) => (
           <li key={node.entry.key} style={{ paddingLeft: node.indent * 18 }}>
             <Item
-              hideChecked
+              hideChecked={!showchecked}
               locked={locked}
               draggable
               node={node.entry}
@@ -307,15 +311,22 @@ const TodoList = ({
           new entry
         </AddButton>
       )}
-      {unchecked.length > 0 && checked.length > 0 && (
+      {/* {unchecked.length > 0 && checked.length > 0 && (
         <Divider style={{ marginTop: 4, marginBottom: 4 }} />
       )}
       {checked.length > 3 ? (
         <CustomCollapse ghost items={collapsed} />
       ) : (
         checkedItems
-      )}
+      )} */}
       <Toolbar>
+        <DeleteButton
+          icon={showchecked ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+          type="link"
+          onClick={toggleShowChecked}
+        >
+          {showchecked ? "Hide checked" : "Show checked"}
+        </DeleteButton>
         {locked ? (
           <DeleteButton
             icon={<UnlockOutlined />}

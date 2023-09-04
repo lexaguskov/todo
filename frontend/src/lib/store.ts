@@ -10,7 +10,7 @@ const store = syncedStore({
   selections: {} as Selections,
   lists: [] as List[],
 });
-const room = document.location.host;
+const room = 'lexaguskov-todo' + document.location.hostname;
 const doc = getYjsDoc(store);
 new YPartyKitProvider(
   "blocknote-dev.yousefed.partykit.dev",

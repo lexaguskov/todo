@@ -44,4 +44,7 @@ space so that I can feel ultra-productive
 
 - 👉 I as a user can be sure that my todos will be persisted so that important information is not lost when server restarts
 
+- 👉 display offline mode
+- 👉 google auth
+
 

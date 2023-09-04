@@ -13,7 +13,6 @@ import Cursor from "./Cursor";
 import Item from "./Item";
 import { List, Select, Entry } from "../lib/types";
 import { id } from "../lib/store";
-import { key } from "localforage";
 
 const cloneEntry = (entry: Entry): Entry => {
   const { key, title, checked, children = [] } = entry;
@@ -221,7 +220,7 @@ const TodoList = ({
             placeholder="Add title"
             value={title}
             bordered={false}
-            onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
+            onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
             onBlur={onTitleEditBlur}
             onSelect={onHeaderSelect}
           />

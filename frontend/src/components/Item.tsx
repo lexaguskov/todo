@@ -17,6 +17,7 @@ const Item = ({
   onSelect,
   draggable = false,
   locked = false,
+  onIndent,
 }: {
   node: Node;
   onCheck: (checked: boolean, key: string) => void;
@@ -28,6 +29,7 @@ const Item = ({
   onSelect: (e: any, key: string) => void;
   draggable?: boolean;
   locked?: boolean;
+  onIndent: (key: string) => void;
 }) => {
   return (
     <Row key={node.key}>
@@ -42,7 +44,7 @@ const Item = ({
         style={{ paddingRight: 8 }}
         checked={node.checked}
         onChange={
-          locked ? () => {} : (e) => onCheck(e.target.checked, node.key)
+          locked ? () => { } : (e) => onCheck(e.target.checked, node.key)
         }
       />
       <div style={{ flex: 1 }}>
@@ -58,11 +60,16 @@ const Item = ({
           autoFocus={node.title === ""}
           value={node.title as string}
           onChange={
-            locked ? () => {} : (e) => onChange(e.target.value, node.key)
+            locked ? () => { } : (e) => onChange(e.target.value, node.key)
           }
           onPressEnter={(e) => onPressEnter(e, node.key)}
           onBlur={onBlur}
           onSelect={(e) => onSelect(e, node.key)}
+          onKeyDown={(e) => {
+            e.stopPropagation();
+            if (e.key === "Tab" && !locked)
+              onIndent(node.key);
+          }}
         />
       </div>
       {!locked && node.title && (

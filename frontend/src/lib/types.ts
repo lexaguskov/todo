@@ -8,6 +8,7 @@ export type Node = {
   title: string;
   key: string;
   checked: boolean;
+  children: Node[];
 };
 export type Select = {
   name: string;

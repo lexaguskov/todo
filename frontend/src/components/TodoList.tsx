@@ -11,15 +11,11 @@ import ReactDragListView from "react-drag-listview";
 
 import Cursor from "./Cursor";
 import Item from "./Item";
-import { List, Select } from "../lib/types";
+import { List, Select, Node } from "../lib/types";
+import { id } from "../lib/store";
 
 const TodoList = ({
-  onChangeTitle,
-  onDeleteListClick,
-  onDeleteItem,
-  onCheck,
-  onAddItem,
-  onChangeItem,
+  onDelete,
   onSelectTitle,
   selects,
   onSelectItem,
@@ -28,12 +24,7 @@ const TodoList = ({
   item,
 }: {
   item: List;
-  onDeleteListClick: () => void;
-  onChangeTitle: (val: string) => void;
-  onDeleteItem: (key: string) => void;
-  onAddItem: (afterKey?: string) => void;
-  onCheck: (checked: boolean, key: string) => void;
-  onChangeItem: (val: string, key: string) => void;
+  onDelete: () => void;
   onSelectTitle: (start: number, end: number) => void;
   selects: Select[];
   onSelectItem: (start: number, end: number, key: string) => void;
@@ -44,6 +35,37 @@ const TodoList = ({
   const title = item.title;
   const locked = item.locked;
   const titleSelect = selects.filter((s) => s.key === item.key);
+
+  const onChangeTitle = (val: string) => {
+    item.title = val;
+  };
+
+  const onDeleteItem = (itemKey: string) => {
+    const index = item.entries.findIndex((e) => e.key === itemKey);
+    if (index > -1) item.entries.splice(index, 1);
+  };
+
+  const onCheck = (checked: boolean, itemKey: string) => {
+    const entry = item.entries.find((e) => e.key === itemKey);
+    if (entry) entry.checked = checked;
+  };
+
+  const onAddItem = (afterKey?: string) => {
+    const newItem: Node = { key: id(), title: "", checked: false, children: [] };
+    if (afterKey) {
+      const index = item.entries.findIndex((e) => e.key === afterKey);
+      if (index < 0) return;
+      if (item.entries[index].checked) newItem.checked = true;
+      item.entries.splice(index + 1, 0, newItem);
+    } else {
+      item.entries.push(newItem);
+    }
+  };
+
+  const onChangeItem = (val: string, itemKey: string) => {
+    const entry = item.entries.find((e) => e.key === itemKey);
+    if (entry) entry.title = val;
+  };
 
   const onEditPressEnter = (
     e: KeyboardEvent<HTMLInputElement>,
@@ -65,7 +87,7 @@ const TodoList = ({
 
   const onTitleEditBlur = (e: FocusEvent<HTMLInputElement>) => {
     if (e.target.value === "" && data.length === 0) {
-      onDeleteListClick();
+      onDelete();
     }
   };
 
@@ -92,6 +114,22 @@ const TodoList = ({
   const checked = data.filter((node) => node.checked);
   const unchecked = data.filter((node) => !node.checked);
 
+  const onIndent = (key: string) => {
+    const index = data.findIndex((node) => node.key === key);
+    const node = data[index];
+    if (!node) return;
+    const { title, checked, children } = node;
+    const prev = data[index - 1];
+    if (!prev) return;
+    console.log('node', title);
+    console.log('parent', prev.title);
+    if (!prev.children) prev.children = [];
+
+    item.entries.splice(index, 1);
+    prev.children.push({ title, checked, children: [], key });
+  };
+
+
   const checkedItems = checked.map((node, i) => (
     <li key={`${i}`}>
       <Item
@@ -104,6 +142,7 @@ const TodoList = ({
         onBlur={onEditBlur}
         onDelete={onDeleteItem}
         onSelect={onSelect}
+        onIndent={onIndent}
       />
     </li>
   ));
@@ -129,7 +168,7 @@ const TodoList = ({
             placeholder="Add title"
             value={title}
             bordered={false}
-            onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
+            onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
             onBlur={onTitleEditBlur}
             onSelect={onHeaderSelect}
           />
@@ -142,20 +181,42 @@ const TodoList = ({
       </Row>
       <ReactDragListView {...dragProps}>
         {unchecked.map((node, i) => (
-          <li key={`${i}`}>
-            <Item
-              locked={locked}
-              draggable
-              node={node}
-              onCheck={onCheck}
-              selects={selects}
-              onChange={onChangeItem}
-              onPressEnter={onEditPressEnter}
-              onBlur={onEditBlur}
-              onDelete={onDeleteItem}
-              onSelect={onSelect}
-            />
-          </li>
+          <>
+            <li key={`${i}`}>
+              <Item
+                locked={locked}
+                draggable
+                node={node}
+                onCheck={onCheck}
+                selects={selects}
+                onChange={onChangeItem}
+                onPressEnter={onEditPressEnter}
+                onBlur={onEditBlur}
+                onDelete={onDeleteItem}
+                onSelect={onSelect}
+                onIndent={onIndent}
+              />
+            </li>
+            <div style={{ paddingLeft: 16 }}>
+              {(node.children || []).map((child, j) => (
+                <li key={`${i}.${j}`}>
+                  <Item
+                    locked={locked}
+                    draggable
+                    node={child}
+                    onCheck={onCheck}
+                    selects={selects}
+                    onChange={onChangeItem}
+                    onPressEnter={onEditPressEnter}
+                    onBlur={onEditBlur}
+                    onDelete={onDeleteItem}
+                    onSelect={onSelect}
+                    onIndent={onIndent}
+                  />
+                </li>
+              ))}
+            </div>
+          </>
         ))}
       </ReactDragListView>
       {showAddButton && (
@@ -199,7 +260,7 @@ const TodoList = ({
           icon={<DeleteOutlined />}
           type="link"
           danger
-          onClick={onDeleteListClick}
+          onClick={onDelete}
         >
           Delete
         </DeleteButton>
@@ -230,7 +291,7 @@ const DeleteButton = styled(Button)`
 `;
 
 const Container = styled(Card)`
-  width: 300px;
+  width: 600px;
   cursor: auto;
   &:hover ${AddButton} {
     opacity: 1;

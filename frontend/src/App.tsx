@@ -7,7 +7,7 @@ import TodoList from "./components/TodoList";
 import { Select, Node } from "./lib/types";
 import { styled } from "styled-components";
 
-import useStore from "./lib/store";
+import useStore, { id } from "./lib/store";
 
 const names = [
   "Eric Cartman",
@@ -31,8 +31,6 @@ const names = [
 const myId = Math.floor(Math.random() * names.length);
 const myName = names[myId];
 
-const id = () => Number(Math.random() * 0xffffffff).toString(16);
-
 function App() {
   const state = useStore();
 
@@ -41,54 +39,11 @@ function App() {
     state.lists.push(newList);
   };
 
-  const onSetTitle = (listKey: string, title: string) => {
-    const list = state.lists.find((l) => l.key === listKey);
-    if (list) list.title = title;
-  };
-
   const onDeleteListClick = (listKey: string) => {
     const index = state.lists.findIndex((l) => l.key === listKey);
     if (index > -1) state.lists.splice(index, 1);
   };
 
-  const onDeleteItem = (listKey: string, itemKey: string) => {
-    const list = state.lists.find((l) => l.key === listKey);
-    if (list) {
-      const index = list.entries.findIndex((e) => e.key === itemKey);
-      if (index > -1) list.entries.splice(index, 1);
-    }
-  };
-
-  const onCheck = (listKey: string, checked: boolean, itemKey: string) => {
-    const list = state.lists.find((l) => l.key === listKey);
-    if (list) {
-      const item = list.entries.find((e) => e.key === itemKey);
-      if (item) item.checked = checked;
-    }
-  };
-
-  const onAddItem = (listKey: string, afterKey?: string) => {
-    const newItem: Node = { key: id(), title: "", checked: false };
-    const list = state.lists.find((l) => l.key === listKey);
-    if (!list) return;
-    if (afterKey) {
-      const index = list.entries.findIndex((e) => e.key === afterKey);
-      console.log("add item", listKey, afterKey, index);
-      if (index < 0) return;
-      if (list.entries[index].checked) newItem.checked = true;
-      list.entries.splice(index + 1, 0, newItem);
-    } else {
-      list.entries.push(newItem);
-    }
-  };
-
-  const onChangeItem = (listKey: string, val: string, itemKey: string) => {
-    const list = state.lists.find((l) => l.key === listKey);
-    if (list) {
-      const item = list.entries.find((e) => e.key === itemKey);
-      if (item) item.title = val;
-    }
-  };
 
   const onListItemReorder = (
     listKey: string,
@@ -99,9 +54,9 @@ function App() {
     if (list) {
       // TRICKY: reusing object from list.entries causes error:
       // 'Not supported: reassigning object that already occurs in the tree.'
-      const { key, title, checked } = list.entries[fromIndex];
+      const { key, title, checked, children } = list.entries[fromIndex];
       list.entries.splice(fromIndex, 1);
-      list.entries.splice(toIndex, 0, { key, title, checked });
+      list.entries.splice(toIndex, 0, { key, title, checked, children });
     }
   };
 
@@ -127,12 +82,7 @@ function App() {
             item={list}
             selects={selects}
             key={list.key}
-            onDeleteListClick={() => onDeleteListClick(list.key)}
-            onChangeTitle={(val) => onSetTitle(list.key, val)}
-            onDeleteItem={(key) => onDeleteItem(list.key, key)}
-            onCheck={(val, key) => onCheck(list.key, val, key)}
-            onAddItem={(afterKey) => onAddItem(list.key, afterKey)}
-            onChangeItem={(val, key) => onChangeItem(list.key, val, key)} // TODO: debounce
+            onDelete={() => onDeleteListClick(list.key)}
             onSelectTitle={(start, end) => {
               state.selections[myName] = {
                 name: myName,
@@ -143,13 +93,13 @@ function App() {
               };
             }}
             onSelectItem={(start, end, key) =>
-              (state.selections[myName] = {
-                name: myName,
-                key,
-                start,
-                end,
-                timestamp: Date.now(),
-              })
+            (state.selections[myName] = {
+              name: myName,
+              key,
+              start,
+              end,
+              timestamp: Date.now(),
+            })
             }
             onReorder={(fromIndex, toIndex) =>
               onListItemReorder(list.key, fromIndex, toIndex)
@@ -172,7 +122,8 @@ const TodoCard = styled(Card)`
 `;
 
 const Container = styled(Space)`
-  padding: 64px;
+  padding: 0 600px 0 600px;
+
   min-width: 100vw;
   height: 100vh;
   align-items: center;

@@ -31,7 +31,7 @@ const TodoList = ({
   onDeleteListClick: () => void;
   onChangeTitle: (val: string) => void;
   onDeleteItem: (key: string) => void;
-  onAddItem: () => void;
+  onAddItem: (afterKey?: string) => void;
   onCheck: (checked: boolean, key: string) => void;
   onChangeItem: (val: string, key: string) => void;
   onSelectTitle: (start: number, end: number) => void;
@@ -51,18 +51,16 @@ const TodoList = ({
   ) => {
     const input = e.target as HTMLInputElement;
     input.blur();
-    if (data.length && data[data.length - 1].key === key) {
-      onAddItem();
-    }
+    onAddItem(key);
   };
 
   const showAddButton = !locked && !data.some((d) => d.title === "");
 
   const onEditBlur = () => {
     // delete empty items from list
-    for (const d of data) {
-      if (d.title === "") onDeleteItem(d.key);
-    }
+    // for (const d of data) {
+    //   if (d.title === "") onDeleteItem(d.key);
+    // }
   };
 
   const onTitleEditBlur = (e: FocusEvent<HTMLInputElement>) => {
@@ -161,7 +159,11 @@ const TodoList = ({
         ))}
       </ReactDragListView>
       {showAddButton && (
-        <AddButton onClick={onAddItem} type="link" icon={<PlusOutlined />}>
+        <AddButton
+          onClick={() => onAddItem()}
+          type="link"
+          icon={<PlusOutlined />}
+        >
           new entry
         </AddButton>
       )}

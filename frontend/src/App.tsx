@@ -67,10 +67,19 @@ function App() {
     }
   };
 
-  const onAddItem = (listKey: string, itemKey: string) => {
-    const newItem: Node = { key: itemKey, title: "", checked: false };
+  const onAddItem = (listKey: string, afterKey?: string) => {
+    const newItem: Node = { key: id(), title: "", checked: false };
     const list = state.lists.find((l) => l.key === listKey);
-    if (list) list.entries.push(newItem);
+    if (!list) return;
+    if (afterKey) {
+      const index = list.entries.findIndex((e) => e.key === afterKey);
+      console.log("add item", listKey, afterKey, index);
+      if (index < 0) return;
+      if (list.entries[index].checked) newItem.checked = true;
+      list.entries.splice(index + 1, 0, newItem);
+    } else {
+      list.entries.push(newItem);
+    }
   };
 
   const onChangeItem = (listKey: string, val: string, itemKey: string) => {
@@ -122,7 +131,7 @@ function App() {
             onChangeTitle={(val) => onSetTitle(list.key, val)}
             onDeleteItem={(key) => onDeleteItem(list.key, key)}
             onCheck={(val, key) => onCheck(list.key, val, key)}
-            onAddItem={() => onAddItem(list.key, id())}
+            onAddItem={(afterKey) => onAddItem(list.key, afterKey)}
             onChangeItem={(val, key) => onChangeItem(list.key, val, key)} // TODO: debounce
             onSelectTitle={(start, end) => {
               state.selections[myName] = {

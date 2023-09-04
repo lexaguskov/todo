@@ -55,7 +55,7 @@ const Item = ({
           checked={node.checked}
           key={node.key}
           bordered={false}
-          autoFocus
+          autoFocus={node.title === ""}
           value={node.title as string}
           onChange={
             locked ? () => {} : (e) => onChange(e.target.value, node.key)

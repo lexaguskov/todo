@@ -47,7 +47,7 @@ function App() {
       let index = state.lists.findIndex((l) => l.key === hash.substring(1));
       if (index === -1) index = state.lists.length - 1;
       setFocused(index);
-    }
+    };
     window.addEventListener("hashchange", listener);
     return () => window.removeEventListener("hashchange", listener);
   }, [setFocused, state.lists]);
@@ -92,13 +92,13 @@ function App() {
               };
             }}
             onSelectItem={(start, end, key) =>
-            (state.selections[myName] = {
-              name: myName,
-              key,
-              start,
-              end,
-              timestamp: Date.now(),
-            })
+              (state.selections[myName] = {
+                name: myName,
+                key,
+                start,
+                end,
+                timestamp: Date.now(),
+              })
             }
           />
         ))}

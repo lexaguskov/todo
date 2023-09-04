@@ -262,7 +262,7 @@ const TodoList = ({
             placeholder="Add title"
             value={title}
             bordered={false}
-            onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
+            onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
             onBlur={onTitleEditBlur}
             onSelect={onHeaderSelect}
           />

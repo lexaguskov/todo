@@ -71,7 +71,7 @@ const Item = ({
         style={{ paddingRight: 8 }}
         checked={checked}
         onChange={
-          locked ? () => { } : (e) => onCheck(e.target.checked, node.key)
+          locked ? () => {} : (e) => onCheck(e.target.checked, node.key)
         }
       />
       <div style={{ flex: 1 }}>
@@ -87,7 +87,7 @@ const Item = ({
           autoFocus={node.title === ""}
           value={node.title as string}
           onChange={
-            locked ? () => { } : (e) => onChange(e.target.value, node.key)
+            locked ? () => {} : (e) => onChange(e.target.value, node.key)
           }
           onPressEnter={(e) => onPressEnter(e, node.key)}
           onBlur={onBlur}

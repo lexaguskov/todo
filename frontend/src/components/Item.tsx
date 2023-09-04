@@ -4,7 +4,7 @@ import { CloseOutlined, HolderOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Input } from "antd";
 
 import Cursor from "./Cursor";
-import { Node, Select } from "../lib/types";
+import { Entry, Select } from "../lib/types";
 
 const Item = ({
   node,
@@ -19,7 +19,7 @@ const Item = ({
   locked = false,
   onIndent,
 }: {
-  node: Node;
+  node: Entry;
   onCheck: (checked: boolean, key: string) => void;
   selects: Select[];
   onChange: (val: string, key: string) => void;
@@ -44,7 +44,7 @@ const Item = ({
         style={{ paddingRight: 8 }}
         checked={node.checked}
         onChange={
-          locked ? () => { } : (e) => onCheck(e.target.checked, node.key)
+          locked ? () => {} : (e) => onCheck(e.target.checked, node.key)
         }
       />
       <div style={{ flex: 1 }}>
@@ -60,15 +60,14 @@ const Item = ({
           autoFocus={node.title === ""}
           value={node.title as string}
           onChange={
-            locked ? () => { } : (e) => onChange(e.target.value, node.key)
+            locked ? () => {} : (e) => onChange(e.target.value, node.key)
           }
           onPressEnter={(e) => onPressEnter(e, node.key)}
           onBlur={onBlur}
           onSelect={(e) => onSelect(e, node.key)}
           onKeyDown={(e) => {
             e.stopPropagation();
-            if (e.key === "Tab" && !locked)
-              onIndent(node.key);
+            if (e.key === "Tab" && !locked) onIndent(node.key);
           }}
         />
       </div>

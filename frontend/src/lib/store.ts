@@ -19,6 +19,6 @@ new YPartyKitProvider(
 );
 new IndexeddbPersistence("lexaguskov.todo", doc);
 
-export const id = () => Number(Math.random() * 0xffffffff).toString(16);
-
+const id = () => Number(Math.random() * 0xffffffff).toString(16);
+export { id };
 export default () => useSyncedStore(store);

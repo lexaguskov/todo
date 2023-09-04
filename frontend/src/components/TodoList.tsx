@@ -11,7 +11,7 @@ import ReactDragListView from "react-drag-listview";
 
 import Cursor from "./Cursor";
 import Item from "./Item";
-import { List, Select, Node } from "../lib/types";
+import { List, Select, Entry } from "../lib/types";
 import { id } from "../lib/store";
 
 const TodoList = ({
@@ -51,7 +51,12 @@ const TodoList = ({
   };
 
   const onAddItem = (afterKey?: string) => {
-    const newItem: Node = { key: id(), title: "", checked: false, children: [] };
+    const newItem: Entry = {
+      key: id(),
+      title: "",
+      checked: false,
+      children: [],
+    };
     if (afterKey) {
       const index = item.entries.findIndex((e) => e.key === afterKey);
       if (index < 0) return;
@@ -111,6 +116,15 @@ const TodoList = ({
     handleSelector: "a",
   };
 
+  // const flatList = [];
+  // const traverse = (entries: Entry[]) => {
+  //   for (const entry of entries) {
+  //     flatList.push(entry);
+  //     traverse(entry.children || []);
+  //   }
+  // }
+  // traverse(data);
+
   const checked = data.filter((node) => node.checked);
   const unchecked = data.filter((node) => !node.checked);
 
@@ -121,14 +135,11 @@ const TodoList = ({
     const { title, checked, children } = node;
     const prev = data[index - 1];
     if (!prev) return;
-    console.log('node', title);
-    console.log('parent', prev.title);
     if (!prev.children) prev.children = [];
 
     item.entries.splice(index, 1);
     prev.children.push({ title, checked, children: [], key });
   };
-
 
   const checkedItems = checked.map((node, i) => (
     <li key={`${i}`}>

@@ -4,7 +4,7 @@ import { PlusOutlined, UserOutlined } from "@ant-design/icons";
 import { useMemo } from "react";
 
 import TodoList from "./components/TodoList";
-import { Select, Node } from "./lib/types";
+import { Select } from "./lib/types";
 import { styled } from "styled-components";
 
 import useStore, { id } from "./lib/store";
@@ -43,7 +43,6 @@ function App() {
     const index = state.lists.findIndex((l) => l.key === listKey);
     if (index > -1) state.lists.splice(index, 1);
   };
-
 
   const onListItemReorder = (
     listKey: string,
@@ -93,13 +92,13 @@ function App() {
               };
             }}
             onSelectItem={(start, end, key) =>
-            (state.selections[myName] = {
-              name: myName,
-              key,
-              start,
-              end,
-              timestamp: Date.now(),
-            })
+              (state.selections[myName] = {
+                name: myName,
+                key,
+                start,
+                end,
+                timestamp: Date.now(),
+              })
             }
             onReorder={(fromIndex, toIndex) =>
               onListItemReorder(list.key, fromIndex, toIndex)

@@ -1,15 +1,17 @@
-export type List = {
-  title: string;
-  key: string;
-  entries: Node[];
-  locked?: boolean;
-};
-export type Node = {
+export type Entry = {
   title: string;
   key: string;
   checked: boolean;
-  children: Node[];
+  children: Entry[];
 };
+
+export type List = {
+  title: string;
+  key: string;
+  entries: Entry[];
+  locked?: boolean;
+};
+
 export type Select = {
   name: string;
   key: string;

@@ -3,33 +3,11 @@ import { PlusOutlined, UserOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 
 import TodoList from "./components/TodoList";
-import { List, Select } from "./lib/types";
+import { List } from "./lib/types";
 import { styled } from "styled-components";
 
-import useStore, { id } from "./lib/store";
+import useStore, { id, myName } from "./lib/store";
 import VerticalList from "./components/VerticalList";
-
-const names = [
-  "Eric Cartman",
-  "Stan Marsh",
-  "Kyle Broflovski",
-  "Kenny McCormick",
-  "Butters Stotch",
-  "Wendy Testaburger",
-  "Bebe Stevens",
-  "Jimmy Valmer",
-  "Timmy Burch",
-  "Token Black",
-  "Clyde Donovan",
-  "Craig Tucker",
-  "Tweek Tweak",
-  "Heidi Turner",
-  "Bradley Biggle",
-  "Scott Malkinson",
-];
-
-const myId = Math.floor(Math.random() * names.length);
-const myName = names[myId];
 
 function App() {
   const state = useStore();
@@ -62,12 +40,6 @@ function App() {
     if (index > -1) state.lists.splice(index, 1);
   };
 
-  const now = Date.now();
-
-  const selects = Object.values(state.selections).filter(
-    (a) => a && a.name !== myName && a.timestamp > now - 120000,
-  ) as Select[];
-
   return (
     <>
       <Username>
@@ -79,27 +51,8 @@ function App() {
           <TodoList
             onFocus={() => onFocus(list)}
             item={list}
-            selects={selects}
             key={list.key}
             onDelete={() => onDeleteList(list)}
-            onSelectTitle={(start, end) => {
-              state.selections[myName] = {
-                name: myName,
-                key: list.key,
-                start,
-                end,
-                timestamp: Date.now(),
-              };
-            }}
-            onSelectItem={(start, end, key) =>
-              (state.selections[myName] = {
-                name: myName,
-                key,
-                start,
-                end,
-                timestamp: Date.now(),
-              })
-            }
           />
         ))}
         <AddListButton hoverable onClick={onCreateList}>

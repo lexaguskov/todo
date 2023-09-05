@@ -24,17 +24,19 @@ const Cursor = ({
   title = "",
   select,
   header = false,
+  rightAligned = false,
 }: {
   title: string;
   select: { start: number; end: number; name: string };
-  header?: Boolean;
+  header?: boolean;
+  rightAligned?: boolean;
 }) => {
   const color = getColor(select.name);
   return (
-    <Container $header={header}>
+    <Container $header={header} $right={rightAligned}>
       {title.substring(0, select.start)}
       <Mark color={color}>
-        <Name $header={header} color={color}>
+        <Name $right={rightAligned} $header={header} color={color}>
           {select.name}
         </Name>
         {title.substring(select.start, select.end)}
@@ -43,13 +45,14 @@ const Cursor = ({
   );
 };
 
-const Container = styled.div<{ $header: Boolean }>`
+const Container = styled.div<{ $header: boolean; $right: boolean }>`
   position: absolute;
   font-size: ${(p) => (p.$header ? 20 : 14)}px;
   font-weight: ${(p) => (p.$header ? 500 : "normal")};
   color: rgba(0, 0, 0, 0);
   padding-top: ${(p) => (p.$header ? 0 : 4)}px;
   height: ${(p) => (p.$header ? "auto" : "1.1em")};
+  right: ${(p) => (p.$right ? "48px" : "unset")};
 `;
 
 const Mark = styled.mark`
@@ -61,7 +64,7 @@ const Mark = styled.mark`
   padding: 2px;
 `;
 
-const Name = styled.sup<{ $header: Boolean }>`
+const Name = styled.sup<{ $header: Boolean; $right: boolean }>`
   font-size: x-small;
   margin-bottom: 1em;
   position: absolute;
@@ -69,6 +72,7 @@ const Name = styled.sup<{ $header: Boolean }>`
   bottom: ${(p) => (p.$header ? 2 : 0.5)}em;
   color: ${(p) => p.color};
   background: white;
+  right: ${(p) => (p.$right ? "0" : "unset")};
 `;
 
 export default Cursor;

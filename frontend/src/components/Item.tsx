@@ -1,20 +1,15 @@
 import { styled } from "styled-components";
 import { KeyboardEvent } from "react";
 import { CloseOutlined, HolderOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Input } from "antd";
+import { Button, Checkbox } from "antd";
 
-import Cursor from "./Cursor";
-import { Entry, Select } from "../lib/types";
+import { Entry } from "../lib/types";
+import InputWithCursor from "./InputWithCursor";
 
 const Item = ({
   node,
-  onCheck,
-  selects,
-  onChange,
   onPressEnter,
-  onBlur,
   onDelete,
-  onSelect,
   draggable = false,
   locked = false,
   onIndent,
@@ -23,13 +18,8 @@ const Item = ({
   hideUnchecked = false,
 }: {
   node: Entry;
-  onCheck: (checked: boolean, key: string) => void;
-  selects: Select[];
-  onChange: (val: string, key: string) => void;
   onPressEnter: (e: KeyboardEvent<HTMLInputElement>, key: string) => void;
-  onBlur: () => void;
   onDelete: (key: string) => void;
-  onSelect: (e: any, key: string) => void;
   draggable?: boolean;
   locked?: boolean;
   onIndent: (key: string) => void;
@@ -52,7 +42,6 @@ const Item = ({
       return [on, off];
     }
 
-    console.log("node", node.title, node.price);
     if (entry.checked) {
       totalComplete += entry.price || 0;
     } else {
@@ -87,44 +76,50 @@ const Item = ({
         style={{ paddingRight: 8 }}
         checked={checked}
         onChange={
-          locked ? () => {} : (e) => onCheck(e.target.checked, node.key)
+          locked
+            ? () => {}
+            : (e) => {
+                const checkRecursive = (entry: Entry, checked: boolean) => {
+                  entry.checked = checked;
+                  for (const child of entry.children) {
+                    checkRecursive(child, checked);
+                  }
+                };
+                checkRecursive(node, e.target.checked);
+              }
         }
       />
-      <div style={{ flex: 1 }}>
-        {selects
-          .filter((select) => select.key === node.key)
-          .map((select, i) => (
-            <Cursor key={select.name} select={select} title={node.title} />
-          ))}
-        <ItemInput
-          checked={checked}
-          key={node.key}
-          bordered={false}
-          autoFocus={node.title === ""}
-          value={node.title as string}
-          onChange={
-            locked ? () => {} : (e) => onChange(e.target.value, node.key)
+      <InputWithCursor
+        checked={checked}
+        id={node.key}
+        autoFocus={node.title === ""}
+        value={node.title as string}
+        onChange={
+          locked
+            ? () => {}
+            : (e) => {
+                node.title = e.target.value;
+              }
+        }
+        onPressEnter={(e) => onPressEnter(e, node.key)}
+        onKeyDown={(e) => {
+          e.stopPropagation();
+          if (e.key === "Tab" && !locked) {
+            if (e.shiftKey) onUnindent(node.key);
+            else onIndent(node.key);
           }
-          onPressEnter={(e) => onPressEnter(e, node.key)}
-          onBlur={onBlur}
-          onSelect={(e) => onSelect(e, node.key)}
-          onKeyDown={(e) => {
-            e.stopPropagation();
-            if (e.key === "Tab" && !locked) {
-              if (e.shiftKey) onUnindent(node.key);
-              else onIndent(node.key);
-            }
-          }}
-        />
-      </div>
+        }}
+      />
       {!locked && node.title && !hasChildren && (
         <span style={{ textAlign: "right" }}>
           <PriceInput
+            rightAligned
+            id={node.key + ".price"}
             style={{ textAlign: "right", marginRight: 4, width: "80%" }}
             checked={checked}
             bordered={false}
             autoFocus={node.price === 0}
-            value={node.price || ("0" as string)}
+            value={"" + node.price || ("0" as string)}
             onChange={
               locked
                 ? () => {}
@@ -151,15 +146,6 @@ const Item = ({
   );
 };
 
-const ItemInput = styled(Input)`
-  padding-left: 0;
-  padding-right: 0;
-  flex: 1;
-  textoverflow: ellipsis;
-  text-decoration: ${(p) => (p.checked ? "line-through" : "none")};
-  color: ${(p) => (p.checked ? "grey" : "auto")};
-`;
-
 const GrabIcon = styled.span`
   opacity: 0;
   display: flex;
@@ -183,7 +169,7 @@ const Container = styled.div`
   }
 `;
 
-const PriceInput = styled(ItemInput)`
+const PriceInput = styled(InputWithCursor)`
   opacity: ${(p) => (p.value === "0" ? 0 : 1)};
   &:hover {
     opacity: 1;

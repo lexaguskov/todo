@@ -5,6 +5,25 @@ import { useSyncedStore } from "@syncedstore/react";
 
 import { List, Select } from "./types";
 
+const names = [
+  "Eric Cartman",
+  "Stan Marsh",
+  "Kyle Broflovski",
+  "Kenny McCormick",
+  "Butters Stotch",
+  "Wendy Testaburger",
+  "Bebe Stevens",
+  "Jimmy Valmer",
+  "Timmy Burch",
+  "Token Black",
+  "Clyde Donovan",
+  "Craig Tucker",
+  "Tweek Tweak",
+  "Heidi Turner",
+  "Bradley Biggle",
+  "Scott Malkinson",
+];
+
 type Selections = { [user: string]: Select };
 const store = syncedStore({
   selections: {} as Selections,
@@ -19,6 +38,11 @@ new YPartyKitProvider(
 );
 new IndexeddbPersistence("lexaguskov.todo", doc);
 
-const id = () => Number(Math.floor(Math.random() * 0xffffffff)).toString(16);
-export { id };
+export function id() {
+  return Number(Math.floor(Math.random() * 0xffffffff)).toString(16);
+}
+
+export const myId = Math.floor(Math.random() * names.length);
+export const myName = names[myId];
+
 export default () => useSyncedStore(store);

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Button, Card, Collapse, Divider, Input } from "antd";
+import { Button, Card, Collapse } from "antd";
 import {
   DeleteOutlined,
   PlusOutlined,
@@ -11,45 +11,30 @@ import {
 import { FocusEvent, KeyboardEvent, useState } from "react";
 import ReactDragListView from "react-drag-listview";
 
-import Cursor from "./Cursor";
 import Item from "./Item";
-import { List, Select, Entry } from "../lib/types";
+import { List, Entry } from "../lib/types";
 import { id } from "../lib/store";
+import InputWithCursor from "./InputWithCursor";
 
 const cloneEntry = (entry: Entry): Entry => {
   const { key, title, checked, children = [], price } = entry;
   return { key, title, checked, children: children.map(cloneEntry), price };
 };
 
-type ThreeStatus = true | false | "indeterminate";
-
 const TodoList = ({
   onDelete,
   onFocus,
-  onSelectTitle,
-  selects,
-  onSelectItem,
   item,
 }: {
   onFocus: () => void;
   item: List;
   onDelete: () => void;
-  onSelectTitle: (start: number, end: number) => void;
-  selects: Select[];
-  onSelectItem: (start: number, end: number, key: string) => void;
 }) => {
   const data = item.entries;
   const title = item.title;
   const locked = item.locked;
-  const titleSelect = selects.filter((s) => s.key === item.key);
 
   const flatList: { indent: number; entry: Entry; parent: Entry[] }[] = [];
-  // const flatListWithoutChecked: {
-  //   status: ThreeStatus;
-  //   indent: number;
-  //   entry: Entry;
-  //   parent: Entry[];
-  // }[] = [];
   const traverse = (entries: Entry[], indent: number) => {
     for (const entry of entries) {
       // if (entry.checked && entry.children.length === 0) continue;
@@ -59,22 +44,6 @@ const TodoList = ({
   };
   traverse(data, 0);
 
-  // const traverseWithoutChecked = (entries: Entry[], indent: number) => {
-  //   for (const entry of entries) {
-  //     if (entry.checked && entry.children.length === 0 && indent === 0)
-  //       continue;
-  //     const item = {
-  //       entry,
-  //       indent,
-  //       parent: entries,
-  //       status: entry.checked as ThreeStatus,
-  //     };
-  //     flatListWithoutChecked.push(item);
-  //     traverseWithoutChecked(entry.children, indent + 1);
-  //   }
-  // };
-  // traverseWithoutChecked(data, 0);
-
   const onChangeTitle = (val: string) => {
     item.title = val;
   };
@@ -83,19 +52,6 @@ const TodoList = ({
     const entry = flatList.find((node) => node.entry.key === itemKey);
     if (!entry) return;
     entry.parent.splice(entry.parent.indexOf(entry.entry), 1);
-  };
-
-  const onCheck = (checked: boolean, itemKey: string) => {
-    const entry = flatList.find((node) => node.entry.key === itemKey);
-    if (!entry) return;
-
-    const checkRecursive = (entry: Entry, checked: boolean) => {
-      entry.checked = checked;
-      for (const child of entry.children) {
-        checkRecursive(child, checked);
-      }
-    };
-    checkRecursive(entry.entry, checked);
   };
 
   const onAddItem = (afterKey?: string) => {
@@ -115,11 +71,6 @@ const TodoList = ({
     }
   };
 
-  const onChangeItem = (val: string, itemKey: string) => {
-    const entry = flatList.find((e) => e.entry.key === itemKey);
-    if (entry) entry.entry.title = val;
-  };
-
   const onEditPressEnter = (
     e: KeyboardEvent<HTMLInputElement>,
     key: string,
@@ -131,27 +82,10 @@ const TodoList = ({
 
   const showAddButton = !locked && !data.some((d) => d.title === "");
 
-  const onEditBlur = () => {
-    // if item is empty, do not add it
-    // for (const d of data) {
-    //   if (d.title === "") onDeleteItem(d.key);
-    // }
-  };
-
   const onTitleEditBlur = (e: FocusEvent<HTMLInputElement>) => {
     if (e.target.value === "" && data.length === 0) {
       onDelete();
     }
-  };
-
-  const onHeaderSelect = (e: any) => {
-    const target = e.target as HTMLInputElement;
-    onSelectTitle(target.selectionStart || 0, target.selectionEnd || 0);
-  };
-
-  const onSelect = (e: any, key: string) => {
-    const target = e.target as HTMLInputElement;
-    onSelectItem(target.selectionStart || 0, target.selectionEnd || 0, key);
   };
 
   const onDragEnd = (fromIndex: number, toIndex: number) => {
@@ -166,9 +100,6 @@ const TodoList = ({
 
   const [showchecked, setShowChecked] = useState(true);
   const toggleShowChecked = () => setShowChecked((s) => !s);
-
-  // const checked = data.filter((node) => node.checked);
-  // const unchecked = data.filter((node) => !node.checked);
 
   const onIndent = (key: string) => {
     const index = flatList.findIndex((node) => node.entry.key === key);
@@ -222,31 +153,6 @@ const TodoList = ({
     item.locked = !item.locked;
   };
 
-  // const checkedItems = flatList.map((node, i) => (
-  //   <li key={`${i}`} style={{ paddingLeft: node.indent * 18 }}>
-  //     <Item
-  //       locked={locked}
-  //       node={node.entry}
-  //       onCheck={onCheck}
-  //       selects={selects}
-  //       onChange={onChangeItem}
-  //       onPressEnter={onEditPressEnter}
-  //       onBlur={onEditBlur}
-  //       onDelete={onDeleteItem}
-  //       onSelect={onSelect}
-  //       onIndent={onIndent}
-  //       onUnindent={onUnindent}
-  //     />
-  //   </li>
-  // ));
-  // const collapsed = [
-  //   {
-  //     key: "1",
-  //     label: `${checked.length} checked items`,
-  //     children: checkedItems,
-  //   },
-  // ];
-
   return (
     <Container
       onClick={onFocus}
@@ -254,24 +160,15 @@ const TodoList = ({
       bodyStyle={{ paddingRight: 12, paddingLeft: 12, paddingBottom: 6 }}
     >
       <Row>
-        <>
-          {titleSelect.map((select, i) => (
-            <Cursor key={select.name} header select={select} title={title} />
-          ))}
-          <HeaderInput
-            placeholder="Add title"
-            value={title}
-            bordered={false}
-            onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
-            onBlur={onTitleEditBlur}
-            onSelect={onHeaderSelect}
-          />
-          {locked && (
-            <LockOutlined
-              style={{ fontSize: 20, margin: "0 4px 8px 0", color: "#aaa" }}
-            />
-          )}
-        </>
+        <InputWithCursor
+          header
+          id={item.key}
+          placeholder="Add title"
+          value={title}
+          onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
+          onBlur={onTitleEditBlur}
+        />
+        {locked && <Lock />}
       </Row>
       <ReactDragListView
         onDragEnd={onDragEnd}
@@ -285,13 +182,8 @@ const TodoList = ({
               locked={locked}
               draggable
               node={node.entry}
-              onCheck={onCheck}
-              selects={selects}
-              onChange={onChangeItem}
               onPressEnter={onEditPressEnter}
-              onBlur={onEditBlur}
               onDelete={onDeleteItem}
-              onSelect={onSelect}
               onIndent={onIndent}
               onUnindent={onUnindent}
             />
@@ -307,40 +199,32 @@ const TodoList = ({
           new entry
         </AddButton>
       )}
-      {/* {unchecked.length > 0 && checked.length > 0 && (
-        <Divider style={{ marginTop: 4, marginBottom: 4 }} />
-      )}
-      {checked.length > 3 ? (
-        <CustomCollapse ghost items={collapsed} />
-      ) : (
-        checkedItems
-      )} */}
       <Toolbar>
-        <DeleteButton
+        <HiddenButton
           icon={showchecked ? <EyeInvisibleOutlined /> : <EyeOutlined />}
           type="link"
           onClick={toggleShowChecked}
         >
           {showchecked ? "Hide checked" : "Show checked"}
-        </DeleteButton>
+        </HiddenButton>
         {locked ? (
-          <DeleteButton
+          <HiddenButton
             icon={<UnlockOutlined />}
             type="link"
             onClick={onToggleLock}
           >
             Unlock
-          </DeleteButton>
+          </HiddenButton>
         ) : (
-          <DeleteButton
+          <HiddenButton
             icon={<LockOutlined />}
             type="link"
             onClick={onToggleLock}
           >
             Lock
-          </DeleteButton>
+          </HiddenButton>
         )}
-        <DeleteButton
+        <HiddenButton
           disabled={locked}
           icon={<DeleteOutlined />}
           type="link"
@@ -348,22 +232,16 @@ const TodoList = ({
           onClick={onDelete}
         >
           Delete
-        </DeleteButton>
+        </HiddenButton>
       </Toolbar>
     </Container>
   );
 };
 
-const CustomCollapse = styled(Collapse)`
-  & .ant-collapse-item .ant-collapse-header {
-    padding-top: 4px;
-    padding-bottom: 4px;
-    color: gray;
-  }
-  & .ant-collapse-item .ant-collapse-content-box {
-    padding: 0;
-    padding-block: 0 !important;
-  }
+const Lock = styled(LockOutlined)`
+  font-size: 20px;
+  margin: 0 4px 8px 0;
+  color: #aaa;
 `;
 
 const AddButton = styled(Button)`
@@ -371,7 +249,7 @@ const AddButton = styled(Button)`
   opacity: 0;
 `;
 
-const DeleteButton = styled(Button)`
+const HiddenButton = styled(Button)`
   opacity: 0;
 `;
 
@@ -381,24 +259,15 @@ const Container = styled(Card)`
   &:hover ${AddButton} {
     opacity: 1;
   }
-  &:hover ${DeleteButton} {
+  &:hover ${HiddenButton} {
     opacity: 1;
   }
-`;
-
-const HeaderInput = styled(Input)`
-  font-size: 20px;
-  font-weight: 500;
-  padding-left: 0;
-  padding-top: 0;
-  padding-bottom: 8px;
-  text-overflow: ellipsis;
 `;
 
 const Row = styled.div`
   width: 100%;
   display: flex;
-  &:hover ${DeleteButton} {
+  &:hover ${HiddenButton} {
     opacity: 1;
   }
   padding-left: 18px;

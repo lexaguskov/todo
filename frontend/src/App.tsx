@@ -1,12 +1,13 @@
 import { Card, Result, Avatar, Typography } from "antd";
 import { PlusOutlined, UserOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
+import { useSelf, useUsers } from "y-presence";
 
 import TodoList from "./components/TodoList";
-import { List } from "./lib/types";
+import { List, Presense } from "./lib/types";
 import { styled } from "styled-components";
 
-import useStore, { id, myName } from "./lib/store";
+import useStore, { awareness, id, useUsername } from "./lib/store";
 import VerticalList from "./components/VerticalList";
 
 function App() {
@@ -17,6 +18,8 @@ function App() {
     setFocused(state.lists.findIndex((l) => l === list));
     document.location.hash = list.key;
   };
+
+  const myName = useUsername();
 
   useEffect(() => {
     // add event when document location hash changes

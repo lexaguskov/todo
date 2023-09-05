@@ -20,3 +20,8 @@ export type Select = {
   end: number;
   timestamp: number;
 };
+
+export type Presense = {
+  name: string;
+  email: string;
+};

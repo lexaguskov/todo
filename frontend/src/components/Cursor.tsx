@@ -21,25 +21,29 @@ function getColor(name: string): string {
 }
 
 const Cursor = ({
-  title = "",
-  select,
+  value = "",
+  start,
+  end,
+  name,
   header = false,
   rightAligned = false,
 }: {
-  title: string;
-  select: { start: number; end: number; name: string };
+  value: string;
+  start: number;
+  end: number;
+  name: string;
   header?: boolean;
   rightAligned?: boolean;
 }) => {
-  const color = getColor(select.name);
+  const color = getColor(name);
   return (
     <Container $header={header} $right={rightAligned}>
-      {title.substring(0, select.start)}
+      {value.substring(0, start)}
       <Mark color={color}>
         <Name $right={rightAligned} $header={header} color={color}>
-          {select.name}
+          {name}
         </Name>
-        {title.substring(select.start, select.end)}
+        {value.substring(start, end)}
       </Mark>
     </Container>
   );

@@ -5,7 +5,7 @@ import { useSyncedStore } from "@syncedstore/react";
 import { useSelf, useUsers } from "y-presence";
 import { WebsocketProvider } from "y-websocket";
 
-import { List, Presense, Select } from "./types";
+import { List, Presense } from "./types";
 
 const names = [
   "Eric Cartman",
@@ -26,9 +26,7 @@ const names = [
   "Scott Malkinson",
 ];
 
-type Selections = { [user: string]: Select };
 const store = syncedStore({
-  selections: {} as Selections,
   lists: [] as List[],
 });
 const room = "lexaguskov-todo" + document.location.hostname;
@@ -49,7 +47,8 @@ new IndexeddbPersistence("lexaguskov.todo", doc);
 
 export const awareness = provider.awareness;
 
-export const useUsername = () => useSelf(awareness, (state: any) => state?.name);
+export const useUsername = () =>
+  useSelf(awareness, (state: any) => state?.name);
 export const useId = () => useSelf(awareness, (state: any) => state?.email);
 
 const name = names[Math.floor(Math.random() * names.length)];

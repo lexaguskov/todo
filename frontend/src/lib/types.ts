@@ -13,15 +13,13 @@ export type List = {
   locked?: boolean;
 };
 
-export type Select = {
-  name: string;
-  key: string;
-  start: number;
-  end: number;
-  timestamp: number;
-};
-
 export type Presense = {
   name: string;
   email: string;
+  selection: {
+    start: number;
+    end: number;
+    timestamp: number;
+    key: string;
+  };
 };

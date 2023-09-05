@@ -1,13 +1,12 @@
 import { Card, Result, Avatar, Typography } from "antd";
 import { PlusOutlined, UserOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
-import { useSelf, useUsers } from "y-presence";
 
 import TodoList from "./components/TodoList";
-import { List, Presense } from "./lib/types";
+import { List } from "./lib/types";
 import { styled } from "styled-components";
 
-import useStore, { awareness, id, useUsername } from "./lib/store";
+import useStore, { id, useUsername } from "./lib/store";
 import VerticalList from "./components/VerticalList";
 
 function App() {

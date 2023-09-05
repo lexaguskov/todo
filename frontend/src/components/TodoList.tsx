@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Button, Card, Collapse } from "antd";
+import { Button, Card } from "antd";
 import {
   DeleteOutlined,
   PlusOutlined,

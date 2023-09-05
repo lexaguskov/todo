@@ -48,9 +48,6 @@ const Item = ({
       totalIncomplete += entry.price || 0;
     }
 
-    console.log(totalComplete);
-    console.log(totalIncomplete);
-
     return entry.checked ? [1, 0] : [0, 1];
   };
   const [onChildren, offChildren] = traverseChildren(node);
@@ -110,29 +107,34 @@ const Item = ({
           }
         }}
       />
-      {!locked && node.title && !hasChildren && (
+      {!hasChildren && (
         <span style={{ textAlign: "right" }}>
           <PriceInput
+            readOnly={locked}
             rightAligned
             id={node.key + ".price"}
             style={{ textAlign: "right", marginRight: 4, width: "80%" }}
             checked={checked}
-            bordered={false}
             autoFocus={node.price === 0}
             value={"" + node.price || ("0" as string)}
-            onChange={
-              locked
-                ? () => {}
-                : (e) => (node.price = parseFloat(e.target.value))
-            }
+            onChange={(e) => (node.price = parseFloat(e.target.value))}
           />
         </span>
       )}
       {hasChildren && totalComplete + totalIncomplete ? (
-        <span style={{ alignSelf: "center", marginRight: 4 }}>
-          {totalComplete || totalIncomplete
-            ? `$${totalComplete} of $${totalComplete + totalIncomplete}`
-            : `$${totalComplete + totalIncomplete}`}
+        <span style={{ textAlign: "right" }}>
+          <PriceInput
+            readOnly
+            rightAligned
+            id={node.key + ".price"}
+            style={{ textAlign: "right", marginRight: 4, width: "80%" }}
+            checked={checked}
+            value={
+              totalComplete || totalIncomplete
+                ? `$${totalComplete} of $${totalComplete + totalIncomplete}`
+                : `$${totalComplete + totalIncomplete}`
+            }
+          />
         </span>
       ) : null}
       {!locked && node.title && (

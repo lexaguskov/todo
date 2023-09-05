@@ -2,10 +2,10 @@ import YPartyKitProvider from "y-partykit/provider";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { syncedStore, getYjsDoc } from "@syncedstore/core";
 import { useSyncedStore } from "@syncedstore/react";
-import { useSelf, useUsers } from "y-presence";
-import { WebsocketProvider } from "y-websocket";
+import { useSelf } from "y-presence";
+// import { WebsocketProvider } from "y-websocket";
 
-import { List, Presense } from "./types";
+import { List } from "./types";
 
 const names = [
   "Eric Cartman",
@@ -58,4 +58,6 @@ export function id() {
   return Number(Math.floor(Math.random() * 0xffffffff)).toString(16);
 }
 
-export default () => useSyncedStore(store);
+const useStore = () => useSyncedStore(store);
+
+export default useStore;

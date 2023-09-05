@@ -1,11 +1,8 @@
 import { Input, InputProps } from "antd";
 import { styled } from "styled-components";
 import Cursor from "./Cursor";
-import { awareness, useUsername } from "../lib/store";
-import { useUsers } from "y-presence";
-import { Presense } from "../lib/types";
-
-const SELECTION_LIFETIME_SEC = 120;
+import { awareness } from "../lib/store";
+import useSelectionsForField from "../hooks/useSelectionsForField";
 
 const InputWithCursor = ({
   checked = false,
@@ -21,22 +18,7 @@ const InputWithCursor = ({
   checked?: boolean;
   value: string;
 } & InputProps) => {
-  const now = Math.floor(Date.now() / 1000);
-
-  const myName = useUsername();
-  const users = useUsers(awareness) || {};
-
-  // js Map users to array
-  const ids = Array.from(users.keys());
-  const selects = ids
-    .map((id) => users.get(id))
-    .filter(
-      (a) =>
-        a &&
-        a?.selection?.name !== myName &&
-        a?.selection?.key === id &&
-        a?.selection?.timestamp > now - SELECTION_LIFETIME_SEC,
-    ) as Presense[];
+  const selects = useSelectionsForField(id);
 
   const onSelect = (e: any) => {
     const target = e.target as HTMLInputElement;

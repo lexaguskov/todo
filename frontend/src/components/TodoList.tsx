@@ -6,7 +6,7 @@ import {
   LockOutlined,
   UnlockOutlined,
   EyeOutlined,
-  EyeInvisibleOutlined
+  EyeInvisibleOutlined,
 } from "@ant-design/icons";
 import { FocusEvent, KeyboardEvent, useState } from "react";
 import ReactDragListView from "react-drag-listview";
@@ -17,8 +17,8 @@ import { List, Select, Entry } from "../lib/types";
 import { id } from "../lib/store";
 
 const cloneEntry = (entry: Entry): Entry => {
-  const { key, title, checked, children = [] } = entry;
-  return { key, title, checked, children: children.map(cloneEntry) };
+  const { key, title, checked, children = [], price } = entry;
+  return { key, title, checked, children: children.map(cloneEntry), price };
 };
 
 type ThreeStatus = true | false | "indeterminate";
@@ -165,15 +165,13 @@ const TodoList = ({
   };
 
   const [showchecked, setShowChecked] = useState(true);
-  const toggleShowChecked = () => setShowChecked(s => !s);
+  const toggleShowChecked = () => setShowChecked((s) => !s);
 
   // const checked = data.filter((node) => node.checked);
   // const unchecked = data.filter((node) => !node.checked);
 
   const onIndent = (key: string) => {
-    const index = flatList.findIndex(
-      (node) => node.entry.key === key,
-    );
+    const index = flatList.findIndex((node) => node.entry.key === key);
     const entry = flatList[index];
     if (!entry) return;
 
@@ -197,9 +195,7 @@ const TodoList = ({
   };
 
   const onUnindent = (key: string) => {
-    const index = flatList.findIndex(
-      (node) => node.entry.key === key,
-    );
+    const index = flatList.findIndex((node) => node.entry.key === key);
     const entry = flatList[index];
     if (!entry) return;
 
@@ -266,7 +262,7 @@ const TodoList = ({
             placeholder="Add title"
             value={title}
             bordered={false}
-            onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
+            onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
             onBlur={onTitleEditBlur}
             onSelect={onHeaderSelect}
           />

@@ -10,7 +10,7 @@ const store = syncedStore({
   selections: {} as Selections,
   lists: [] as List[],
 });
-const room = 'lexaguskov-todo' + document.location.hostname;
+const room = "lexaguskov-todo" + document.location.hostname;
 const doc = getYjsDoc(store);
 new YPartyKitProvider(
   "blocknote-dev.yousefed.partykit.dev",
@@ -19,6 +19,6 @@ new YPartyKitProvider(
 );
 new IndexeddbPersistence("lexaguskov.todo", doc);
 
-const id = () => Number(Math.random() * 0xffffffff).toString(16);
+const id = () => Number(Math.floor(Math.random() * 0xffffffff)).toString(16);
 export { id };
 export default () => useSyncedStore(store);

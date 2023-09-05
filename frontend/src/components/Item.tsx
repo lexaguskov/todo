@@ -37,6 +37,9 @@ const Item = ({
   hideChecked?: boolean;
   hideUnchecked?: boolean;
 }) => {
+  let totalComplete = 0;
+  let totalIncomplete = 0;
+
   const traverseChildren = (entry: Entry) => {
     if (entry.children.length) {
       let on = 0;
@@ -48,6 +51,17 @@ const Item = ({
       }
       return [on, off];
     }
+
+    console.log("node", node.title, node.price);
+    if (entry.checked) {
+      totalComplete += entry.price || 0;
+    } else {
+      totalIncomplete += entry.price || 0;
+    }
+
+    console.log(totalComplete);
+    console.log(totalIncomplete);
+
     return entry.checked ? [1, 0] : [0, 1];
   };
   const [onChildren, offChildren] = traverseChildren(node);
@@ -57,8 +71,10 @@ const Item = ({
   if (hideChecked && checked) return null;
   if (hideUnchecked && unchecked) return null;
 
+  const hasChildren = node.children.length > 0;
+
   return (
-    <Row key={node.key}>
+    <Container key={node.key}>
       {draggable && !locked ? (
         <GrabIcon className="grab-icon">
           <HolderOutlined />
@@ -101,6 +117,29 @@ const Item = ({
           }}
         />
       </div>
+      {!locked && node.title && !hasChildren && (
+        <span style={{ textAlign: "right" }}>
+          <PriceInput
+            style={{ textAlign: "right", marginRight: 4, width: "80%" }}
+            checked={checked}
+            bordered={false}
+            autoFocus={node.price === 0}
+            value={node.price || ("0" as string)}
+            onChange={
+              locked
+                ? () => {}
+                : (e) => (node.price = parseFloat(e.target.value))
+            }
+          />
+        </span>
+      )}
+      {hasChildren && totalComplete + totalIncomplete ? (
+        <span style={{ alignSelf: "center", marginRight: 4 }}>
+          {totalComplete || totalIncomplete
+            ? `$${totalComplete} of $${totalComplete + totalIncomplete}`
+            : `$${totalComplete + totalIncomplete}`}
+        </span>
+      ) : null}
       {!locked && node.title && (
         <DeleteButton
           type="link"
@@ -108,7 +147,7 @@ const Item = ({
           onClick={() => onDelete(node.key)}
         />
       )}
-    </Row>
+    </Container>
   );
 };
 
@@ -133,13 +172,20 @@ const DeleteButton = styled(Button)`
   opacity: 0;
 `;
 
-const Row = styled.div`
+const Container = styled.div`
   width: 100%;
   display: flex;
   &:hover ${DeleteButton} {
     opacity: 1;
   }
   &:hover ${GrabIcon} {
+    opacity: 1;
+  }
+`;
+
+const PriceInput = styled(ItemInput)`
+  opacity: ${(p) => (p.value === "0" ? 0 : 1)};
+  &:hover {
     opacity: 1;
   }
 `;

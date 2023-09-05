@@ -15,21 +15,27 @@ can share with my friends - so that I could have separate to-do lists for my gro
 
 - ✅ I as a user can keep editing the list even when I lose internet connection, and can expect it to sync up with BE as I regain connection
 
-- ⛔️ I as a user can filter the to-do list and view items that were marked as - (check) so that I can retrospect on my prior progress.
+- ✅ I as a user can filter the to-do list and view items that were marked as - (check) so that I can retrospect on my prior progress.
+  - 👉 display how many items are hidden
 
 - ✅ I as an owner/creator of a certain to-do list can freeze/unfreeze a to-do list I've created to avoid other users from mutating it
   - 👉 do server side checks
   - 👉 only owner can freeze
-
+  - 👉 display owner of the lock
+  
 - ✅ I as a user can add sub-tasks to my to-do items - so that I could make logical groups of tasks and see their overall progress.
 
 - ✅ I as a user can make infinite nested levels of subtasks.
 
 - ✅ I as a user can move/convert subtasks to tasks via drag & drop
 
-- 👉 I as a user can specify cost/price for a task or a subtask - so that I can track my expenses / project cost.
+- ✅ I as a user can specify cost/price for a task or a subtask - so that I can track my expenses / project cost.
+  - 👉 add global total
 
-- 👉 I as a user can see the sum of the subtasks aggregated in the parent task - so that in my shopping list I can see what contributes to the overall sum. For example I can have a task called “Salad”, where I'd add all ingredients as sub-tasks, and would see how much a salad costs on my shopping list.
+- ✅ I as a user can see the sum of the subtasks aggregated in the parent task - so that in my shopping list I can see what contributes to the overall sum. For example I can have a task called “Salad”, where I'd add all ingredients as sub-tasks, and would see how much a salad costs on my shopping list.
+  - 👉 add $ prefix
+  - 👉 fix non-removable 0
+  - 👉 display concurrent edits
 
 - 👉 I as a user can add sub-descriptions of tasks in Markdown and view them as rich text while I'm not editing the descriptions.
 

@@ -3,6 +3,7 @@ export type Entry = {
   key: string;
   checked: boolean;
   children: Entry[];
+  price?: number;
 };
 
 export type List = {

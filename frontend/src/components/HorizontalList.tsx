@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { styled } from "styled-components";
 
 const CARD_WIDTH = 600;
+const GAP = 8;
 
 function HorizontalList({
   children,
@@ -15,8 +16,10 @@ function HorizontalList({
 
   useEffect(() => {
     if (!scrollerRef.current) return;
+    const width = Math.min(window.innerWidth, CARD_WIDTH);
+    const offset = (window.innerWidth - width) / 2;
     scrollerRef.current.scrollTo({
-      left: window.innerWidth / 2 - CARD_WIDTH / 2 + focusedItem * CARD_WIDTH,
+      left: window.innerWidth / 2 + (width + GAP) * focusedItem - offset, // window.innerWidth / 2 - CARD_WIDTH / 2 + focusedItem * CARD_WIDTH,
       behavior: "smooth",
     });
   }, [focusedItem]);
@@ -36,7 +39,7 @@ const Scroller = styled.div`
 `;
 
 const Container = styled(Space)`
-  padding: 0 ${CARD_WIDTH}px 0 ${CARD_WIDTH}px;
+  padding: 0 50vw 0 50vw;
 
   align-items: center;
   justify-content: center;

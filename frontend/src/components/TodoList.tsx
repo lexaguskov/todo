@@ -116,7 +116,7 @@ const TodoList = ({
           id={item.key}
           placeholder="Add title"
           value={title}
-          onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
+          onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
           onBlur={onTitleEditBlur}
         />
         {locked && <Lock />}
@@ -205,6 +205,7 @@ const HiddenButton = styled(Button)`
 `;
 
 const Container = styled(Card)`
+  max-width: 100vw;
   width: 600px;
   cursor: auto;
   &:hover ${AddButton} {

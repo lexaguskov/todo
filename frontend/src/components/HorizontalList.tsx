@@ -4,7 +4,7 @@ import { styled } from "styled-components";
 
 const CARD_WIDTH = 600;
 
-function VerticalList({
+function HorizontalList({
   children,
   focusedItem,
 }: {
@@ -42,4 +42,4 @@ const Container = styled(Space)`
   justify-content: center;
 `;
 
-export default VerticalList;
+export default HorizontalList;

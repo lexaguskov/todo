@@ -9,12 +9,12 @@ import {
   EyeInvisibleOutlined,
 } from "@ant-design/icons";
 import { FocusEvent, KeyboardEvent, useState } from "react";
-import ReactDragListView from "react-drag-listview";
 
 import Item from "./Item";
 import { List, Entry } from "../lib/types";
 import { id } from "../lib/store";
 import InputWithCursor from "./InputWithCursor";
+import Tree from "./Tree";
 
 const cloneEntry = (entry: Entry): Entry => {
   const { key, title, checked, children = [], price } = entry;
@@ -34,50 +34,47 @@ const TodoList = ({
   const title = item.title;
   const locked = item.locked;
 
-  const flatList: { indent: number; entry: Entry; parent: Entry[] }[] = [];
-  const traverse = (entries: Entry[], indent: number) => {
-    for (const entry of entries) {
-      // if (entry.checked && entry.children.length === 0) continue;
-      flatList.push({ entry, indent, parent: entries });
-      traverse(entry.children, indent + 1);
-    }
-  };
-  traverse(data, 0);
+  // const flatList: { indent: number; entry: Entry; parent: Entry[] }[] = [];
+  // const traverse = (entries: Entry[], indent: number) => {
+  //   for (const entry of entries) {
+  //     // if (entry.checked && entry.children.length === 0) continue;
+  //     flatList.push({ entry, indent, parent: entries });
+  //     traverse(entry.children, indent + 1);
+  //   }
+  // };
+  // traverse(data, 0);
 
   const onChangeTitle = (val: string) => {
     item.title = val;
   };
 
-  const onDeleteItem = (itemKey: string) => {
-    const entry = flatList.find((node) => node.entry.key === itemKey);
-    if (!entry) return;
-    entry.parent.splice(entry.parent.indexOf(entry.entry), 1);
+  const onDeleteItem = (item: Entry, parent: Entry[]) => {
+    parent.splice(parent.indexOf(item), 1);
   };
 
-  const onAddItem = (afterKey?: string) => {
+  const onAddItem = (after: Entry | null, parent: Entry[]) => {
     const newItem: Entry = {
       key: id(),
       title: "",
       checked: false,
       children: [],
     };
-    if (afterKey) {
-      const prev = flatList.find((e) => e.entry.key === afterKey);
-      if (!prev) return;
-      if (prev.entry.checked) newItem.checked = true;
-      prev.parent.splice(prev.parent.indexOf(prev.entry) + 1, 0, newItem);
+    if (after) {
+      if (after.checked) newItem.checked = true;
+      parent.splice(parent.indexOf(after) + 1, 0, newItem);
     } else {
-      item.entries.push(newItem);
+      parent.push(newItem);
     }
   };
 
   const onEditPressEnter = (
-    e: KeyboardEvent<HTMLInputElement>,
-    key: string,
+    ev: KeyboardEvent<HTMLInputElement>,
+    e: Entry,
+    parent: Entry[],
   ) => {
-    const input = e.target as HTMLInputElement;
+    const input = ev.target as HTMLInputElement;
     input.blur();
-    onAddItem(key);
+    onAddItem(e, parent);
   };
 
   const showAddButton = !locked && !data.some((d) => d.title === "");
@@ -88,69 +85,23 @@ const TodoList = ({
     }
   };
 
-  const onDragEnd = (fromIndex: number, toIndex: number) => {
-    const fromEntry = flatList[fromIndex];
-    const toEntry = flatList[toIndex];
-    if (!fromEntry || !toEntry) return;
-
-    const copy = cloneEntry(fromEntry.entry);
-    fromEntry.parent.splice(fromEntry.parent.indexOf(fromEntry.entry), 1);
-    toEntry.parent.splice(toEntry.parent.indexOf(toEntry.entry), 0, copy);
-  };
-
   const [showchecked, setShowChecked] = useState(true);
   const toggleShowChecked = () => setShowChecked((s) => !s);
 
-  const onIndent = (key: string) => {
-    const index = flatList.findIndex((node) => node.entry.key === key);
-    const entry = flatList[index];
-    if (!entry) return;
-
-    const indent = entry.indent;
-    let newParent: Entry | null = null;
-    // find item in flatList with index<index and indent === indent
-    for (let i = index - 1; i >= 0; i--) {
-      if (flatList[i].indent > indent) continue;
-      newParent = flatList[i].entry;
-      break;
-    }
-    if (!newParent) return;
-    if (newParent.children === entry.parent) return;
-
-    // remove from current parent
-    const copy = cloneEntry(entry.entry);
-    entry.parent.splice(entry.parent.indexOf(entry.entry), 1);
-
-    // add to a new parent
-    newParent.children.push(copy);
-  };
-
-  const onUnindent = (key: string) => {
-    const index = flatList.findIndex((node) => node.entry.key === key);
-    const entry = flatList[index];
-    if (!entry) return;
-
-    if (entry.indent === 0) return;
-
-    const indent = entry.indent;
-    let newParent: Entry[] | null = null;
-    // find item in flatList with index<index and indent === indent
-    for (let i = index - 1; i >= 0; i--) {
-      if (flatList[i].indent >= indent) continue;
-      newParent = flatList[i].parent;
-      break;
-    }
-    if (!newParent) return;
-
-    // remove from current parent
-    const copy = cloneEntry(entry.entry);
-    entry.parent.splice(entry.parent.indexOf(entry.entry), 1);
-
-    newParent.push(copy);
-  };
-
   const onToggleLock = () => {
     item.locked = !item.locked;
+  };
+
+  const onMoveItem = (
+    entry: Entry,
+    fromParent: Entry[],
+    toParent: Entry[],
+    toIndex: number,
+  ) => {
+    const copy = cloneEntry(entry);
+    fromParent.splice(fromParent.indexOf(entry), 1);
+    if (toIndex === -1) toParent.push(copy);
+    else toParent.splice(toIndex, 0, copy);
   };
 
   return (
@@ -170,29 +121,29 @@ const TodoList = ({
         />
         {locked && <Lock />}
       </Row>
-      <ReactDragListView
-        onDragEnd={onDragEnd}
-        nodeSelector="li"
-        handleSelector="span.grab-icon"
-      >
-        {flatList.map((node) => (
-          <li key={node.entry.key} style={{ paddingLeft: node.indent * 18 }}>
-            <Item
-              hideChecked={!showchecked}
-              locked={locked}
-              draggable
-              node={node.entry}
-              onPressEnter={onEditPressEnter}
-              onDelete={onDeleteItem}
-              onIndent={onIndent}
-              onUnindent={onUnindent}
-            />
-          </li>
-        ))}
-      </ReactDragListView>
+      <Tree
+        data={data}
+        onMove={onMoveItem}
+        renderItem={(
+          e: Entry,
+          parent: Entry[],
+          { onIndent, onUnindent }: { onIndent: any; onUnindent: any },
+        ) => (
+          <Item
+            hideChecked={!showchecked}
+            locked={locked}
+            draggable
+            node={e}
+            onPressEnter={(event) => onEditPressEnter(event, e, parent)}
+            onDelete={() => onDeleteItem(e, parent)}
+            onIndent={onIndent}
+            onUnindent={onUnindent}
+          />
+        )}
+      />
       {showAddButton && (
         <AddButton
-          onClick={() => onAddItem()}
+          onClick={() => onAddItem(null, data)}
           type="link"
           icon={<PlusOutlined />}
         >

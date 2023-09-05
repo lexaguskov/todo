@@ -7,7 +7,7 @@ import { List } from "./lib/types";
 import { styled } from "styled-components";
 
 import useStore, { id, useUsername } from "./lib/store";
-import VerticalList from "./components/VerticalList";
+import HorizontalList from "./components/HorizontalList";
 
 function App() {
   const state = useStore();
@@ -48,7 +48,7 @@ function App() {
         <UserIcon size={32} icon={<UserOutlined />} />
         <Typography.Text>{myName}</Typography.Text>
       </Username>
-      <VerticalList focusedItem={focused}>
+      <HorizontalList focusedItem={focused}>
         {state.lists.map((list, n) => (
           <TodoList
             onFocus={() => onFocus(list)}
@@ -60,7 +60,7 @@ function App() {
         <AddListButton hoverable onClick={onCreateList}>
           <Result icon={<PlusOutlined />} title="Create a new list" />
         </AddListButton>
-      </VerticalList>
+      </HorizontalList>
     </>
   );
 }

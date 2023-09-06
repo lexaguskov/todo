@@ -1,43 +1,43 @@
-import YPartyKitProvider from "y-partykit/provider";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { syncedStore, getYjsDoc } from "@syncedstore/core";
 import { useSyncedStore } from "@syncedstore/react";
 import { useSelf } from "y-presence";
-// import { WebsocketProvider } from "y-websocket";
+import { WebsocketProvider } from "y-websocket";
 
-import { List } from "./types";
+import { List, Presense } from "./types";
+import { SERVER_HOSTNAME } from "./config";
 
 const store = syncedStore({
   lists: [] as List[],
 });
+
 const room = "lexaguskov-todo" + document.location.hostname;
 const doc = getYjsDoc(store);
-const provider = new YPartyKitProvider(
-  "blocknote-dev.yousefed.partykit.dev",
-  room, // use the current hostname as the room name
+
+const provider = new WebsocketProvider(
+  SERVER_HOSTNAME.replace(/^http/, "ws"),
+  room,
   doc,
 );
 new IndexeddbPersistence("lexaguskov.todo", doc);
 
-// // Create a websocket provider
-// const provider = new WebsocketProvider(
-//   "wss://demos.yjs.dev",
-//   room,
-//   doc
-// );
-
 export const awareness = provider.awareness;
 
+const setUsername = (name: string) =>
+  awareness.setLocalStateField("name", name);
+const setUserId = (id: string) => awareness.setLocalStateField("id", id);
+export const setSelection = (selection: Presense["selection"]) =>
+  awareness.setLocalStateField("selection", selection);
+
+// returns user info from y-presence
 export const useUsername = () =>
-  useSelf(awareness, (state: any) => state?.name);
-export const useId = () => useSelf(awareness, (state: any) => state?.email);
+  [useSelf(awareness, (state: any) => state?.name), setUsername] as const;
+export const useUserId = () =>
+  [useSelf(awareness, (state: any) => state?.id), setUserId] as const;
 
-// const name = names[Math.floor(Math.random() * names.length)];
-// awareness.setLocalState({ name, email: "johndoe@gmail.com" });
-
-export function id() {
-  return Number(Math.floor(Math.random() * 0xffffffff)).toString(16);
-}
+// generates unique id
+export const id = () =>
+  Number(Math.floor(Math.random() * 0xffffffff)).toString(16);
 
 const useStore = () => useSyncedStore(store);
 

@@ -4,12 +4,12 @@ import { useUsers } from "y-presence";
 import { Presense } from "../lib/types";
 
 const SELECTION_LIFETIME_SEC = 120;
-const EMPTY = {};
 
+const EMPTY_OBJ = {};
 const useSelectionsForField = (key: string) => {
   const now = Math.floor(Date.now() / 1000);
-  const myName = useUsername();
-  const users = useUsers(awareness) || EMPTY;
+  const [myName] = useUsername();
+  const users = useUsers(awareness) || EMPTY_OBJ;
 
   return useMemo(
     () =>

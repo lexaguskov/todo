@@ -26,7 +26,6 @@ const Tree = ({
   const flatList: { indent: number; entry: Entry; parent: Entry[] }[] = [];
   const traverse = (entries: Entry[], indent: number) => {
     for (const entry of entries) {
-      // if (entry.checked && entry.children.length === 0) continue;
       flatList.push({ entry, indent, parent: entries });
       traverse(entry.children, indent + 1);
     }
@@ -40,6 +39,7 @@ const Tree = ({
 
     const indent = entry.indent;
     let newParent: Entry | null = null;
+
     // find item in flatList with index<index and indent === indent
     for (let i = index - 1; i >= 0; i--) {
       if (flatList[i].indent > indent) continue;
@@ -61,6 +61,7 @@ const Tree = ({
 
     const indent = entry.indent;
     let newParent: Entry[] | null = null;
+
     // find item in flatList with index<index and indent === indent
     for (let i = index - 1; i >= 0; i--) {
       if (flatList[i].indent >= indent) continue;

@@ -1,7 +1,7 @@
 import { Input, InputProps } from "antd";
 import { styled } from "styled-components";
 import Cursor from "./Cursor";
-import { awareness } from "../lib/store";
+import { setSelection } from "../lib/store";
 import useSelectionsForField from "../hooks/useSelectionsForField";
 
 const InputWithCursor = ({
@@ -25,7 +25,7 @@ const InputWithCursor = ({
     const start = target.selectionStart || 0;
     const end = target.selectionEnd || 0;
 
-    awareness.setLocalStateField("selection", {
+    setSelection({
       key: id,
       start,
       end,

@@ -110,10 +110,10 @@ const Item = ({
       {!hasChildren && (
         <span style={{ textAlign: "right" }}>
           <PriceInput
+            style={{ opacity: isNaN(node.price as any) ? 0 : 1 }}
             readOnly={locked}
             rightAligned
             id={node.key + ".price"}
-            style={{ textAlign: "right", marginRight: 4, width: "80%" }}
             checked={checked}
             autoFocus={node.price === 0}
             value={node.price ? "$" + node.price : ("$" as string)}
@@ -129,7 +129,6 @@ const Item = ({
             readOnly
             rightAligned
             id={node.key + ".price"}
-            style={{ textAlign: "right", marginRight: 4, width: "80%" }}
             checked={checked}
             value={
               totalComplete || totalIncomplete
@@ -174,9 +173,11 @@ const Container = styled.div`
 `;
 
 const PriceInput = styled(InputWithCursor)`
-  opacity: ${(p) => (p.value === "0" ? 0 : 1)};
+  text-align: right;
+  margin-right: 4px;
+  width: 80%;
   &:hover {
-    opacity: 1;
+    opacity: 1 !important;
   }
 `;
 

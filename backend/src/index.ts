@@ -5,10 +5,15 @@ import path from "path";
 import passport from "passport";
 import { Strategy as GitHubStrategy } from "passport-github";
 import expressSession from "express-session";
+import { Server } from 'ws';
 
 import { createServer } from "http";
-// import { Server } from "socket.io";
 import cors from "cors";
+
+// @ts-ignore
+import { setupWSConnection } from "y-websocket/bin/utils";
+
+const wss = new Server({ noServer: true });
 
 const { GITHUB_CLIENT_ID, GITHUB_SECRET } = process.env;
 
@@ -39,6 +44,20 @@ passport.use(
 );
 
 const server = createServer(app);
+
+server.on('upgrade', (request, socket, head) => {
+  // You may check auth of request here..
+  // See https://github.com/websockets/ws#client-authentication
+  /**
+   * @param {any} ws
+   */
+  const handleAuth = (ws: any) => {
+    wss.emit('connection', ws, request)
+  }
+  wss.handleUpgrade(request, socket, head, handleAuth)
+});
+
+wss.on('connection', setupWSConnection);
 
 app.get('/auth/github', passport.authenticate('github'));
 app.get('/auth/callback/github', passport.authenticate('github', { failureRedirect: '/login' }), (req, res) => {

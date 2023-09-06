@@ -6,7 +6,7 @@ import TodoList from "./components/TodoList";
 import { List } from "./lib/types";
 import { styled } from "styled-components";
 
-import useStore, { awareness, id, useUsername } from "./lib/store";
+import useStore, { id, useUserId, useUsername } from "./lib/store";
 import HorizontalList from "./components/HorizontalList";
 import useUserInfo from "./hooks/useUserInfo";
 import Auth from "./components/Auth";
@@ -15,18 +15,21 @@ function App() {
   const state = useStore();
   const userInfo = useUserInfo();
 
+  const [username, setUsername] = useUsername();
+  const [, setUserId] = useUserId();
+
+  // store user info in y-presense for other users to see
   useEffect(() => {
     if (!userInfo) return;
-    awareness.setLocalStateField("name", userInfo.displayName);
-  }, [userInfo]);
+    setUsername(userInfo.displayName || userInfo.username);
+    setUserId(userInfo.username);
+  }, [userInfo, setUsername, setUserId]);
 
   const [focused, setFocused] = useState<number>(0);
   const onFocus = (list: List) => {
     setFocused(state.lists.findIndex((l) => l === list));
     document.location.hash = list.key;
   };
-
-  const myName = useUsername();
 
   useEffect(() => {
     // add event when document location hash changes
@@ -56,7 +59,7 @@ function App() {
     <>
       <Username>
         <UserIcon size={32} src={userInfo.photos[0].value} />
-        <Typography.Text>{myName}</Typography.Text>
+        <Typography.Text>{username}</Typography.Text>
       </Username>
       <HorizontalList focusedItem={focused}>
         {state.lists.map((list, n) => (

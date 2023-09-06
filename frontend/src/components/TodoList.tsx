@@ -34,16 +34,6 @@ const TodoList = ({
   const title = item.title;
   const locked = item.locked;
 
-  // const flatList: { indent: number; entry: Entry; parent: Entry[] }[] = [];
-  // const traverse = (entries: Entry[], indent: number) => {
-  //   for (const entry of entries) {
-  //     // if (entry.checked && entry.children.length === 0) continue;
-  //     flatList.push({ entry, indent, parent: entries });
-  //     traverse(entry.children, indent + 1);
-  //   }
-  // };
-  // traverse(data, 0);
-
   const onChangeTitle = (val: string) => {
     item.title = val;
   };

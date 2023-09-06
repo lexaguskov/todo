@@ -8,18 +8,16 @@ import { styled } from "styled-components";
 
 import useStore, { awareness, id, useUsername } from "./lib/store";
 import HorizontalList from "./components/HorizontalList";
-import useGithubAuth from "./hooks/useGithubAuth";
+import useUserInfo from "./hooks/useUserInfo";
 import Auth from "./components/Auth";
-import { GITHUB_CLIENT_ID, SERVER_HOSTNAME } from "./lib/config";
-
 
 function App() {
   const state = useStore();
-  const userInfo = useGithubAuth(SERVER_HOSTNAME);
+  const userInfo = useUserInfo();
 
   useEffect(() => {
     if (!userInfo) return;
-    awareness.setLocalStateField('name', userInfo.name);
+    awareness.setLocalStateField("name", userInfo.displayName);
   }, [userInfo]);
 
   const [focused, setFocused] = useState<number>(0);
@@ -52,12 +50,12 @@ function App() {
     if (index > -1) state.lists.splice(index, 1);
   };
 
-  if (!userInfo) return <Auth clientId={GITHUB_CLIENT_ID} />;
+  if (!userInfo) return <Auth />;
 
   return (
     <>
       <Username>
-        <UserIcon size={32} src="https://avatars.githubusercontent.com/u/807629?v=4" />
+        <UserIcon size={32} src={userInfo.photos[0].value} />
         <Typography.Text>{myName}</Typography.Text>
       </Username>
       <HorizontalList focusedItem={focused}>
@@ -76,8 +74,6 @@ function App() {
     </>
   );
 }
-
-
 
 const AddListButton = styled(Card)`
   width: 300px;

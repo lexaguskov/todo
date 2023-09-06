@@ -74,16 +74,16 @@ const Item = ({
         checked={checked}
         onChange={
           locked
-            ? () => { }
+            ? () => {}
             : (e) => {
-              const checkRecursive = (entry: Entry, checked: boolean) => {
-                entry.checked = checked;
-                for (const child of entry.children) {
-                  checkRecursive(child, checked);
-                }
-              };
-              checkRecursive(node, e.target.checked);
-            }
+                const checkRecursive = (entry: Entry, checked: boolean) => {
+                  entry.checked = checked;
+                  for (const child of entry.children) {
+                    checkRecursive(child, checked);
+                  }
+                };
+                checkRecursive(node, e.target.checked);
+              }
         }
       />
       <InputWithCursor
@@ -93,10 +93,10 @@ const Item = ({
         value={node.title as string}
         onChange={
           locked
-            ? () => { }
+            ? () => {}
             : (e) => {
-              node.title = e.target.value;
-            }
+                node.title = e.target.value;
+              }
         }
         onPressEnter={(e) => onPressEnter(e, node.key)}
         onKeyDown={(e) => {
@@ -116,12 +116,14 @@ const Item = ({
             style={{ textAlign: "right", marginRight: 4, width: "80%" }}
             checked={checked}
             autoFocus={node.price === 0}
-            value={node.price ? '$' + node.price : ("$" as string)}
-            onChange={(e) => (node.price = parseFloat(e.target.value.replace('$', '')))}
+            value={node.price ? "$" + node.price : ("$" as string)}
+            onChange={(e) =>
+              (node.price = parseFloat(e.target.value.replace("$", "")))
+            }
           />
         </span>
       )}
-      {(hasChildren && totalComplete + totalIncomplete) ? (
+      {hasChildren && totalComplete + totalIncomplete ? (
         <span style={{ textAlign: "right" }}>
           <PriceInput
             readOnly

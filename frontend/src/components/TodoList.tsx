@@ -116,7 +116,7 @@ const TodoList = ({
           id={item.key}
           placeholder="Add title"
           value={title}
-          onChange={locked ? () => { } : (e) => onChangeTitle(e.target.value)}
+          onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
           onBlur={onTitleEditBlur}
         />
         {locked && <Lock />}

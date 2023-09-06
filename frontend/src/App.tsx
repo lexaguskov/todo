@@ -1,16 +1,26 @@
 import { Card, Result, Avatar, Typography } from "antd";
-import { PlusOutlined, UserOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 
 import TodoList from "./components/TodoList";
 import { List } from "./lib/types";
 import { styled } from "styled-components";
 
-import useStore, { id, useUsername } from "./lib/store";
+import useStore, { awareness, id, useUsername } from "./lib/store";
 import HorizontalList from "./components/HorizontalList";
+import useGithubAuth from "./hooks/useGithubAuth";
+import Auth from "./components/Auth";
+import { GITHUB_CLIENT_ID, SERVER_HOSTNAME } from "./lib/config";
+
 
 function App() {
   const state = useStore();
+  const userInfo = useGithubAuth(SERVER_HOSTNAME);
+
+  useEffect(() => {
+    if (!userInfo) return;
+    awareness.setLocalStateField('name', userInfo.name);
+  }, [userInfo]);
 
   const [focused, setFocused] = useState<number>(0);
   const onFocus = (list: List) => {
@@ -42,10 +52,12 @@ function App() {
     if (index > -1) state.lists.splice(index, 1);
   };
 
+  if (!userInfo) return <Auth clientId={GITHUB_CLIENT_ID} />;
+
   return (
     <>
       <Username>
-        <UserIcon size={32} icon={<UserOutlined />} />
+        <UserIcon size={32} src="https://avatars.githubusercontent.com/u/807629?v=4" />
         <Typography.Text>{myName}</Typography.Text>
       </Username>
       <HorizontalList focusedItem={focused}>
@@ -65,6 +77,8 @@ function App() {
   );
 }
 
+
+
 const AddListButton = styled(Card)`
   width: 300px;
 `;
@@ -78,7 +92,8 @@ const Username = styled.div`
   right: 8px;
   top: 0;
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  font-weight: 500;
 `;
 
 export default App;

@@ -17,3 +17,4 @@ services:
       - ./backend/src:/app/src
     ports:
       - 8000:3000
+    env_file: .env.development

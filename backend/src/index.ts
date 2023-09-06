@@ -1,46 +1,42 @@
+
 import express from "express";
 import path from "path";
 
 import passport from "passport";
-import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+// import { Strategy as GitHubStrategy } from "passport-github";
 import expressSession from "express-session";
 
 import { createServer } from "http";
-import { Server } from "socket.io";
+// import { Server } from "socket.io";
 import cors from "cors";
 
-const GOOGLE_CLIENT_ID = '1014325222109-vo8fipldc7n19puf4c4b8d4mhe3ahofl.apps.googleusercontent.com';
-const GOOGLE_CLIENT_SECRET = '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';
+const { GITHUB_CLIENT_ID, GITHUB_SECRET } = process.env;
+
+if (!GITHUB_CLIENT_ID || !GITHUB_SECRET) throw new Error('GITHUB_SECRET or AUTH_CLIENT_SECRET not set');
 
 const PORT = 3000;
 
 const app = express();
 app.use(cors());
 app.use(expressSession({ secret: 'your-secret-key', resave: true, saveUninitialized: true }));
-
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.json());
 
-// Configure the Google OAuth strategy
-passport.use(new GoogleStrategy({
-  clientID: GOOGLE_CLIENT_ID,
-  clientSecret: GOOGLE_CLIENT_SECRET,
-  callbackURL: '/auth/google/callback',
-}, (accessToken, refreshToken, profile, done) => {
-  // Handle user authentication logic here
-  // In a real application, you would typically save user data in a database
-  // and set up serialization/deserialization logic for passport
-  return done(null, profile);
-}));
-
-// Serialize user information for session storage
-passport.serializeUser<any>((user, done) => {
-  done(null, user);
-});
-
-passport.deserializeUser<any>((user, done) => {
-  done(null, user);
-});
+// passport.use(
+//   new GitHubStrategy(
+//     {
+//       clientID: AUTH_CLIENT_ID,
+//       clientSecret: AUTH_CLIENT_SECRET,
+//       callbackURL: 'http://localhost:3000/auth/callback/github', // Replace with your callback URL
+//     },
+//     (accessToken, refreshToken, profile, done) => {
+//       // Use the user's GitHub profile information for authentication
+//       // You can store user information in your database at this point
+//       return done(null, profile);
+//     }
+//   )
+// );
 
 const server = createServer(app);
 // const io = new Server(server, {
@@ -49,55 +45,33 @@ const server = createServer(app);
 //   },
 // });
 
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+app.get('/authenticate/:code', async (req, res) => {
+  const code = req.params.code;
+  const result = await (global as any).fetch(`https://github.com/login/oauth/access_token?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_SECRET}&code=${code}`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json'
+    }
+  });
+  const json = await result.json();
+  res.status(200).json(json).end();
+});
 
-app.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/' }),
-  (req, res) => {
-    // Successful authentication, redirect to the frontend or a success page
-    res.redirect('/success');
-  }
-);
-
-app.get('/success', (req, res) => {
-  // Render a success page or JSON response, depending on your requirements
-  res.json({ message: 'Authentication successful' });
+app.get('/user', async (req, res) => {
+  console.log("req.get('Authorization')", req.get('Authorization'))
+  const result = await (global as any).fetch('https://api.github.com/user', {
+    method: 'GET',
+    headers: {
+      Authorizaiton: req.get('Authorization'),
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+    }
+  });
+  const json = await result.json();
+  res.status(200).json(json).end();
 });
 
 app.use(express.static(path.join(__dirname, "public")));
-
-
-// io.on("connection", (socket) => {
-//   console.log("connected");
-
-//   socket.on('edit', (message) => {
-//     console.log('edit', message);
-
-//     // go thru list of socket.io sockets and send message to everyone except the sender
-//     // socket.broadcast.emit('message', message);
-//     for (const sock of io.sockets.sockets) {
-//       if (sock[0] !== socket.id) {
-//         sock[1].emit('edit', message);
-//       }
-//     }
-//   });
-
-//   socket.on('select', (message) => {
-//     console.log('select', message);
-
-//     // go thru list of socket.io sockets and send message to everyone except the sender
-//     // socket.broadcast.emit('message', message);
-//     for (const sock of io.sockets.sockets) {
-//       if (sock[0] !== socket.id) {
-//         sock[1].emit('select', message);
-//       }
-//     }
-//   });
-
-//   socket.on('disconnect', () => {
-//     console.log('User disconnected');
-//   });
-// });
 
 server.listen(PORT, () => {
   console.log("listening on port " + PORT);

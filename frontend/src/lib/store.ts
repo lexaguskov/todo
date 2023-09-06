@@ -7,25 +7,6 @@ import { useSelf } from "y-presence";
 
 import { List } from "./types";
 
-const names = [
-  "Eric Cartman",
-  "Stan Marsh",
-  "Kyle Broflovski",
-  "Kenny McCormick",
-  "Butters Stotch",
-  "Wendy Testaburger",
-  "Bebe Stevens",
-  "Jimmy Valmer",
-  "Timmy Burch",
-  "Token Black",
-  "Clyde Donovan",
-  "Craig Tucker",
-  "Tweek Tweak",
-  "Heidi Turner",
-  "Bradley Biggle",
-  "Scott Malkinson",
-];
-
 const store = syncedStore({
   lists: [] as List[],
 });
@@ -51,8 +32,8 @@ export const useUsername = () =>
   useSelf(awareness, (state: any) => state?.name);
 export const useId = () => useSelf(awareness, (state: any) => state?.email);
 
-const name = names[Math.floor(Math.random() * names.length)];
-awareness.setLocalState({ name, email: "johndoe@gmail.com" });
+// const name = names[Math.floor(Math.random() * names.length)];
+// awareness.setLocalState({ name, email: "johndoe@gmail.com" });
 
 export function id() {
   return Number(Math.floor(Math.random() * 0xffffffff)).toString(16);

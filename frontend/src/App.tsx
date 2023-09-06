@@ -1,15 +1,29 @@
-import { Card, Result, Avatar, Typography } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Result,
+  Avatar,
+  Typography,
+  Alert,
+  MenuProps,
+  Dropdown,
+} from "antd";
+import { PlusOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 
 import TodoList from "./components/TodoList";
 import { List } from "./lib/types";
 import { styled } from "styled-components";
 
-import useStore, { id, useUserId, useUsername } from "./lib/store";
+import useStore, {
+  id,
+  useOnlineStatus,
+  useUserId,
+  useUsername,
+} from "./lib/store";
 import HorizontalList from "./components/HorizontalList";
 import useUserInfo from "./hooks/useUserInfo";
 import Auth from "./components/Auth";
+import { SERVER_HOSTNAME } from "./lib/config";
 
 function App() {
   const state = useStore();
@@ -17,6 +31,7 @@ function App() {
 
   const [username, setUsername] = useUsername();
   const [myId, setUserId] = useUserId();
+  const online = useOnlineStatus();
 
   // store user info in y-presense for other users to see
   useEffect(() => {
@@ -25,11 +40,17 @@ function App() {
     setUserId(userInfo.username);
   }, [userInfo, setUsername, setUserId]);
 
-  const [focused, setFocused] = useState<number>(0);
+  const [focused, setFocused] = useState<number>(-1);
   const onFocus = (list: List) => {
-    setFocused(state.lists.findIndex((l) => l === list));
+    setFocused((prev: number) => {
+      const index = state.lists.findIndex((l) => l === list);
+      if (index >= 0) return index;
+      return prev;
+    });
     document.location.hash = list.key;
   };
+
+  console.log("focus", focused);
 
   useEffect(() => {
     // add event when document location hash changes
@@ -51,23 +72,46 @@ function App() {
       author: myId,
     };
     state.lists.push(newList);
+    setFocused(state.lists.length - 1);
   };
 
   const onDeleteList = (list: List) => {
     const index = state.lists.findIndex((l) => l === list);
-    if (index > -1) state.lists.splice(index, 1);
+    if (index > -1) {
+      state.lists.splice(index, 1);
+      setFocused(Math.max(index - 1, 0));
+    }
   };
 
   if (!userInfo) return <Auth />;
 
+  const items: MenuProps["items"] = [
+    {
+      key: "1",
+      label: <a href={`${SERVER_HOSTNAME}/logout`}>Log out</a>,
+      icon: <LogoutOutlined />,
+    },
+  ];
+
   return (
     <>
-      <Username>
-        <UserIcon size={32} src={userInfo.photos[0].value} />
-        <Typography.Text>{username}</Typography.Text>
-      </Username>
+      {!online && (
+        <TopAlert>
+          <Alert
+            message="Offline mode, your changes will be saved locally"
+            type="error"
+          />
+        </TopAlert>
+      )}
+      <Dropdown menu={{ items }}>
+        <Username>
+          <UserIcon size={32} src={userInfo.photos[0].value} />
+          <Typography.Text>{username}</Typography.Text>
+        </Username>
+      </Dropdown>
+
       <HorizontalList focusedItem={focused}>
-        {state.lists.map((list, n) => (
+        {state.lists.map((list) => (
           <TodoList
             onFocus={() => onFocus(list)}
             item={list}
@@ -94,10 +138,20 @@ const UserIcon = styled(Avatar)`
 const Username = styled.div`
   position: fixed;
   right: 8px;
-  top: 0;
+  top: 8px;
   display: flex;
   align-items: center;
   font-weight: 500;
+  padding-right: 8px;
+`;
+
+const TopAlert = styled.div`
+  position: absolute;
+  top: 12px;
+  display: flex;
+  right: 0;
+  left: 0;
+  justify-content: center;
 `;
 
 export default App;

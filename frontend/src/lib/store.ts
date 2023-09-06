@@ -6,6 +6,7 @@ import { WebsocketProvider } from "y-websocket";
 
 import { List, Presense } from "./types";
 import { SERVER_HOSTNAME } from "./config";
+import { useEffect, useState } from "react";
 
 const store = syncedStore({
   lists: [] as List[],
@@ -39,6 +40,18 @@ export const useUserId = () =>
 export const id = () =>
   Number(Math.floor(Math.random() * 0xffffffff)).toString(16);
 
-const useStore = () => useSyncedStore(store);
+export const useOnlineStatus = () => {
+  const [online, setOnline] = useState(false);
+  useEffect(() => {
+    const handler = (event: { status: string }) => {
+      setOnline(event.status === "connected");
+    };
+    provider.on("status", handler);
+    return () => provider.off("status", handler);
+  }, []);
 
+  return online;
+};
+
+const useStore = () => useSyncedStore(store);
 export default useStore;

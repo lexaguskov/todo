@@ -82,6 +82,12 @@ app.get('/user', async (req, res) => {
   }).end();
 });
 
+app.get('/logout', async (req, res) => {
+  await new Promise(resolve => req.logOut({}, resolve));
+  await new Promise(resolve => req.session.destroy(resolve));
+  res.redirect('http://localhost:3000');
+});
+
 app.use(express.static(path.join(__dirname, "public")));
 
 server.listen(PORT, () => {

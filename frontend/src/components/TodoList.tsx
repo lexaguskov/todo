@@ -16,6 +16,8 @@ import { id, useUserId } from "../lib/store";
 import InputWithCursor from "./InputWithCursor";
 import Tree from "./Tree";
 
+// FIXME: we cannot just move item to another array, this triggers 'object already in tree' error
+// se we clone the entry instead. This will likely cause issues with concurrent edits.
 const cloneEntry = (entry: Entry): Entry => {
   const { key, title, checked, children = [], price } = entry;
   return { key, title, checked, children: children.map(cloneEntry), price };
@@ -68,8 +70,6 @@ const TodoList = ({
     input.blur();
     onAddItem(entry, parent);
   };
-
-  const showAddButton = !locked && !data.some((d) => d.title === "");
 
   const onTitleEditBlur = (e: FocusEvent<HTMLInputElement>) => {
     if (e.target.value === "" && data.length === 0) {
@@ -134,7 +134,7 @@ const TodoList = ({
           />
         )}
       />
-      {showAddButton && (
+      {!locked && (
         <AddButton
           onClick={() => onAddItem(null, data)}
           type="link"

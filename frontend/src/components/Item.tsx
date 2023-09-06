@@ -5,6 +5,7 @@ import { Button, Checkbox } from "antd";
 
 import { Entry } from "../lib/types";
 import InputWithCursor from "./InputWithCursor";
+import { CheckboxChangeEvent } from "antd/es/checkbox";
 
 const Item = ({
   node,
@@ -59,6 +60,26 @@ const Item = ({
 
   const hasChildren = node.children.length > 0;
 
+  const onCheck = (e: CheckboxChangeEvent) => {
+    if (locked) return;
+    const checkRecursive = (entry: Entry, checked: boolean) => {
+      entry.checked = checked;
+      for (const child of entry.children) {
+        checkRecursive(child, checked);
+      }
+    };
+    checkRecursive(node, e.target.checked);
+  };
+
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (locked) return;
+    e.stopPropagation();
+    if (e.key === "Tab" && !locked) {
+      if (e.shiftKey) onUnindent(node.key);
+      else onIndent(node.key);
+    }
+  };
+
   return (
     <Container key={node.key}>
       {draggable && !locked ? (
@@ -66,49 +87,27 @@ const Item = ({
           <HolderOutlined />
         </GrabIcon>
       ) : (
-        <span style={{ width: 18 }} />
+        <DragPlaceholder />
       )}
-      <Checkbox
+      <Check
         indeterminate={onChildren > 0 && offChildren > 0}
-        style={{ paddingRight: 8 }}
         checked={checked}
-        onChange={
-          locked
-            ? () => { }
-            : (e) => {
-              const checkRecursive = (entry: Entry, checked: boolean) => {
-                entry.checked = checked;
-                for (const child of entry.children) {
-                  checkRecursive(child, checked);
-                }
-              };
-              checkRecursive(node, e.target.checked);
-            }
-        }
+        onChange={onCheck}
       />
       <InputWithCursor
+        readOnly={locked}
         checked={checked}
         id={node.key}
         autoFocus={node.title === ""}
         value={node.title as string}
-        onChange={
-          locked
-            ? () => { }
-            : (e) => {
-              node.title = e.target.value;
-            }
-        }
-        onPressEnter={(e) => onPressEnter(e, node.key)}
-        onKeyDown={(e) => {
-          e.stopPropagation();
-          if (e.key === "Tab" && !locked) {
-            if (e.shiftKey) onUnindent(node.key);
-            else onIndent(node.key);
-          }
+        onChange={(e) => {
+          node.title = e.target.value;
         }}
+        onPressEnter={(e) => onPressEnter(e, node.key)}
+        onKeyDown={onKeyDown}
       />
       {!hasChildren && (
-        <span style={{ textAlign: "right" }}>
+        <PriceContainer>
           <PriceInput
             style={{ opacity: isNaN(node.price as any) ? 0 : 1 }}
             readOnly={locked}
@@ -121,10 +120,10 @@ const Item = ({
               (node.price = parseFloat(e.target.value.replace("$", "")))
             }
           />
-        </span>
+        </PriceContainer>
       )}
       {hasChildren && totalComplete + totalIncomplete ? (
-        <span style={{ textAlign: "right" }}>
+        <PriceContainer>
           <PriceInput
             readOnly
             rightAligned
@@ -136,9 +135,9 @@ const Item = ({
                 : `$${totalComplete + totalIncomplete}`
             }
           />
-        </span>
+        </PriceContainer>
       ) : null}
-      {!locked && node.title && (
+      {!locked && (
         <DeleteButton
           type="link"
           icon={<CloseOutlined />}
@@ -148,6 +147,18 @@ const Item = ({
     </Container>
   );
 };
+
+const PriceContainer = styled.span`
+  text-align: right;
+`;
+
+const DragPlaceholder = styled.span`
+  width: 18px;
+`;
+
+const Check = styled(Checkbox)`
+  padding-right: 8px;
+`;
 
 const GrabIcon = styled.span`
   opacity: 0;

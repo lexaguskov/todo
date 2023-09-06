@@ -74,16 +74,16 @@ const Item = ({
         checked={checked}
         onChange={
           locked
-            ? () => {}
+            ? () => { }
             : (e) => {
-                const checkRecursive = (entry: Entry, checked: boolean) => {
-                  entry.checked = checked;
-                  for (const child of entry.children) {
-                    checkRecursive(child, checked);
-                  }
-                };
-                checkRecursive(node, e.target.checked);
-              }
+              const checkRecursive = (entry: Entry, checked: boolean) => {
+                entry.checked = checked;
+                for (const child of entry.children) {
+                  checkRecursive(child, checked);
+                }
+              };
+              checkRecursive(node, e.target.checked);
+            }
         }
       />
       <InputWithCursor
@@ -93,10 +93,10 @@ const Item = ({
         value={node.title as string}
         onChange={
           locked
-            ? () => {}
+            ? () => { }
             : (e) => {
-                node.title = e.target.value;
-              }
+              node.title = e.target.value;
+            }
         }
         onPressEnter={(e) => onPressEnter(e, node.key)}
         onKeyDown={(e) => {

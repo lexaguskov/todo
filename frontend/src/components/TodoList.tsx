@@ -43,6 +43,7 @@ const TodoList = ({
     parent.splice(parent.indexOf(item), 1);
   };
 
+  // if `after` is null, a new item will be added to the end of the list
   const onAddItem = (after: Entry | null, parent: Entry[]) => {
     const newItem: Entry = {
       key: id(),
@@ -59,13 +60,13 @@ const TodoList = ({
   };
 
   const onEditPressEnter = (
-    ev: KeyboardEvent<HTMLInputElement>,
-    e: Entry,
+    event: KeyboardEvent<HTMLInputElement>,
+    entry: Entry | null,
     parent: Entry[],
   ) => {
-    const input = ev.target as HTMLInputElement;
+    const input = event.target as HTMLInputElement;
     input.blur();
-    onAddItem(e, parent);
+    onAddItem(entry, parent);
   };
 
   const showAddButton = !locked && !data.some((d) => d.title === "");
@@ -109,6 +110,7 @@ const TodoList = ({
           value={title}
           onChange={locked ? () => {} : (e) => onChangeTitle(e.target.value)}
           onBlur={onTitleEditBlur}
+          onPressEnter={(event) => onEditPressEnter(event, null, data)}
         />
         {locked && <Lock />}
       </Row>

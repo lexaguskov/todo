@@ -50,8 +50,6 @@ function App() {
     document.location.hash = list.key;
   };
 
-  console.log("focus", focused);
-
   useEffect(() => {
     // add event when document location hash changes
     const listener = () => {

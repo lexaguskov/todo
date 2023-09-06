@@ -12,7 +12,7 @@ import { FocusEvent, KeyboardEvent, useState } from "react";
 
 import Item from "./Item";
 import { List, Entry } from "../lib/types";
-import { id } from "../lib/store";
+import { id, useUserId } from "../lib/store";
 import InputWithCursor from "./InputWithCursor";
 import Tree from "./Tree";
 
@@ -33,6 +33,7 @@ const TodoList = ({
   const data = item.entries;
   const title = item.title;
   const locked = item.locked;
+  const [myId] = useUserId();
 
   const onChangeTitle = (val: string) => {
     item.title = val;
@@ -149,14 +150,21 @@ const TodoList = ({
           {showchecked ? "Hide checked" : "Show checked"}
         </HiddenButton>
         {locked ? (
-          <HiddenButton
-            icon={<UnlockOutlined />}
-            type="link"
-            onClick={onToggleLock}
-          >
-            Unlock
-          </HiddenButton>
-        ) : (
+          myId === item.author ? (
+            <HiddenButton
+              icon={<UnlockOutlined />}
+              type="link"
+              onClick={onToggleLock}
+            >
+              Unlock
+            </HiddenButton>
+          ) : (
+            <HiddenButton icon={<LockOutlined />} type="link" disabled>
+              Locked by {item.author}
+            </HiddenButton>
+          )
+        ) : null}
+        {!locked && myId === item.author ? (
           <HiddenButton
             icon={<LockOutlined />}
             type="link"
@@ -164,7 +172,7 @@ const TodoList = ({
           >
             Lock
           </HiddenButton>
-        )}
+        ) : null}
         <HiddenButton
           disabled={locked}
           icon={<DeleteOutlined />}

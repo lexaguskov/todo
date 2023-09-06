@@ -16,7 +16,7 @@ function App() {
   const userInfo = useUserInfo();
 
   const [username, setUsername] = useUsername();
-  const [, setUserId] = useUserId();
+  const [myId, setUserId] = useUserId();
 
   // store user info in y-presense for other users to see
   useEffect(() => {
@@ -44,7 +44,12 @@ function App() {
   }, [setFocused, state.lists]);
 
   const onCreateList = () => {
-    const newList = { title: "New todo list", key: id(), entries: [] };
+    const newList = {
+      title: "New todo list",
+      key: id(),
+      entries: [],
+      author: myId,
+    };
     state.lists.push(newList);
   };
 

@@ -11,6 +11,7 @@ export type List = {
   key: string;
   entries: Entry[];
   locked?: boolean;
+  author: string;
 };
 
 export type Presense = {

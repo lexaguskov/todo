@@ -1,4 +1,4 @@
-## User Stories to Consider/Implement
+## Implemented features
 - ✅ I as a user can create to-do items, such as a grocery list
 
 - ✅ I as another user can collaborate in real-time with user - so that we
@@ -32,6 +32,10 @@ can share with my friends - so that I could have separate to-do lists for my gro
 
 - ✅ I as a user can see the sum of the subtasks aggregated in the parent task - so that in my shopping list I can see what contributes to the overall sum. For example I can have a task called “Salad”, where I'd add all ingredients as sub-tasks, and would see how much a salad costs on my shopping list.
 
+- ✅ I as a user can be sure that my todos will be persisted so that important information is not lost when server restarts
+
+### Features still not implemented
+
 - 👉 I as a user can add sub-descriptions of tasks in Markdown and view them as rich text while I'm not editing the descriptions.
 
 - 👉 In addition to regular to-do tasks, I as a user can add “special” typed to-do items, that will have custom style and some required fields:
@@ -43,10 +47,8 @@ can share with my friends - so that I could have separate to-do lists for my gro
 - 👉 I as a user can use my VR goggles to edit/browse multiple to-do lists in parallel in 3D
 space so that I can feel ultra-productive
 
-- 👉 I as a user can be sure that my todos will be persisted so that important information is not lost when server restarts
+### Additional stories
 
-- ✅ display offline mode
-- ✅ proper auth
-- ✅ user can log out
-
-
+- ✅ User can see that app works in offline mode
+- ✅ User can authenticate via github
+- ✅ User can log out

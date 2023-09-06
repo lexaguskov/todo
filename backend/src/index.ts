@@ -50,11 +50,8 @@ passport.use(
 const server = createServer(app);
 
 server.on('upgrade', (request, socket, head) => {
-  // You may check auth of request here..
-  // See https://github.com/websockets/ws#client-authentication
-  /**
-   * @param {any} ws
-   */
+  // FIXME: perform authentication
+
   const handleAuth = (ws: any) => {
     wss.emit('connection', ws, request)
   }
@@ -87,6 +84,9 @@ app.get('/user', async (req, res) => {
 });
 
 app.get('/logout', async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Unauthorized' }).end();
+  }
   await new Promise(resolve => req.logOut({}, resolve));
   await new Promise(resolve => req.session.destroy(resolve));
   res.redirect(FRONTEND_HOSTNAME);

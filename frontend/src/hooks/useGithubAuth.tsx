@@ -11,13 +11,20 @@ const useGithubAuth = (server: string) => {
 
   useEffect(() => {
     const run = async () => {
-      const code = new URLSearchParams(window.location.search).get('code');
-      if (!code) return;
-      const res = await fetch(`${server}/authenticate/${code}`);
-      const data = await res.json();
+      try {
+        const code = new URLSearchParams(window.location.search).get('code');
+        if (!code) return;
+        const res = await fetch(`${server}/authenticate/${code}`);
+        const data = await res.json();
 
-      if (data.access_token) {
-        setAuthorized(data.access_token);
+        if (data.access_token) {
+          setAuthorized(data.access_token);
+        }
+
+        window.location.search = '';
+      } catch (e) {
+        console.error(e);
+        setAuthorized(false);
       }
     }
     run();
@@ -26,14 +33,19 @@ const useGithubAuth = (server: string) => {
   useEffect(() => {
     if (!authorized) return;
     const run = async () => {
-      const res = await fetch(`https://api.github.com/user`, {
-        headers: {
-          authorization: `Bearer ${authorized}`,
-        },
-      });
-      const data = await res.json();
-      if (!data.name) return;
-      setUserInfo(data);
+      try {
+        const res = await fetch(`https://api.github.com/user`, {
+          headers: {
+            authorization: `Bearer ${authorized}`,
+          },
+        });
+        const data = await res.json();
+        if (!data.name) return;
+        setUserInfo(data);
+      } catch (e) {
+        console.error(e);
+        setUserInfo(null);
+      }
     }
     run();
   }, [authorized]);

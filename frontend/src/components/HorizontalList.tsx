@@ -16,10 +16,16 @@ function HorizontalList({
 
   useEffect(() => {
     if (!scrollerRef.current) return;
+    let scrollX = 0;
     const width = Math.min(window.innerWidth, CARD_WIDTH);
     const offset = (window.innerWidth - width) / 2;
+    if (focusedItem >= 0) {
+      scrollX = window.innerWidth / 2 + (width + GAP) * focusedItem - offset;
+    } else {
+      scrollX = offset;
+    }
     scrollerRef.current.scrollTo({
-      left: window.innerWidth / 2 + (width + GAP) * focusedItem - offset, // window.innerWidth / 2 - CARD_WIDTH / 2 + focusedItem * CARD_WIDTH,
+      left: scrollX,
       behavior: "smooth",
     });
   }, [focusedItem]);

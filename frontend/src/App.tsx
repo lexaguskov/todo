@@ -47,7 +47,7 @@ function App() {
       if (index >= 0) return index;
       return prev;
     });
-    document.location.hash = list.key;
+    document.location.hash = list.key || "";
   };
 
   useEffect(() => {

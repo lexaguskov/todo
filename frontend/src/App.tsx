@@ -44,7 +44,11 @@ function App() {
   const onFocus = (list: List) => {
     setFocused((prev: number) => {
       const index = state.lists.findIndex((l) => l === list);
-      if (index >= 0) return index;
+      if (index >= 0) {
+        document.title = `${list.title} - Todo App`;
+        return index;
+      }
+      document.title = `Todo App`;
       return prev;
     });
     document.location.hash = list.key || "";

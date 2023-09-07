@@ -22,7 +22,10 @@ function HorizontalList({
     if (focusedItem >= 0) {
       scrollX = window.innerWidth / 2 + (width + GAP) * focusedItem - offset;
     } else {
-      scrollX = offset;
+      scrollX =
+        ((scrollerRef.current?.firstChild as HTMLElement)?.clientWidth -
+          scrollerRef.current?.clientWidth) /
+        2;
     }
     scrollerRef.current.scrollTo({
       left: scrollX,

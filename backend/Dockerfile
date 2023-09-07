@@ -8,3 +8,5 @@ RUN npm ci
 COPY ./src ./src
 
 CMD [ "npm", "run", "start" ]
+
+EXPOSE 3000

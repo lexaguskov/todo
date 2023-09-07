@@ -10,7 +10,7 @@ resource "null_resource" "create_zip" {
   }
 
   provisioner "local-exec" {
-    command = "zip -r bundle.zip ../.env.prod ../backend ../frontend/build -x '../backend/node_modules/*'"
+    command = "zip -r bundle.zip ../terraform/deploy.sh ../.env.prod ../backend ../frontend/build -x '../backend/node_modules/*'"
   }
 }
 
@@ -36,22 +36,48 @@ resource "google_compute_instance" "backend_instance" {
     ssh-keys = "lexa:${file("~/.ssh/id_rsa.pub")}"
   }
 
-  provisioner "file" {
-    source      = "${path.module}/bundle.zip"
-    destination = "/tmp/bundle.zip"
-
-    connection {
-      type        = "ssh"
-      user        = "lexa"
-      private_key = file("~/.ssh/id_rsa")
-      host        = self.network_interface[0].access_config[0].nat_ip
-    }
-  }
-
-  # FIXME: proper setup with container registry would be better
   metadata_startup_script = file("${path.module}/startup.sh")
 
   tags = ["http-server"]
+}
+
+resource "null_resource" "upload_bundle" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/bundle.zip"
+    destination = "/tmp/bundle.zip"
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "lexa"
+    private_key = file("~/.ssh/id_rsa") # Path to your private SSH key
+    host        = google_compute_instance.backend_instance.network_interface[0].access_config[0].nat_ip
+  }
+}
+
+resource "null_resource" "execute_script" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "unzip -o /tmp/bundle.zip -d /home/lexa",
+      "rm /tmp/bundle.zip",
+      "sh /home/lexa/terraform/deploy.sh",
+    ]
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "lexa"
+    private_key = file("~/.ssh/id_rsa")
+    host        = google_compute_instance.backend_instance.network_interface[0].access_config[0].nat_ip
+  }
 }
 
 resource "google_compute_firewall" "allow-http" {

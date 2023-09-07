@@ -1,0 +1,8 @@
+const { GITHUB_CLIENT_ID, GITHUB_SECRET, BACKEND_HOSTNAME, FRONTEND_HOSTNAME } = process.env;
+
+if (!GITHUB_CLIENT_ID) throw new Error('GITHUB_CLIENT_ID is not set');
+if (!GITHUB_SECRET) throw new Error('GITHUB_SECRET is not set');
+if (!BACKEND_HOSTNAME) throw new Error('BACKEND_HOSTNAME is not set');
+if (!FRONTEND_HOSTNAME) throw new Error('FRONTEND_HOSTNAME is not set');
+
+export { GITHUB_CLIENT_ID, GITHUB_SECRET, BACKEND_HOSTNAME, FRONTEND_HOSTNAME };

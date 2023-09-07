@@ -14,6 +14,10 @@ resource "null_resource" "create_zip" {
   }
 }
 
+resource "google_compute_address" "backend_ip" {
+  name = "backend-ip" # Replace with a unique name for your IP address
+}
+
 resource "google_compute_instance" "backend_instance" {
   name         = "backend-instance"
   machine_type = "e2-small"
@@ -27,8 +31,9 @@ resource "google_compute_instance" "backend_instance" {
 
   network_interface {
     network = "default"
+
     access_config {
-      // Ephemeral IP
+      nat_ip = google_compute_address.backend_ip.address
     }
   }
 
@@ -110,7 +115,7 @@ resource "google_dns_managed_zone" "guskov_dev" {
 }
 
 resource "google_dns_record_set" "api_guskov_dev" {
-  name         = "api.${google_dns_managed_zone.guskov_dev.dns_name}"
+  name         = "todo.${google_dns_managed_zone.guskov_dev.dns_name}"
   type         = "A"
   ttl          = 300
   managed_zone = google_dns_managed_zone.guskov_dev.name

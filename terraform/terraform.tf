@@ -10,7 +10,7 @@ resource "null_resource" "create_zip" {
   }
 
   provisioner "local-exec" {
-    command = "zip -r bundle.zip ../terraform/deploy.sh ../.env.prod ../backend ../frontend/build -x '../backend/node_modules/*'"
+    command = "zip -r bundle.zip ../terraform/deploy.sh ../.env.prod ../backend ../frontend/build -x '../backend/node_modules/*' -x '../backend/data/*'"
   }
 }
 
@@ -73,7 +73,7 @@ resource "null_resource" "execute_script" {
     inline = [
       "unzip -o /tmp/bundle.zip -d /home/lexa",
       "rm /tmp/bundle.zip",
-      "sh /home/lexa/terraform/deploy.sh",
+      "sh /home/lexa/backend/deploy.sh",
     ]
   }
 

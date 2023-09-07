@@ -87,8 +87,11 @@ space so that I can feel ultra-productive
 - Performance could be improved with extensive use or React.memo and useCallbacks
 - Some actions (indents) could be only done via keyboard, need mouse/touch UI for that
 - UX in general can be more smooth
+- Sweet, sweet animations
 - Mobile version needs more love
 - Tests
 - Localization
 - Terraform deployment is basic, having proper solution (k8s or docker registry) would be nice
 - CI pipeline?
+- Soft delete for lists
+- Acls for actions on server side, for example anyne can edit a locked list, the checks only present on a client

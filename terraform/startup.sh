@@ -6,10 +6,11 @@ systemctl restart docker
 unzip /tmp/bundle.zip -d /tmp/
 
 cd /tmp/backend
+mv /tmp/frontend/build/* ./static/
 docker build -t todo .
 
 cd / 
-rm -rf /tmp/bundle /tmp/bundle.zip
+rm -rf /tmp/backend /tmp/frontend /tmp/bundle.zip
 
 docker run \
   --name=todo \

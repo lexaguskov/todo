@@ -5,33 +5,33 @@ provider "google" {
   region      = "europe-north1"
 }
 
-# Create a Google Cloud Storage Bucket
-resource "google_storage_bucket" "static_website_bucket" {
-  name     = "lexaguskov-todo-app"
-  location = "EUROPE-NORTH1" # Use uppercase for the region
+# # Create a Google Cloud Storage Bucket
+# resource "google_storage_bucket" "static_website_bucket" {
+#   name     = "lexaguskov-todo-app"
+#   location = "EUROPE-NORTH1" # Use uppercase for the region
 
-  # Enable website hosting
-  website {
-    main_page_suffix = "index.html"
-    not_found_page   = "404.html"
-  }
-}
+#   # Enable website hosting
+#   website {
+#     main_page_suffix = "index.html"
+#     not_found_page   = "404.html"
+#   }
+# }
 
-# Upload your static website files to the bucket
-resource "google_storage_bucket_object" "static_website_files" {
-  for_each = fileset("../frontend/build", "**/*")
+# # Upload your static website files to the bucket
+# resource "google_storage_bucket_object" "static_website_files" {
+#   for_each = fileset("../frontend/build", "**/*")
 
-  name   = each.value
-  source = "../frontend/build/${each.value}"
-  bucket = google_storage_bucket.static_website_bucket.name
-}
+#   name   = each.value
+#   source = "../frontend/build/${each.value}"
+#   bucket = google_storage_bucket.static_website_bucket.name
+# }
 
-resource "google_storage_bucket_iam_binding" "public_access" {
-  bucket = google_storage_bucket.static_website_bucket.name
-  role   = "roles/storage.objectViewer"
+# resource "google_storage_bucket_iam_binding" "public_access" {
+#   bucket = google_storage_bucket.static_website_bucket.name
+#   role   = "roles/storage.objectViewer"
 
-  members = ["allUsers"]
-}
+#   members = ["allUsers"]
+# }
 
 resource "null_resource" "create_zip" {
   triggers = {
@@ -39,7 +39,7 @@ resource "null_resource" "create_zip" {
   }
 
   provisioner "local-exec" {
-    command = "zip -r bundle.zip ../backend -x node_modules"
+    command = "zip -r bundle.zip ../.env.prod ../backend ../frontend/build -x '../backend/node_modules/*'"
   }
 }
 
@@ -68,17 +68,6 @@ resource "google_compute_instance" "backend_instance" {
   provisioner "file" {
     source      = "${path.module}/bundle.zip"
     destination = "/tmp/bundle.zip"
-
-    connection {
-      type        = "ssh"
-      user        = "lexa"
-      private_key = file("~/.ssh/id_rsa")
-      host        = self.network_interface[0].access_config[0].nat_ip
-    }
-  }
-  provisioner "file" {
-    source      = "${path.module}/../.env.prod"
-    destination = "/tmp/.env.prod"
 
     connection {
       type        = "ssh"
@@ -143,6 +132,10 @@ resource "google_dns_record_set" "api_guskov_dev" {
 #   value = "https://todo.guskov.dev"
 # }
 
-output "website_url" {
-  value = "https://${google_storage_bucket.static_website_bucket.name}.storage.googleapis.com"
+# output "website_url" {
+#   value = "https://${google_storage_bucket.static_website_bucket.name}.storage.googleapis.com"
+# }
+
+output "instance_ip" {
+  value = google_compute_instance.backend_instance.network_interface[0].access_config[0].nat_ip
 }

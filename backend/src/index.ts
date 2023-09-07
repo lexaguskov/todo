@@ -60,6 +60,8 @@ server.on('upgrade', (request, socket, head) => {
 
 wss.on('connection', setupWSConnection);
 
+app.use(express.static("/app/static"));
+
 app.get('/auth/github', passport.authenticate('github'));
 app.get('/auth/callback/github', passport.authenticate('github', { failureRedirect: '/login' }), (req, res) => {
   res.redirect(FRONTEND_HOSTNAME);

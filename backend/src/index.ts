@@ -1,6 +1,13 @@
 import greenlock from 'greenlock-express';
+// @ts-ignore
+import { setupWSConnection } from "y-websocket/bin/utils";
+import { Server } from 'ws';
 
 import app from './express';
+
+// set up websocket server for yjs
+const wss = new Server({ noServer: true });
+wss.on('connection', setupWSConnection);
 
 // Middleware configuration for Greenlock Express
 greenlock.init({
@@ -8,37 +15,16 @@ greenlock.init({
   configDir: '/var/greenlock.d',
   maintainerEmail: 'kvasdopil@gmail.com', // Replace with your email address
   cluster: false,
-}).serve(app);
+}).ready((glx: any) => {
+  const server = glx.httpsServer();
+  server.on('upgrade', (request: any, socket: any, head: any) => {
+    // FIXME: perform authentication
 
-// // Your Express app's routes and middleware
-// app.get('/', (req, res) => {
-//   res.send('Hello, HTTPS!');
-// });
+    const handleAuth = (ws: any) => {
+      wss.emit('connection', ws, request)
+    }
+    wss.handleUpgrade(request, socket, head, handleAuth)
+  });
 
-// Start your Express app
-const port = process.env.PORT || 8000;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  glx.serveApp(app); // serve express app on ports 80 and 443
 });
-
-// // @ts-ignore
-// import { setupWSConnection } from "y-websocket/bin/utils";
-
-// const wss = new Server({ noServer: true });
-
-// const server = createServer(app);
-
-// server.on('upgrade', (request, socket, head) => {
-//   // FIXME: perform authentication
-
-//   const handleAuth = (ws: any) => {
-//     wss.emit('connection', ws, request)
-//   }
-//   wss.handleUpgrade(request, socket, head, handleAuth)
-// });
-
-// wss.on('connection', setupWSConnection);
-
-// import { Server } from 'ws';
-
-// import { createServer } from "http";

@@ -1,3 +1,27 @@
+# Collaborative Todo
+
+https://todo.guskov.dev/demo.mp4
+
+Try live demo at https://todo.guskov.dev
+
+## Running locally
+- You'll need to have docker running on your machine.
+
+- github OAuth credentials need to be obtained and put in `.env.development` file:
+
+
+```
+GITHUB_CLIENT_ID=aabbccddeeff11223344
+GITHUB_SECRET=aabbccddeeff112233445566778899
+FRONTEND_HOSTNAME=http://localhost:3000
+BACKEND_HOSTNAME=http://localhost:8000
+YPERSISTENCE=/var/ypersistence
+```
+
+- `npm run build && npm run start` will launch local dev server. 
+
+- `npm run deploy` will deploy project to GCP. That would require adding service account key, some values `terraform.tf` would need to be updated.
+
 ## Implemented features
 - ✅ I as a user can create to-do items, such as a grocery list
 
@@ -52,3 +76,19 @@ space so that I can feel ultra-productive
 - ✅ User can see that app works in offline mode
 - ✅ User can authenticate via github
 - ✅ User can log out
+
+### Known bugs
+- Focus is lost when list item is moved to a parent item (i.e. when Tab or Shift+Tab buttons are pressed)
+- Creating a new item steals other users' input focus.
+
+### Further improvements
+- Lists reorder via drag-n-drop
+- Server-side persistence is not scalable (limited to once instance only)
+- Performance could be improved with extensive use or React.memo and useCallbacks
+- Some actions (indents) could be only done via keyboard, need mouse/touch UI for that
+- UX in general can be more smooth
+- Mobile version needs more love
+- Tests
+- Localization
+- Terraform deployment is basic, having proper solution (k8s or docker registry) would be nice
+- CI pipeline?

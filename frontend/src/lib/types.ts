@@ -14,7 +14,7 @@ export type List = {
   author: string;
 };
 
-export type Presense = {
+export type Presence = {
   name: string;
   email: string;
   selection: {

@@ -4,16 +4,6 @@ provider "google" {
   region      = "europe-north1"
 }
 
-resource "null_resource" "create_zip" {
-  triggers = {
-    always_run = "${timestamp()}"
-  }
-
-  provisioner "local-exec" {
-    command = "zip -r bundle.zip ../terraform/deploy.sh ../.env.prod ../backend ../frontend/build -x '../backend/node_modules/*' -x '../backend/data/*'"
-  }
-}
-
 resource "google_compute_address" "backend_ip" {
   name = "backend-ip" # Replace with a unique name for your IP address
 }
@@ -51,22 +41,13 @@ resource "null_resource" "upload_bundle" {
     always_run = "${timestamp()}"
   }
 
+  provisioner "local-exec" {
+    command = "zip -r bundle.zip ../terraform/deploy.sh ../.env.prod ../backend ../frontend/build -x '../backend/node_modules/*' -x '../backend/data/*'"
+  }
+
   provisioner "file" {
     source      = "${path.module}/bundle.zip"
     destination = "/tmp/bundle.zip"
-  }
-
-  connection {
-    type        = "ssh"
-    user        = "lexa"
-    private_key = file("~/.ssh/id_rsa") # Path to your private SSH key
-    host        = google_compute_instance.backend_instance.network_interface[0].access_config[0].nat_ip
-  }
-}
-
-resource "null_resource" "execute_script" {
-  triggers = {
-    always_run = "${timestamp()}"
   }
 
   provisioner "remote-exec" {
@@ -80,7 +61,7 @@ resource "null_resource" "execute_script" {
   connection {
     type        = "ssh"
     user        = "lexa"
-    private_key = file("~/.ssh/id_rsa")
+    private_key = file("~/.ssh/id_rsa") # Path to your private SSH key
     host        = google_compute_instance.backend_instance.network_interface[0].access_config[0].nat_ip
   }
 }

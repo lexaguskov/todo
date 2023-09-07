@@ -4,7 +4,7 @@ import { useSyncedStore } from "@syncedstore/react";
 import { useSelf } from "y-presence";
 import { WebsocketProvider } from "y-websocket";
 
-import { List, Presense } from "./types";
+import { List, Presence } from "./types";
 import { SERVER_HOSTNAME } from "./config";
 import { useEffect, useState } from "react";
 
@@ -27,7 +27,7 @@ export const awareness = provider.awareness;
 const setUsername = (name: string) =>
   awareness.setLocalStateField("name", name);
 const setUserId = (id: string) => awareness.setLocalStateField("id", id);
-export const setSelection = (selection: Presense["selection"]) =>
+export const setSelection = (selection: Presence["selection"]) =>
   awareness.setLocalStateField("selection", selection);
 
 // returns user info from y-presence

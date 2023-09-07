@@ -33,7 +33,7 @@ function App() {
   const [myId, setUserId] = useUserId();
   const online = useOnlineStatus();
 
-  // store user info in y-presense for other users to see
+  // store user info in y-Presence for other users to see
   useEffect(() => {
     if (!userInfo) return;
     setUsername(userInfo.displayName || userInfo.username);

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { awareness, useUsername } from "../lib/store";
 import { useUsers } from "y-presence";
-import { Presense } from "../lib/types";
+import { Presence } from "../lib/types";
 
 const SELECTION_LIFETIME_SEC = 120;
 
@@ -21,7 +21,7 @@ const useSelectionsForField = (key: string) => {
             a?.name !== myName && // ignore our own selection
             a?.selection?.key === key && // only show selections for this field
             a?.selection?.timestamp > now - SELECTION_LIFETIME_SEC, // only show selections that are less than 2 minutes old
-        ) as Presense[],
+        ) as Presence[],
     [now, myName, users, key],
   );
 };

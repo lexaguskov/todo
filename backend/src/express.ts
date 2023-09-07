@@ -30,19 +30,19 @@ passport.use(
   )
 );
 
-app.use(express.static("/app/static"));
-
-app.get('/auth/github', passport.authenticate('github'));
-app.get('/auth/callback/github', passport.authenticate('github', { failureRedirect: '/login' }), (req, res) => {
-  res.redirect(FRONTEND_HOSTNAME as string);
-});
-
 passport.serializeUser((user, done) => {
   done(null, user);
 });
 
 passport.deserializeUser((user, done) => {
   done(null, user as any);
+});
+
+app.use(express.static("/app/static"));
+
+app.get('/auth/github', passport.authenticate('github'));
+app.get('/auth/callback/github', passport.authenticate('github', { failureRedirect: '/login' }), (req, res) => {
+  res.redirect(FRONTEND_HOSTNAME as string);
 });
 
 app.get('/user', async (req, res) => {

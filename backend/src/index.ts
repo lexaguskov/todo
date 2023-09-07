@@ -1,30 +1,31 @@
 import greenlock from 'greenlock-express';
-// @ts-ignore
-import { setupWSConnection } from "y-websocket/bin/utils";
-import { Server } from 'ws';
 
+import http from 'http';
 import app from './express';
+import { onUpgrade } from './ws';
 
-// set up websocket server for yjs
-const wss = new Server({ noServer: true });
-wss.on('connection', setupWSConnection);
+import { BACKEND_HOSTNAME } from './settings';
 
-// Middleware configuration for Greenlock Express
-greenlock.init({
-  packageRoot: '/app',
-  configDir: '/var/greenlock.d',
-  maintainerEmail: 'kvasdopil@gmail.com', // Replace with your email address
-  cluster: false,
-}).ready((glx: any) => {
-  const server = glx.httpsServer();
-  server.on('upgrade', (request: any, socket: any, head: any) => {
-    // FIXME: perform authentication
 
-    const handleAuth = (ws: any) => {
-      wss.emit('connection', ws, request)
-    }
-    wss.handleUpgrade(request, socket, head, handleAuth)
+// FIXME: use ENV === 'development' instead
+const isDev = BACKEND_HOSTNAME?.includes('localhost')
+
+if (isDev) {
+  console.log('Running in dev mode, skip greenlock');
+  const server = http.createServer(app);
+  server.on('upgrade', onUpgrade); // attach websocket server
+  server.listen(80);
+} else {
+  // Middleware configuration for Greenlock Express
+  greenlock.init({
+    packageRoot: '/app',
+    configDir: '/var/greenlock.d',
+    maintainerEmail: 'kvasdopil@gmail.com', // Replace with your email address
+    cluster: false,
+  }).ready((glx: any) => {
+    const server = glx.httpsServer();
+    server.on('upgrade', onUpgrade); // attach websocket server
+
+    glx.serveApp(app); // serve express app on ports 80 and 443
   });
-
-  glx.serveApp(app); // serve express app on ports 80 and 443
-});
+}

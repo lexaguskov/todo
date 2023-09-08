@@ -10,16 +10,16 @@ jest.mock("../lib/utils", () => ({
 
 describe("Auth Component", () => {
   it("renders the component correctly", () => {
-    const { getByText, getByRole } = render(<Auth />);
+    const screen = render(<Auth />);
 
     // Check if the component's title and button are rendered
-    expect(getByText("Login with Github to start")).toBeInTheDocument();
-    expect(getByRole("button", { name: "Login" })).toBeInTheDocument();
+    expect(screen.getByText("Login with Github to start")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Login" })).toBeInTheDocument();
   });
 
   it("calls the redirect function when the 'Login' button is clicked", () => {
-    const { getByRole } = render(<Auth />);
-    const loginButton = getByRole("button", { name: "Login" });
+    const screen = render(<Auth />);
+    const loginButton = screen.getByRole("button", { name: "Login" });
 
     fireEvent.click(loginButton);
 

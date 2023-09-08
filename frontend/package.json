@@ -43,7 +43,10 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "testing-library/render-result-naming-convention": "off"
+    }
   },
   "browserslist": {
     "production": [

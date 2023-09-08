@@ -1,4 +1,3 @@
-
 import { Button, Result } from "antd";
 import { styled } from "styled-components";
 import { GithubOutlined } from "@ant-design/icons";

@@ -25,7 +25,7 @@ describe("Auth Component", () => {
 
     // Verify that the redirect function was called with the expected URL
     expect(require("../lib/utils").redirect).toHaveBeenCalledWith(
-      `${SERVER_HOSTNAME}/auth/github`
+      `${SERVER_HOSTNAME}/auth/github`,
     );
   });
 });
